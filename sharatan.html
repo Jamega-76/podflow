@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="description" content="Tableau de bord podcasts & articles Europe 1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PodcastFlow" />
+  <title>PodcastFlow</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  
+  <style>
+    /* ============================================
+       PODCASTFLOW - Dark/Orange Theme v4.0
+       ============================================ */
+    
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #1e1e1e;
+      --bg-card-hover: #252525;
+      --bg-input: #2a2a2a;
+      --border: #2e2e2e;
+      --border-light: #383838;
+    
+      --orange: #f97316;
+      --orange-dark: #ea6c0a;
+      --orange-light: #fb923c;
+    
+      --blue: #60a5fa;
+      --blue-dim: rgba(96, 165, 250, 0.15);
+      --orange-dim: rgba(249, 115, 22, 0.15);
+      --orange-glow: rgba(249, 115, 22, 0.25);
+    
+      --text-primary: #f5f5f5;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666;
+    
+      --success: #22c55e;
+      --error: #ef4444;
+    
+      --nav-height: 68px;
+      --header-height: 64px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+    
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100dvh;
+      max-width: 430px;
+      margin: 0 auto;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    input, select { font-family: inherit; }
+    a { color: var(--orange); text-decoration: none; }
+    
+    /* ===== APP SHELL ===== */
+    #app { position: relative; min-height: 100dvh; }
+    
+    /* ===== VIEWS ===== */
+    .view {
+      display: none;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding-bottom: var(--nav-height);
+      overflow-y: auto;
+    }
+    .view.active { display: flex; }
+    
+    /* ===== HEADER ===== */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 8px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      min-height: var(--header-height);
+      background: var(--bg-primary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .header-left { display: flex; flex-direction: column; gap: 2px; }
+    
+    .header-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 500;
+    }
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .header-title svg { color: var(--orange); }
+    
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      position: relative;
+      transition: all 0.2s;
+    }
+    .btn-icon:active { transform: scale(0.95); background: var(--bg-card-hover); }
+    
+    .btn-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--orange-dim);
+      border: 2px solid var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange);
+      transition: all 0.2s;
+    }
+    .btn-avatar:active { transform: scale(0.95); }
+    
+    .notif-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+      background: var(--orange);
+      color: white;
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    /* ===== STATS CARD (double : podcasts + articles) ===== */
+    .stats-card {
+      margin: 16px 16px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 14px 16px;
+      text-align: center;
+    }
+    
+    /* Aujourd'hui — grand */
+    .stat-today-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    
+    .stat-today-val {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--orange);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    
+    .stat-today-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    
+    /* J-1 / J-2 — plus petits, séparateur */
+    .stat-prev-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 12px 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .stat-prev-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+    
+    .stat-prev-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      line-height: 1;
+    }
+    
+    .stat-prev-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .stat-prev-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    
+    .stats-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    
+    /* ===== SECTIONS (alerts page) ===== */
+    .section { margin-bottom: 8px; }
+    
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    /* ===== ALERTS VIEW ===== */
+    .alert-config-card {
+      margin: 0 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    
+    .alert-config-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .telegram-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 136, 204, 0.15);
+      border: 1px solid rgba(0, 136, 204, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0088cc;
+      flex-shrink: 0;
+    }
+    
+    .alert-config-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .alert-config-header p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    
+    .telegram-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .telegram-status-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+    .telegram-status-dot.error { background: var(--error); }
+    
+    .alert-config-body { padding: 16px; }
+    
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus { border-color: var(--orange); }
+    
+    .help-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--orange);
+      font-size: 12px;
+    }
+    
+    /* ===== SCHEDULE ===== */
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+    
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      transition: border-color 0.2s;
+    }
+    .schedule-item.active-schedule { border-color: rgba(249,115,22,0.4); }
+    
+    .schedule-time {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      min-width: 52px;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .schedule-desc {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .schedule-last-sent {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border-light);
+      border-radius: 12px;
+      transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--orange-dim); border: 1px solid var(--orange); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--orange); }
+    
+    .schedule-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .schedule-info svg { flex-shrink: 0; margin-top: 2px; color: var(--orange); }
+    
+    /* ===== ALERT HISTORY ===== */
+    .alert-history {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+    }
+    
+    .history-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--orange-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+    
+    .history-content { flex: 1; }
+    .history-text { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .history-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    
+    .history-count {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--orange);
+    }
+    
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: var(--nav-height);
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    
+    .nav-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 6px; /* ajusté pour 5 boutons */
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      transition: all 0.2s;
+      flex: 1; /* répartition équitable */
+    }
+    .nav-item.active { color: var(--orange); }
+    .nav-item.active svg { filter: drop-shadow(0 0 6px rgba(249,115,22,0.5)); }
+    .nav-item:active { transform: scale(0.95); }
+    
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 24px;
+      height: 2px;
+      background: var(--orange);
+      border-radius: 2px 2px 0 0;
+    }
+    
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      width: 100%;
+      background: var(--orange);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px 20px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary:active { background: var(--orange-dark); transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      width: 100%;
+      max-width: 430px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 17px; font-weight: 700; }
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .modal-close:active { background: var(--bg-card-hover); color: var(--text-primary); }
+    
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* ===== HELP STEPS ===== */
+    .help-steps { display: flex; flex-direction: column; gap: 16px; }
+    .help-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .help-step strong { font-size: 14px; color: var(--text-primary); }
+    .help-step p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+    .help-step code {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 11px;
+      color: var(--orange);
+      font-family: 'Courier New', monospace;
+    }
+    
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px;
+      gap: 8px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .empty-state svg { opacity: 0.4; color: var(--orange); }
+    .empty-state p { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+    .empty-state span { font-size: 12px; }
+    
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: calc(var(--nav-height) + 16px);
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      z-index: 300;
+      white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+      opacity: 0;
+      max-width: 90%;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(34,197,94,0.4); color: var(--success); }
+    .toast.error { border-color: rgba(239,68,68,0.4); color: var(--error); }
+    .toast.info { border-color: rgba(249,115,22,0.4); color: var(--orange); }
+    
+    /* ===== SPINNER ===== */
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ===== MONITORING LIST ===== */
+    .monitoring-section {
+      margin: 0 16px 16px;
+    }
+    .monitoring-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .monitoring-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.2px;
+    }
+    .monitoring-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+    .monitoring-loading {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 24px 0;
+    }
+    
+    /* ===== NOUVEAU : CSS POUR LA VUE FLUX RSS ===== */
+    .table-wrapper {
+      margin: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+    }
+    
+    .flow-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    
+    .flow-table thead {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .flow-table th {
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+    
+    .flow-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    
+    .flow-table tbody tr:hover { background-color: var(--bg-card-hover); }
+    .flow-table tr.row-muted td { opacity: 0.6; }
+    
+    .rss-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--orange);
+      text-decoration: none;
+      font-family: monospace;
+      font-size: 12px;
+      transition: opacity 0.2s;
+    }
+    .rss-link:hover { opacity: 0.8; text-decoration: underline; }
+    .rss-link.disabled { color: var(--text-muted); }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-success { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .badge-muted { background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border); }
+    
+    .font-bold { font-weight: 600; }
+    .text-center { text-align: center; }
+    
+    /* GINETTE, ARTICLES & MISC ... */
+    .btn-count-art { background: var(--orange); color: #000; border: none; border-radius: 20px; padding: 5px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .btn-count-art:disabled { opacity: 0.4; cursor: not-allowed; }
+    .art-cols-header { display: flex; align-items: center; padding: 0 12px 6px; gap: 10px; }
+    .art-col-j, .art-col-d1 { min-width: 36px; text-align: center; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .art-col-j  { color: var(--orange); }
+    .art-col-d1 { color: var(--blue); }
+    .bottom-spacer { height: 16px; }
+    .tug-section { margin: 12px 16px 0; }
+    .tug-day-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; padding-left: 2px; }
+    .tug-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 20px 18px; }
+    .tug-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .tug-side { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .tug-side-art { align-items: flex-end; }
+    .tug-big-num { font-size: 3rem; font-weight: 800; line-height: 1; }
+    .tug-side-pod .tug-big-num { color: var(--orange); }
+    .tug-side-art .tug-big-num { color: var(--blue); }
+    .tug-side-name { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+    .tug-vs { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); padding: 0 14px; flex-shrink: 0; }
+    .tug-pct-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
+    .tug-pct-pod { background: var(--orange-dim); color: var(--orange); }
+    .tug-pct-art { background: var(--blue-dim); color: var(--blue); }
+    .tug-track { display: flex; height: 26px; border-radius: 100px; overflow: hidden; background: var(--bg-input); }
+    .tug-fill-pod { background: var(--orange); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; white-space: nowrap; min-width: 0; }
+    .tug-fill-art { background: var(--blue); display: flex; align-items: center; justify-content: flex-start; padding-left: 8px; transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; white-space: nowrap; min-width: 0; }
+    .tug-fill-pod span, .tug-fill-art span { font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, 0.9); }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <div id="view-ginette" class="view active">
+      <header class="app-header">
+        <div class="header-left">
+          <span class="header-label">PodcastFlow · Europe 1</span>
+          <div class="header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+            <span id="ginette-updated">Chargement…</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" id="btn-refresh-ginette" onclick="refreshGinette()" title="Actualiser">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+          </button>
+          <button class="btn-icon notif-btn" id="notif-btn" title="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="tug-section">
+        <div class="tug-day-label">Aujourd'hui — <span id="tug-date-today"></span></div>
+        <div class="tug-card">
+          <div class="tug-meta">
+            <div class="tug-side tug-side-pod">
+              <span class="tug-big-num" id="tug-pod-num">—</span>
+              <span class="tug-side-name">🎙️ épisodes</span>
+              <span class="tug-pct-badge tug-pct-pod" id="tug-pod-pct">—</span>
+            </div>
+            <div class="tug-vs">VS</div>
+            <div class="tug-side tug-side-art">
+              <span class="tug-big-num" id="tug-art-num">—</span>
+              <span class="tug-side-name">📰 articles</span>
+              <span class="tug-pct-badge tug-pct-art" id="tug-art-pct">—</span>
+            </div>
+          </div>
+          <div class="tug-track">
+            <div class="tug-fill-pod" id="tug-fill-pod" style="width:50%">
+              <span id="tug-fill-pod-pct"></span>
+            </div>
+            <div class="tug-fill-art" id="tug-fill-art" style="width:50%">
+              <span id="tug-fill-art-pct"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tug-section">
+        <div class="tug-day-label">Hier — <span id="tug-date-yest"></span></div>
+        <div class="tug-card">
+          <div class="tug-meta">
+            <div class="tug-side tug-side-pod">
+              <span class="tug-big-num" id="tug-pod-num-y">—</span>
+              <span class="tug-side-name">🎙️ épisodes</span>
+              <span class="tug-pct-badge tug-pct-pod" id="tug-pod-pct-y">—</span>
+            </div>
+            <div class="tug-vs">VS</div>
+            <div class="tug-side tug-side-art">
+              <span class="tug-big-num" id="tug-art-num-y">—</span>
+              <span class="tug-side-name">📰 articles</span>
+              <span class="tug-pct-badge tug-pct-art" id="tug-art-pct-y">—</span>
+            </div>
+          </div>
+          <div class="tug-track">
+            <div class="tug-fill-pod" id="tug-fill-pod-y" style="width:50%">
+              <span id="tug-fill-pod-pct-y"></span>
+            </div>
+            <div class="tug-fill-art" id="tug-fill-art-y" style="width:50%">
+              <span id="tug-fill-art-pct-y"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div id="view-home" class="view">
+      <header class="app-header">
+        <div class="header-left">
+          <span class="header-label">PodcastFlow · Europe 1</span>
+          <div class="header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+            <span id="header-updated">Chargement…</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" id="btn-refresh" onclick="refreshStats()" title="Actualiser les données">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="stats-card" id="stats-bar">
+        <div class="stat-today-block">
+          <span class="stat-today-val" id="stat-pod-today">—</span>
+          <span class="stat-today-lbl">Aujourd'hui</span>
+        </div>
+        <div class="stat-prev-row">
+          <div class="stat-prev-col">
+            <span class="stat-prev-val" id="stat-pod-d1">—</span>
+            <span class="stat-prev-lbl">Hier</span>
+          </div>
+          <div class="stat-prev-sep"></div>
+          <div class="stat-prev-col">
+            <span class="stat-prev-val" id="stat-pod-d2">—</span>
+            <span class="stat-prev-lbl">Avant-hier</span>
+          </div>
+        </div>
+        <div class="stats-subtitle">🎙️ Épisodes publiés</div>
+      </div>
+
+      <div class="monitoring-section">
+        <div class="monitoring-header">
+          <span class="monitoring-title">Suivi des flux</span>
+          <span class="monitoring-count" id="monitoring-active">—</span>
+        </div>
+        <div class="monitoring-list" id="monitoring-list">
+          <div class="monitoring-loading">Chargement…</div>
+        </div>
+      </div>
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div id="view-articles" class="view">
+      <header class="app-header">
+        <div class="header-left">
+          <span class="header-label">PodcastFlow · Europe 1</span>
+          <div class="header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+            <span id="art-header-updated">—</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" id="btn-refresh-art" onclick="countArticles()" title="Relancer le comptage">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="stats-card" id="art-stats-bar">
+        <div class="stat-today-block">
+          <span class="stat-today-val" id="stat-art-today">—</span>
+          <span class="stat-today-lbl">Aujourd'hui</span>
+        </div>
+        <div class="stat-prev-row">
+          <div class="stat-prev-col">
+            <span class="stat-prev-val" id="stat-art-d1">—</span>
+            <span class="stat-prev-lbl">Hier</span>
+          </div>
+          <div class="stat-prev-sep"></div>
+          <div class="stat-prev-col">
+            <span class="stat-prev-val" id="stat-art-d2">—</span>
+            <span class="stat-prev-lbl">Avant-hier</span>
+          </div>
+        </div>
+        <div class="stats-subtitle">📰 Articles publiés</div>
+      </div>
+
+      <div class="monitoring-section">
+        <div class="monitoring-header">
+          <span class="monitoring-title">Rubriques</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="monitoring-count" id="art-monitoring-active">—</span>
+            <button class="btn-count-art" id="btn-count-articles" onclick="countArticles()">Compter</button>
+          </div>
+        </div>
+        <div class="art-cols-header">
+          <span style="flex:1"></span>
+          <span class="art-col-j">J</span>
+          <span class="art-col-d1">J-1</span>
+        </div>
+        <div class="monitoring-list" id="art-monitoring-list">
+          <div class="monitoring-loading">Appuie sur « Compter » pour lancer le comptage des rubriques.</div>
+        </div>
+      </div>
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div id="view-flux" class="view">
+      <header class="app-header">
+        <div class="header-left">
+          <span class="header-label">PodcastFlow · Europe 1</span>
+          <div class="header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+            <span>Liste des Flux RSS</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="table-wrapper">
+        <table class="flow-table">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 40px;">#</th>
+              <th>Titre</th>
+              <th>Flux RSS</th>
+              <th class="text-center">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-muted text-center">1</td>
+              <td class="font-bold">Europe 1 Bonjour</td>
+              <td>
+                <a href="https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml" target="_blank" class="rss-link">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  17652c76-...
+                </a>
+              </td>
+              <td class="text-center"><span class="badge badge-success">Comptabilisé</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted text-center">2</td>
+              <td class="font-bold">Europe 1 Matin</td>
+              <td>
+                <a href="https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml" target="_blank" class="rss-link">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  b38cbcd5-...
+                </a>
+              </td>
+              <td class="text-center"><span class="badge badge-success">Comptabilisé</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted text-center">3</td>
+              <td class="font-bold">L'Heure des Pros</td>
+              <td>
+                <a href="https://feeds.audiomeans.fr/feed/abd60e2a-fac4-413f-bf0a-463aa19796dc.xml" target="_blank" class="rss-link">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  abd60e2a-...
+                </a>
+              </td>
+              <td class="text-center"><span class="badge badge-success">Comptabilisé</span></td>
+            </tr>
+            <tr class="row-muted">
+              <td class="text-muted text-center">88</td>
+              <td class="font-bold">La belle histoire...</td>
+              <td>
+                <a href="https://feeds.audiomeans.fr/feed/506f075f-8a18-42bf-b589-a60d7d65fef0.xml" target="_blank" class="rss-link disabled">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  506f075f-...
+                </a>
+              </td>
+              <td class="text-center"><span class="badge badge-muted">Hors-comptage</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted text-center">89</td>
+              <td class="font-bold">Ai-je le droit ?</td>
+              <td>
+                <a href="https://feeds.audiomeans.fr/feed/5b279160-ca91-477b-99b1-4276074257ac.xml" target="_blank" class="rss-link">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+                  5b279160-...
+                </a>
+              </td>
+              <td class="text-center"><span class="badge badge-success">Comptabilisé</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div id="view-alerts" class="view">
+      <header class="app-header">
+        <h2 class="page-title">Alertes</h2>
+        <button class="btn-icon" id="btn-test-alert" title="Tester l'alerte Telegram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </header>
+
+      <div class="section">
+        <div class="alert-config-card" id="telegram-config-card">
+          <div class="alert-config-header">
+            <div class="telegram-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.02 9.52c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.883.701z"/></svg>
+            </div>
+            <div>
+              <h3>Configuration Telegram</h3>
+              <p id="telegram-status-text">Non configuré</p>
+            </div>
+            <div class="telegram-status-dot" id="telegram-status-dot"></div>
+          </div>
+          <div class="alert-config-body">
+            <div class="form-group">
+              <label>Token du Bot Telegram</label>
+              <input type="password" id="telegram-token" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz" />
+            </div>
+            <div class="form-group">
+              <label>Chat ID</label>
+              <input type="text" id="telegram-chat-id" placeholder="8699796941" />
+            </div>
+            <div class="form-group">
+              <a class="help-link" href="#" onclick="showTelegramHelp(); return false;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Comment obtenir mon token et Chat ID ?
+              </a>
+            </div>
+            <button class="btn-primary" id="btn-save-telegram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title" style="padding: 0 16px 12px">Horaires d'alerte</h3>
+        <div class="schedule-list" id="schedule-list"></div>
+        <div style="padding: 0 16px">
+          <p class="schedule-info">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Les alertes Telegram donnent le nombre d'épisodes et d'articles publiés dans la journée en cours, avec leur répartition en %.
+          </p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title" style="padding: 0 16px 12px">Historique des alertes</h3>
+        <div class="alert-history" id="alert-history">
+          <div class="empty-state">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <p>Aucune alerte envoyée</p>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-view="ginette">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="3" x2="12" y2="21"/>
+          <polyline points="4 6 12 3 20 6"/>
+          <path d="M4 6v7a4 4 0 0 0 8 0V6"/>
+          <path d="M12 6v7a4 4 0 0 0 8 0V6"/>
+        </svg>
+        <span>Ginette</span>
+      </button>
+      <button class="nav-item" data-view="home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Podcasts</span>
+      </button>
+      <button class="nav-item" data-view="articles">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Articles</span>
+      </button>
+      <button class="nav-item" data-view="flux">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11a9 9 0 0 1 9 9"></path>
+          <path d="M4 4a16 16 0 0 1 16 16"></path>
+          <circle cx="5" cy="19" r="1"></circle>
+        </svg>
+        <span>Flux</span>
+      </button>
+      <button class="nav-item" data-view="alerts">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Alertes</span>
+      </button>
+    </nav>
+
+    <div class="modal-overlay" id="modal-telegram-help" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Configurer Telegram</h3>
+          <button class="modal-close" onclick="closeModal('modal-telegram-help')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="help-steps">
+            <div class="help-step"><span class="step-num">1</span><div><strong>Créer un bot</strong><p>Ouvrez Telegram, cherchez <code>@BotFather</code>, envoyez <code>/newbot</code>.</p></div></div>
+            <div class="help-step"><span class="step-num">2</span><div><strong>Copier le Token</strong><p>BotFather vous donnera un token au format <code>123456789:ABCdef...</code></p></div></div>
+            <div class="help-step"><span class="step-num">3</span><div><strong>Obtenir votre Chat ID</strong><p>Démarrez votre bot, visitez :<br/><code>api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code><br/>Cherchez <code>"chat":{"id": XXXXX}</code></p></div></div>
+            <div class="help-step"><span class="step-num">4</span><div><strong>Tester</strong><p>Renseignez le token et Chat ID puis cliquez "Sauvegarder".</p></div></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="closeModal('modal-telegram-help')">Compris !</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
