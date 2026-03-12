@@ -475,11 +475,40 @@ a { color: var(--orange); text-decoration: none; }
       const yesterdayStart = new Date(todayStart);
       yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
-      // Récupérer l'image du podcast (image du channel ou du dernier item)
+      // Récupérer l'image du podcast - essayer plusieurs emplacements
       let image = '';
-      const channelImage = doc.querySelector('channel > image > url');
+      
+      // 1. Essayer channel > image > url
+      let channelImage = doc.querySelector('channel > image > url');
       if (channelImage) {
         image = channelImage.textContent;
+      }
+      
+      // 2. Essayer itunes:image
+      if (!image) {
+        let itunesImage = doc.querySelector('[href]');
+        if (!itunesImage) {
+          // Chercher dans tous les éléments itunes:image
+          let allElements = doc.querySelectorAll('*');
+          for (let el of allElements) {
+            if (el.tagName.includes('image') && el.getAttribute('href')) {
+              image = el.getAttribute('href');
+              break;
+            }
+          }
+        }
+      }
+      
+      // 3. Essayer depuis le dernier item
+      if (!image) {
+        let items = doc.querySelectorAll('item');
+        if (items.length > 0) {
+          let lastItem = items[0]; // Premier item = le plus récent
+          let itemImage = lastItem.querySelector('image > url');
+          if (itemImage) {
+            image = itemImage.textContent;
+          }
+        }
       }
 
       let today = 0, yesterday = 0;
@@ -497,12 +526,6 @@ a { color: var(--orange); text-decoration: none; }
         if (date > latestTime) {
           latestTime = date;
           latestDesc = title;
-          
-          // Essayer de récupérer l'image du dernier item si pas d'image du channel
-          if (!image) {
-            const itemImage = item.querySelector('image > url');
-            if (itemImage) image = itemImage.textContent;
-          }
         }
 
         if (date >= todayStart) today++;
@@ -543,20 +566,27 @@ a { color: var(--orange); text-decoration: none; }
       feedResults.sort((a, b) => (b.latestDate || 0) - (a.latestDate || 0));
 
       const list = document.getElementById('monitoring-list');
-      list.innerHTML = feedResults.map(r => `
-        <div class="monitor-row">
-          ${r.image ? `<img src="${r.image}" alt="${r.feed}" class="monitor-thumb" onerror="this.style.display='none'">` : '<div class="monitor-thumb" style="background: var(--border);"></div>'}
-          <div style="flex: 1; min-width: 0;">
-            <div class="monitor-dot dot-${r.today > 0 ? 'green' : 'gray'}" style="margin-bottom: 4px;"></div>
-            <div class="monitor-info">
-              <div class="monitor-name">${r.feed}</div>
-              <div class="monitor-time">${r.latestDate ? new Date(r.latestDate).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
-              <div class="monitor-desc">${r.desc.substring(0, 60)}</div>
+      list.innerHTML = feedResults.map(r => {
+        const bgColor = r.image ? '' : 'background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;';
+        const imgHtml = r.image 
+          ? `<img src="${r.image}" alt="${r.feed}" class="monitor-thumb" loading="lazy" style="object-fit: cover;">` 
+          : `<div class="monitor-thumb" style="${bgColor}">E1</div>`;
+        
+        return `
+          <div class="monitor-row">
+            ${imgHtml}
+            <div style="flex: 1; min-width: 0;">
+              <div class="monitor-dot dot-${r.today > 0 ? 'green' : 'gray'}" style="margin-bottom: 4px;"></div>
+              <div class="monitor-info">
+                <div class="monitor-name">${r.feed}</div>
+                <div class="monitor-time">${r.latestDate ? new Date(r.latestDate).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '—'}</div>
+                <div class="monitor-desc">${r.desc.substring(0, 60)}</div>
+              </div>
             </div>
+            <div class="monitor-badge">${r.today}</div>
           </div>
-          <div class="monitor-badge">${r.today}</div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       document.getElementById('header-updated').textContent = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
       showToast('✓ Actualisé', 'success');
