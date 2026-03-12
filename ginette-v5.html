@@ -522,8 +522,16 @@
           <button class="btn-icon" id="btn-refresh" onclick="refreshStats()" title="Actualiser les données">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
           </button>
+          <button class="btn-icon" id="btn-debug" onclick="toggleDebug()" title="Afficher debug">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+          </button>
         </div>
       </header>
+
+      <!-- Debug Panel -->
+      <div id="debug-panel" style="display:none; padding:12px 16px; background:var(--bg-secondary); border-bottom:1px solid var(--border); font-size:11px; color:var(--text-muted); font-family:monospace; max-height:200px; overflow-y:auto;">
+        <div id="debug-content">Initialisation...</div>
+      </div>
 
       <!-- Stats Card -->
       <div class="stats-card" id="stats-bar">
@@ -577,17 +585,38 @@
     // GINETTE v5 - Core Logic (Responsive)
     // ============================================
 
-    // Configuration
+    // Configuration - Exemples de podcasts Audiomeans
+    // À remplacer par tes vraies URLs d'Audiomeans
     const FEEDS = [
-      { name: 'Europe 1', url: 'https://www.europe1.fr/audio/podcast/rss' },
-      { name: 'Europe 2', url: 'https://www.europe2.fr/audio/podcast/rss' },
-      { name: 'RFM', url: 'https://www.rfm.fr/audio/podcast/rss' },
+      { name: 'Europe 1 Matin', url: 'https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml' },
+      { name: 'Journal 19h', url: 'https://feeds.audiomeans.fr/feed/ef5725f5-4ed2-46cb-a8de-dd21d78789d4.xml' },
+      { name: 'Au Cœur de l\'Histoire', url: 'https://feeds.audiomeans.fr/feed/au-coeur-de-histoire.xml' },
     ];
 
-    // Proxy for CORS
-    const PROXY = 'https://api.allorigins.win/raw?url=';
+    // Proxy for CORS - Utilise cors-anywhere si besoin
+    const PROXY = 'https://cors-anywhere.herokuapp.com/';
 
-    // Utils
+    // Debug function
+    let debugVisible = false;
+    function toggleDebug() {
+      debugVisible = !debugVisible;
+      const panel = document.getElementById('debug-panel');
+      panel.style.display = debugVisible ? 'block' : 'none';
+    }
+
+    function addDebugLog(msg) {
+      const content = document.getElementById('debug-content');
+      const timestamp = new Date().toLocaleTimeString('fr-FR');
+      content.innerHTML += `<div>[${timestamp}] ${msg}</div>`;
+      content.scrollTop = content.scrollHeight;
+    }
+
+    // Override console.log for debug
+    const originalLog = console.log;
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      addDebugLog(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+    };
     function formatDate(d) {
       return new Intl.DateTimeFormat('fr-FR', { 
         weekday: 'short', day: '2-digit', month: '2-digit' 
@@ -601,17 +630,30 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // Fetch RSS with retry
+    // Fetch RSS with retry and better error handling
     async function fetchRSS(url) {
       try {
-        const res = await fetch(PROXY + encodeURIComponent(url), { 
-          headers: { 'User-Agent': 'Ginette/1.0' } 
+        // Essayer d'abord sans proxy
+        const res = await fetch(url, { 
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+          mode: 'cors'
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.text();
       } catch (e) {
-        console.error(`Fetch failed for ${url}:`, e);
-        return null;
+        console.warn(`Direct fetch failed for ${url}, trying with proxy...`);
+        try {
+          // Essayer avec proxy si le fetch direct échoue
+          const proxiedUrl = PROXY + encodeURIComponent(url);
+          const res = await fetch(proxiedUrl, { 
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.text();
+        } catch (e2) {
+          console.error(`Failed to fetch ${url}:`, e2.message);
+          return null;
+        }
       }
     }
 
@@ -703,8 +745,15 @@
 
     // Initialize
     window.addEventListener('load', () => {
+      console.log('🚀 Ginette v5 started');
+      console.log('Feeds configured:', FEEDS.length);
       refreshStats();
       setInterval(refreshStats, 5 * 60 * 1000); // Auto-refresh every 5 min
+    });
+
+    // Error handler pour window
+    window.addEventListener('error', (e) => {
+      console.error('❌ Global error:', e.error);
     });
   </script>
 </body>
