@@ -154,7 +154,8 @@
             height: 160px;
             display: flex;
             align-items: flex-end;
-            margin-right: 20px;
+            /* L'espace à droite permet d'isoler les chiffres pour qu'ils ne touchent pas la dernière barre */
+            padding-right: 30px; 
         }
 
         .chart-bars {
@@ -169,10 +170,10 @@
         /* Lignes de repère */
         .grid-line-container {
             position: absolute;
-            width: calc(100% + 20px);
+            width: 100%;
             left: 0;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* Aligne les chiffres STRICTEMENT à droite */
             align-items: flex-end;
             border-bottom: 1px solid #e5e5ea;
             z-index: 1;
@@ -185,7 +186,7 @@
         .grid-line-label {
             font-size: 11px;
             color: var(--text-secondary);
-            background: white;
+            background: var(--card-bg);
             padding-left: 8px;
             transform: translateY(50%);
         }
@@ -348,7 +349,7 @@
         .progress-bar-fill {
             height: 100%;
             width: 0%;
-            background-color: var(--text-main); /* Jauge noire pour rester dans le thème */
+            background-color: var(--text-main);
             border-radius: 4px;
             transition: width 0.3s ease-out;
         }
@@ -570,7 +571,6 @@
                     console.error("Erreur lors du chargement de " + config.url, error);
                 }
                 
-                // Mettre à jour la barre de progression
                 loadedCount++;
                 if(progressFill && progressText) {
                     const percent = (loadedCount / totalFeeds) * 100;
