@@ -211,6 +211,7 @@
                     <option value="non-comptabilise">Non comptabilisés</option>
                     <option value="natif">Natifs</option>
                     <option value="integrale">Intégrales (Bêta)</option>
+                    <option value="chroniques">Chroniques (Bêta)</option>
                 </select>
                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -445,7 +446,18 @@
             dates7Days.push(d.getTime());
         }
 
-        // Fonction pour convertir une durée "MM:SS" ou "HH:MM:SS" en secondes
+        // ==================================================
+        // LISTE DES EXCEPTIONS POUR LE STATUT "INTÉGRALE"
+        // ==================================================
+        const integraleExceptions = [
+            "au coeur de l'actu", "au cœur de l'actu",
+            "au coeur de l'histoire", "au cœur de l'histoire",
+            "au coeur de la france", "au cœur de la france",
+            "destins extraordinaires",
+            "au coeur des archives", "au cœur des archives"
+        ];
+
+        // Convertir durée "MM:SS" ou "HH:MM:SS" en secondes
         function parseDuration(str) {
             if (!str) return 0;
             let parts = str.split(':');
@@ -482,7 +494,7 @@
                             ...p, 
                             latestPubDate: new Date(p.latestPubDate),
                             natif: currentConfig ? currentConfig.natif : false,
-                            hasIntegrale: p.hasIntegrale || false // Charge la propriété "Intégrale"
+                            hasIntegrale: p.hasIntegrale || false
                         };
                     });
                     historyData = cache.history.map(h => ({ ...h, date: new Date(h.date) }));
@@ -520,6 +532,7 @@
                         const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
                         const title = xmlDoc.querySelector("channel > title")?.textContent || "Podcast inconnu";
+                        const titleLower = title.toLowerCase();
                         let imgUrl = xmlDoc.querySelector("channel > image > url")?.textContent || xmlDoc.querySelector("channel > itunes\\:image, image")?.getAttribute('href') || "";
 
                         const items = Array.from(xmlDoc.querySelectorAll("item"));
@@ -529,17 +542,22 @@
                             const latestPubDate = new Date(latestItem.querySelector("pubDate")?.textContent);
 
                             const dailyCounts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; 
-                            let podcastHasIntegrale = false; // Variable pour détecter si c'est une "Intégrale"
+                            let podcastHasIntegrale = false; 
+
+                            // Vérifier si le podcast fait partie des exceptions pour les intégrales
+                            const isException = integraleExceptions.some(ex => titleLower.includes(ex));
 
                             items.forEach(item => {
                                 const pubDateStr = item.querySelector("pubDate")?.textContent;
                                 if (!pubDateStr) return;
 
-                                // Vérifier la durée de l'épisode
-                                const durationNode = item.getElementsByTagName('itunes:duration')[0] || item.querySelector('duration');
-                                const durationStr = durationNode ? durationNode.textContent : '';
-                                if (parseDuration(durationStr) >= 2700) { // 2700 secondes = 45 minutes
-                                    podcastHasIntegrale = true;
+                                // Vérifier la durée de l'épisode (Seulement s'il n'est PAS dans la liste des exceptions)
+                                if (!isException) {
+                                    const durationNode = item.getElementsByTagName('itunes:duration')[0] || item.querySelector('duration');
+                                    const durationStr = durationNode ? durationNode.textContent : '';
+                                    if (parseDuration(durationStr) >= 2700) { 
+                                        podcastHasIntegrale = true;
+                                    }
                                 }
 
                                 const exactDate = new Date(pubDateStr);
@@ -562,7 +580,7 @@
                                 url: config.url,
                                 comptabilise: config.comptabilise,
                                 natif: config.natif,
-                                hasIntegrale: podcastHasIntegrale, // On ajoute l'info ici
+                                hasIntegrale: podcastHasIntegrale, 
                                 name: title,
                                 image: imgUrl,
                                 latestEpisodeTitle: latestTitle,
@@ -620,7 +638,8 @@
                 else if (filterValue === 'comptabilise') matchSelect = p.comptabilise === true;
                 else if (filterValue === 'non-comptabilise') matchSelect = p.comptabilise === false;
                 else if (filterValue === 'natif') matchSelect = p.natif === true;
-                else if (filterValue === 'integrale') matchSelect = p.hasIntegrale === true; // FILTRE INTÉGRALE
+                else if (filterValue === 'integrale') matchSelect = p.hasIntegrale === true;
+                else if (filterValue === 'chroniques') matchSelect = (p.hasIntegrale === false && p.natif === false); // NOUVEAU FILTRE
                 
                 let matchSearch = p.name.toLowerCase().includes(searchValue);
                 return matchSelect && matchSearch;
@@ -696,9 +715,6 @@
             appDiv.innerHTML = html;
         }
 
-        // ==========================================
-        // GESTION DU PULL-TO-REFRESH (Tirer pour actualiser)
-        // ==========================================
         let startY = 0;
         let currentY = 0;
         let isPulling = false;
