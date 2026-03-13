@@ -96,7 +96,7 @@
 
         /* === BARRE DE RECHERCHE === */
         .search-container {
-            display: none; /* Masqué par défaut */
+            display: none;
             background-color: white;
             border-radius: 12px;
             padding: 8px 12px;
@@ -131,7 +131,7 @@
         .chart-card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius-lg);
-            padding: 24px 24px 34px 24px; /* Plus de padding en bas pour les labels */
+            padding: 24px 24px 34px 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
         }
 
@@ -159,14 +159,14 @@
 
         .chart-bars {
             display: flex;
-            justify-content: space-between; /* Ajusté pour 7 barres */
+            justify-content: space-between;
             width: 100%;
             height: 100%;
             position: relative;
             z-index: 2;
         }
 
-        /* Lignes de repère (0, 25, 50...) */
+        /* Lignes de repère */
         .grid-line-container {
             position: absolute;
             width: calc(100% + 20px);
@@ -178,7 +178,6 @@
             z-index: 1;
         }
         
-        /* La ligne du bas (Zéro) est un peu plus foncée pour marquer la limite */
         .grid-line-container.base-line {
             border-bottom: 2px solid #d1d1d6;
         }
@@ -198,7 +197,7 @@
             align-items: center;
             height: 100%;
             justify-content: flex-end;
-            width: 30px; /* Affiné pour 7 barres */
+            width: 30px;
             position: relative;
         }
 
@@ -210,7 +209,7 @@
         }
 
         .bar {
-            width: 18px; /* Affiné pour 7 barres */
+            width: 18px;
             background-color: var(--text-main);
             border-radius: 4px 4px 0 0;
             transition: height 0.5s ease;
@@ -218,7 +217,7 @@
 
         .bar-label {
             position: absolute;
-            bottom: -24px; /* Strictement en dessous de la ligne de fond */
+            bottom: -24px;
             font-size: 11px;
             color: var(--text-secondary);
             font-weight: 500;
@@ -245,14 +244,13 @@
             display: flex;
             align-items: center;
             padding: 16px 12px;
-            margin: 0 -12px; /* Pour que le survol englobe bien la carte */
+            margin: 0 -12px;
             border-bottom: 1px solid #f2f2f7;
             cursor: pointer;
             transition: all 0.2s ease;
             border-radius: 12px;
         }
 
-        /* EFFET DE SURVOL (Hover) */
         .podcast-item:hover {
             background-color: #f9f9fb;
             transform: scale(0.99);
@@ -321,16 +319,43 @@
             margin-left: 10px;
         }
 
-        #loading {
+        /* === ETAT DE CHARGEMENT (PROGRESS BAR) === */
+        .loading-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 30px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             text-align: center;
-            color: var(--text-secondary);
-            margin-top: 50px;
-            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .loading-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e5ea;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--text-main); /* Jauge noire pour rester dans le thème */
+            border-radius: 4px;
+            transition: width 0.3s ease-out;
         }
         
         .progress-text {
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 500;
             color: var(--text-secondary);
         }
     </style>
@@ -364,9 +389,12 @@
         </div>
 
         <div id="app">
-            <div id="loading">
-                <div>Chargement des podcasts...</div>
-                <div id="progress" class="progress-text">0 / 99</div>
+            <div class="loading-container" id="loading-box">
+                <div class="loading-title">Synchronisation des flux...</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0 / 99 terminés</div>
             </div>
         </div>
     </div>
@@ -480,7 +508,6 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Crée le tableau des 7 derniers jours (Aujourd'hui + 6 jours précédents)
         const dates7Days = [];
         for (let i = 6; i >= 0; i--) {
             const d = new Date(today);
@@ -490,7 +517,9 @@
 
         async function fetchFeeds() {
             let loadedCount = 0;
-            const progressEl = document.getElementById('progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const totalFeeds = podcastConfig.length;
 
             for (const config of podcastConfig) {
                 try {
@@ -511,7 +540,6 @@
                         const latestTitle = latestItem.querySelector("title")?.textContent || "Sans titre";
                         const latestPubDate = new Date(latestItem.querySelector("pubDate")?.textContent);
 
-                        // Initialiser le compteur pour les 7 jours (index 0 à 6)
                         const dailyCounts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; 
 
                         items.forEach(item => {
@@ -534,7 +562,7 @@
                             latestEpisodeTitle: latestTitle,
                             latestPubDate: latestPubDate,
                             dailyCounts: dailyCounts,
-                            episodesToday: dailyCounts[6] // L'index 6 est "Aujourd'hui"
+                            episodesToday: dailyCounts[6] 
                         });
                     }
 
@@ -542,9 +570,12 @@
                     console.error("Erreur lors du chargement de " + config.url, error);
                 }
                 
+                // Mettre à jour la barre de progression
                 loadedCount++;
-                if(progressEl) {
-                    progressEl.innerText = `${loadedCount} / ${podcastConfig.length}`;
+                if(progressFill && progressText) {
+                    const percent = (loadedCount / totalFeeds) * 100;
+                    progressFill.style.width = `${percent}%`;
+                    progressText.innerText = `${loadedCount} / ${totalFeeds} terminés`;
                 }
             }
 
@@ -566,14 +597,13 @@
         function closeSearch() {
             document.getElementById('search-bar').style.display = 'none';
             document.getElementById('search-input').value = '';
-            updateView(); // Réinitialise la vue
+            updateView(); 
         }
 
         function updateView() {
             const filterValue = document.getElementById('podcast-filter').value;
             const searchValue = document.getElementById('search-input').value.toLowerCase();
             
-            // Filtrer par select ET par texte de recherche
             let filteredData = allPodcastsData.filter(p => {
                 let matchSelect = false;
                 if (filterValue === 'all') matchSelect = true;
@@ -585,7 +615,6 @@
                 return matchSelect && matchSearch;
             });
 
-            // Préparer les données du graphique (7 jours)
             const graphData = dates7Days.map(time => ({
                 label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }),
                 count: 0
