@@ -91,13 +91,47 @@
             width: 20px;
             height: 20px;
             color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* === BARRE DE RECHERCHE === */
+        .search-container {
+            display: none; /* Masqué par défaut */
+            background-color: white;
+            border-radius: 12px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            align-items: center;
+            gap: 10px;
+            margin-top: -10px;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            background: transparent;
+        }
+
+        .search-close {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         /* === CARTE GRAPHIQUE === */
         .chart-card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius-lg);
-            padding: 24px;
+            padding: 24px 24px 34px 24px; /* Plus de padding en bas pour les labels */
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
         }
 
@@ -120,13 +154,12 @@
             height: 160px;
             display: flex;
             align-items: flex-end;
-            padding-bottom: 24px;
             margin-right: 20px;
         }
 
         .chart-bars {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between; /* Ajusté pour 7 barres */
             width: 100%;
             height: 100%;
             position: relative;
@@ -144,6 +177,11 @@
             border-bottom: 1px solid #e5e5ea;
             z-index: 1;
         }
+        
+        /* La ligne du bas (Zéro) est un peu plus foncée pour marquer la limite */
+        .grid-line-container.base-line {
+            border-bottom: 2px solid #d1d1d6;
+        }
 
         .grid-line-label {
             font-size: 11px;
@@ -160,28 +198,28 @@
             align-items: center;
             height: 100%;
             justify-content: flex-end;
-            width: 40px;
+            width: 30px; /* Affiné pour 7 barres */
             position: relative;
         }
 
         .bar-value {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             margin-bottom: 4px;
             color: var(--text-main);
         }
 
         .bar {
-            width: 24px;
+            width: 18px; /* Affiné pour 7 barres */
             background-color: var(--text-main);
-            border-radius: 6px 6px 0 0;
+            border-radius: 4px 4px 0 0;
             transition: height 0.5s ease;
         }
 
         .bar-label {
             position: absolute;
-            bottom: -24px;
-            font-size: 12px;
+            bottom: -24px; /* Strictement en dessous de la ligne de fond */
+            font-size: 11px;
             color: var(--text-secondary);
             font-weight: 500;
         }
@@ -206,14 +244,22 @@
         .podcast-item {
             display: flex;
             align-items: center;
-            padding: 16px 0;
+            padding: 16px 12px;
+            margin: 0 -12px; /* Pour que le survol englobe bien la carte */
             border-bottom: 1px solid #f2f2f7;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+        }
+
+        /* EFFET DE SURVOL (Hover) */
+        .podcast-item:hover {
+            background-color: #f9f9fb;
+            transform: scale(0.99);
         }
         
         .podcast-item:active {
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
         .podcast-item:last-child {
@@ -224,7 +270,7 @@
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background-color: #f2f2f7;
+            background-color: #e5e5ea;
             object-fit: cover;
             margin-right: 16px;
         }
@@ -260,7 +306,7 @@
         .status-dot.inactive { background-color: var(--gray-dot); }
 
         .podcast-episode {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
             font-style: italic;
             white-space: nowrap;
@@ -297,6 +343,7 @@
                 <select id="podcast-filter" class="filter-select" onchange="updateView()">
                     <option value="all">Tous</option>
                     <option value="comptabilise">Comptabilisés</option>
+                    <option value="non-comptabilise">Non comptabilisés</option>
                 </select>
                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -304,11 +351,17 @@
             </div>
             
             <div class="header-icons">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </header>
+
+        <div id="search-bar" class="search-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--text-secondary)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="search-input" class="search-input" placeholder="Rechercher un podcast..." oninput="updateView()">
+            <span class="search-close" onclick="closeSearch()">Annuler</span>
+        </div>
 
         <div id="app">
             <div id="loading">
@@ -319,7 +372,7 @@
     </div>
 
     <script>
-        // === LA LISTE COMPLÈTE DE TES PODCASTS ===
+        // === LA LISTE COMPLÈTE ===
         const podcastConfig = [
             { url: "https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml", comptabilise: true },
             { url: "https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml", comptabilise: true },
@@ -427,12 +480,12 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Crée le tableau des 4 derniers jours
-        const dates4Days = [];
-        for (let i = 3; i >= 0; i--) {
+        // Crée le tableau des 7 derniers jours (Aujourd'hui + 6 jours précédents)
+        const dates7Days = [];
+        for (let i = 6; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(d.getDate() - i);
-            dates4Days.push(d.getTime());
+            dates7Days.push(d.getTime());
         }
 
         async function fetchFeeds() {
@@ -458,7 +511,8 @@
                         const latestTitle = latestItem.querySelector("title")?.textContent || "Sans titre";
                         const latestPubDate = new Date(latestItem.querySelector("pubDate")?.textContent);
 
-                        const dailyCounts = { 0: 0, 1: 0, 2: 0, 3: 0 }; 
+                        // Initialiser le compteur pour les 7 jours (index 0 à 6)
+                        const dailyCounts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; 
 
                         items.forEach(item => {
                             const pubDateStr = item.querySelector("pubDate")?.textContent;
@@ -466,7 +520,7 @@
                             const pubDateOnly = new Date(pubDateStr);
                             pubDateOnly.setHours(0,0,0,0);
 
-                            const dayIndex = dates4Days.indexOf(pubDateOnly.getTime());
+                            const dayIndex = dates7Days.indexOf(pubDateOnly.getTime());
                             if (dayIndex !== -1) {
                                 dailyCounts[dayIndex]++;
                             }
@@ -480,7 +534,7 @@
                             latestEpisodeTitle: latestTitle,
                             latestPubDate: latestPubDate,
                             dailyCounts: dailyCounts,
-                            episodesToday: dailyCounts[3]
+                            episodesToday: dailyCounts[6] // L'index 6 est "Aujourd'hui"
                         });
                     }
 
@@ -488,50 +542,68 @@
                     console.error("Erreur lors du chargement de " + config.url, error);
                 }
                 
-                // Mettre à jour le compteur pendant le chargement long
                 loadedCount++;
                 if(progressEl) {
                     progressEl.innerText = `${loadedCount} / ${podcastConfig.length}`;
                 }
             }
 
-            // Tri par défaut : le plus récent en premier
             allPodcastsData.sort((a, b) => b.latestPubDate - a.latestPubDate);
-
-            // Premier affichage une fois que tout est chargé
             updateView();
+        }
+
+        // Gestion de la barre de recherche
+        function toggleSearch() {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar.style.display === 'flex') {
+                closeSearch();
+            } else {
+                searchBar.style.display = 'flex';
+                document.getElementById('search-input').focus();
+            }
+        }
+
+        function closeSearch() {
+            document.getElementById('search-bar').style.display = 'none';
+            document.getElementById('search-input').value = '';
+            updateView(); // Réinitialise la vue
         }
 
         function updateView() {
             const filterValue = document.getElementById('podcast-filter').value;
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
             
-            let filteredData = allPodcastsData;
-            if (filterValue === 'comptabilise') {
-                filteredData = allPodcastsData.filter(p => p.comptabilise === true);
-            }
+            // Filtrer par select ET par texte de recherche
+            let filteredData = allPodcastsData.filter(p => {
+                let matchSelect = false;
+                if (filterValue === 'all') matchSelect = true;
+                else if (filterValue === 'comptabilise') matchSelect = p.comptabilise === true;
+                else if (filterValue === 'non-comptabilise') matchSelect = p.comptabilise === false;
 
-            const graphData = [
-                { label: new Date(dates4Days[0]).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 },
-                { label: new Date(dates4Days[1]).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 },
-                { label: new Date(dates4Days[2]).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 },
-                { label: new Date(dates4Days[3]).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 }
-            ];
+                let matchSearch = p.name.toLowerCase().includes(searchValue);
+
+                return matchSelect && matchSearch;
+            });
+
+            // Préparer les données du graphique (7 jours)
+            const graphData = dates7Days.map(time => ({
+                label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }),
+                count: 0
+            }));
 
             let grandTotal = 0;
 
             filteredData.forEach(pod => {
-                graphData[0].count += pod.dailyCounts[0];
-                graphData[1].count += pod.dailyCounts[1];
-                graphData[2].count += pod.dailyCounts[2];
-                graphData[3].count += pod.dailyCounts[3];
-                
-                grandTotal += pod.dailyCounts[0] + pod.dailyCounts[1] + pod.dailyCounts[2] + pod.dailyCounts[3];
+                for (let i = 0; i < 7; i++) {
+                    graphData[i].count += pod.dailyCounts[i];
+                    grandTotal += pod.dailyCounts[i];
+                }
             });
 
             renderApp(filteredData, graphData, grandTotal);
         }
 
-        function renderApp(podcasts, graphData, total4Days) {
+        function renderApp(podcasts, graphData, total7Days) {
             const appDiv = document.getElementById('app');
             
             const maxEpisodes = Math.max(...graphData.map(d => d.count), 1); 
@@ -541,8 +613,8 @@
 
             let html = `
                 <section class="chart-card">
-                    <div class="chart-subtitle">Total sur 4 jours</div>
-                    <div class="chart-title">${total4Days}</div>
+                    <div class="chart-subtitle">Total sur 7 jours</div>
+                    <div class="chart-title">${total7Days}</div>
                     
                     <div class="chart-area">
                         <div class="grid-line-container" style="bottom: 100%;">
@@ -554,7 +626,7 @@
                         <div class="grid-line-container" style="bottom: 33%;">
                             <div class="grid-line-label">${tier1}</div>
                         </div>
-                        <div class="grid-line-container" style="bottom: 0;">
+                        <div class="grid-line-container base-line" style="bottom: 0;">
                             <div class="grid-line-label">0</div>
                         </div>
 
@@ -608,7 +680,7 @@
             appDiv.innerHTML = html;
         }
 
-        // Lancer le script au démarrage
+        // Lancement initial
         fetchFeeds();
     </script>
 </body>
