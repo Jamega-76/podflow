@@ -24,10 +24,10 @@
             --border-radius-lg: 24px;
             --border-radius-sm: 16px;
             
-            /* === NOUVELLE PALETTE COULEURS DISCRÈTES (RÉPARTITION) === */
-            --color-natif: #82b1ff;       /* Bleu pastel discret */
-            --color-integrale: #ffcc80;   /* Orange pastel discret */
-            --color-chronique: #a5d6a7;   /* Vert pastel discret */
+            /* === PALETTE COULEURS DISCRÈTES (RÉPARTITION) === */
+            --color-natif: #82b1ff;       
+            --color-integrale: #ffcc80;   
+            --color-chronique: #a5d6a7;   
         }
 
         /* === MODE SOMBRE === */
@@ -106,12 +106,8 @@
         .search-input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
-        /* === ZONE DYNAMIQUE PRINCIPALE AVEC ESPACEMENT === */
-        #app {
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Espace minimaliste constant entre toutes les cartes */
-        }
+        /* === ZONE DYNAMIQUE PRINCIPALE === */
+        #app { display: flex; flex-direction: column; gap: 20px; }
 
         /* === CARTE GRAPHIQUE === */
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
@@ -127,49 +123,20 @@
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === SMART INSIGHT (DESIGN UNIFORMISÉ CARTE) === */
-        .smart-insight-card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius-lg);
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            transition: background-color 0.3s;
-        }
-        .insight-icon-container {
-            flex-shrink: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 2px;
-        }
-        .insight-text {
-            color: var(--text-main);
-            font-size: 15px;
-            line-height: 1.5;
-            font-weight: 500;
-        }
+        /* === SMART INSIGHT === */
+        .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
+        .insight-icon-container { flex-shrink: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: #ffcc80;}
+        .insight-text { color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 500; }
 
-        /* === RÉPARTITION DES FORCES (DESIGN UNIFORMISÉ CARTE) === */
-        .distribution-card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius-lg);
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            transition: background-color 0.3s;
-        }
-        .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary); }
+        /* === RÉPARTITION DES FORCES === */
+        .distribution-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
         .dist-bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s;}
         .dist-segment { transition: width 0.4s ease; }
         .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; color: var(--text-main); }
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-        /* === STYLE BARRE DE RÉPARTITION (PASTELS) === */
         .bg-natif { background-color: var(--color-natif); }
         .bg-integrale { background-color: var(--color-integrale); }
         .bg-chronique { background-color: var(--color-chronique); }
@@ -198,25 +165,7 @@
         .progress-bar-fill { height: 100%; width: 0%; background-color: var(--text-main); border-radius: 4px; transition: width 0.1s ease-out; }
         .progress-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
 
-        .update-badge {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translate(-50%, 150px);
-            background-color: var(--text-main);
-            color: var(--bg-color);
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            cursor: pointer;
-            z-index: 1000;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
         .update-badge.show { transform: translate(-50%, 0); }
         .update-badge svg { width: 16px; height: 16px; }
 
@@ -290,7 +239,7 @@
             <div class="header-icons">
                 <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </header>
 
@@ -430,7 +379,6 @@
             { url: "https://feeds.audiomeans.fr/feed/1075b04c-0b6b-4ba0-b129-e83c241aa304.xml", comptabilise: true, natif: true }, 
             { url: "https://feeds.audiomeans.fr/feed/ee883851-2ab1-4296-b3f2-6f70f3a8f0e8.xml", comptabilise: true, natif: true }, 
             { url: "https://feeds.audiomeans.fr/feed/6f8c5a53-9a85-4f33-80ea-699424d45309.xml", comptabilise: true, natif: true }, 
-            // -------------------
 
             { url: "https://feeds.audiomeans.fr/feed/f649a24a-afec-4c3b-b01d-985223ff1e74.xml", comptabilise: true, natif: false },
             { url: "https://feeds.audiomeans.fr/feed/5938c170-dc0b-41a5-a59d-019a05f687c2.xml", comptabilise: true, natif: false },
@@ -761,7 +709,7 @@
 
             html += `</div></div></section>`;
 
-            // === 1. SMART INSIGHT IA (DESIGN CARTE ÉPURÉ) ===
+            // === 1. SMART INSIGHT IA ===
             const todayCount = graphData[6].count;
             const yestCount = graphData[5].count;
             const dbyCount = graphData[4].count;
@@ -783,7 +731,6 @@
                 insightText += `La dynamique continue aujourd'hui avec ${todayCount} publication(s).`;
             }
 
-            // Icône ampoule SVG
             const bulbIcon = `<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>`;
 
             html += `
@@ -792,9 +739,9 @@
                 <div class="insight-text">${insightText}</div>
             </div>`;
 
-            // === 2. RÉPARTITION DES FORCES (DESIGN CARTE + COULEURS DISCRÈTES) ===
+            // === 2. RÉPARTITION DES FORCES ===
             let countNatifs = 0; let countIntegrales = 0; let countChroniques = 0; 
-            let totalDist = 0; // Uniquement sur comptabilisés
+            let totalDist = 0; 
             
             podcasts.forEach(p => {
                 if (p.episodesToday > 0 && p.comptabilise) {
@@ -812,16 +759,16 @@
 
                 html += `
                 <div class="distribution-card">
-                    <div class="dist-title">Répartition du jour (Comptabilisés)</div>
+                    <div class="dist-title">Répartition du jour</div>
                     <div class="dist-bar">
                         ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"></div>` : ''}
                         ${pctIntegrale > 0 ? `<div class="dist-segment bg-integrale" style="width: ${pctIntegrale}%"></div>` : ''}
                         ${pctChronique > 0 ? `<div class="dist-segment bg-chronique" style="width: ${pctChronique}%"></div>` : ''}
                     </div>
                     <div class="dist-legend">
-                        ${countNatifs > 0 ? `<div class="legend-item"><div class="legend-dot bg-natif"></div>Natifs (${countNatifs})</div>` : ''}
-                        ${countIntegrales > 0 ? `<div class="legend-item"><div class="legend-dot bg-integrale"></div>Intégrales (${countIntegrales})</div>` : ''}
-                        ${countChroniques > 0 ? `<div class="legend-item"><div class="legend-dot bg-chronique"></div>Chroniques (${countChroniques})</div>` : ''}
+                        ${countNatifs > 0 ? `<div class="legend-item"><div class="legend-dot bg-natif"></div>Natifs</div>` : ''}
+                        ${countIntegrales > 0 ? `<div class="legend-item"><div class="legend-dot bg-integrale"></div>Intégrales</div>` : ''}
+                        ${countChroniques > 0 ? `<div class="legend-item"><div class="legend-dot bg-chronique"></div>Chroniques</div>` : ''}
                     </div>
                 </div>`;
             }
