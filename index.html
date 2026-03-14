@@ -24,10 +24,10 @@
             --border-radius-lg: 24px;
             --border-radius-sm: 16px;
             
-            /* Couleurs pour la répartition */
-            --color-natif: #007aff;
-            --color-integrale: #ff9500;
-            --color-chronique: #34c759;
+            /* === NOUVELLE PALETTE COULEURS DISCRÈTES (RÉPARTITION) === */
+            --color-natif: #82b1ff;       /* Bleu pastel discret */
+            --color-integrale: #ffcc80;   /* Orange pastel discret */
+            --color-chronique: #a5d6a7;   /* Vert pastel discret */
         }
 
         /* === MODE SOMBRE === */
@@ -106,8 +106,15 @@
         .search-input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
+        /* === ZONE DYNAMIQUE PRINCIPALE AVEC ESPACEMENT === */
+        #app {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espace minimaliste constant entre toutes les cartes */
+        }
+
         /* === CARTE GRAPHIQUE === */
-        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 34px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
         .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
@@ -120,32 +127,49 @@
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === SMART INSIGHT (RÉSUMÉ IA) === */
-        .smart-insight {
-            background: rgba(52, 199, 89, 0.1);
+        /* === SMART INSIGHT (DESIGN UNIFORMISÉ CARTE) === */
+        .smart-insight-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: background-color 0.3s;
+        }
+        .insight-icon-container {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+        .insight-text {
             color: var(--text-main);
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.4;
-            border-left: 4px solid var(--green-dot);
+            font-size: 15px;
+            line-height: 1.5;
             font-weight: 500;
         }
 
-        /* === RÉPARTITION DES FORCES === */
-        .distribution-container {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        /* === RÉPARTITION DES FORCES (DESIGN UNIFORMISÉ CARTE) === */
+        .distribution-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: background-color 0.3s;
         }
-        .dist-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary); }
-        .dist-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 12px; background-color: var(--bg-color); }
+        .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-secondary); }
+        .dist-bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s;}
         .dist-segment { transition: width 0.4s ease; }
         .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; color: var(--text-main); }
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
+        /* === STYLE BARRE DE RÉPARTITION (PASTELS) === */
         .bg-natif { background-color: var(--color-natif); }
         .bg-integrale { background-color: var(--color-integrale); }
         .bg-chronique { background-color: var(--color-chronique); }
@@ -406,6 +430,7 @@
             { url: "https://feeds.audiomeans.fr/feed/1075b04c-0b6b-4ba0-b129-e83c241aa304.xml", comptabilise: true, natif: true }, 
             { url: "https://feeds.audiomeans.fr/feed/ee883851-2ab1-4296-b3f2-6f70f3a8f0e8.xml", comptabilise: true, natif: true }, 
             { url: "https://feeds.audiomeans.fr/feed/6f8c5a53-9a85-4f33-80ea-699424d45309.xml", comptabilise: true, natif: true }, 
+            // -------------------
 
             { url: "https://feeds.audiomeans.fr/feed/f649a24a-afec-4c3b-b01d-985223ff1e74.xml", comptabilise: true, natif: false },
             { url: "https://feeds.audiomeans.fr/feed/5938c170-dc0b-41a5-a59d-019a05f687c2.xml", comptabilise: true, natif: false },
@@ -736,12 +761,12 @@
 
             html += `</div></div></section>`;
 
-            // === 1. SMART INSIGHT IA ===
+            // === 1. SMART INSIGHT IA (DESIGN CARTE ÉPURÉ) ===
             const todayCount = graphData[6].count;
             const yestCount = graphData[5].count;
             const dbyCount = graphData[4].count;
             
-            let insightText = "💡 ";
+            let insightText = "";
             if (yestCount > dbyCount) {
                 insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
             } else if (yestCount < dbyCount) {
@@ -758,11 +783,18 @@
                 insightText += `La dynamique continue aujourd'hui avec ${todayCount} publication(s).`;
             }
 
-            html += `<div class="smart-insight">${insightText}</div>`;
+            // Icône ampoule SVG
+            const bulbIcon = `<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>`;
 
-            // === 2. RÉPARTITION DES FORCES DU JOUR ===
+            html += `
+            <div class="smart-insight-card">
+                <div class="insight-icon-container">${bulbIcon}</div>
+                <div class="insight-text">${insightText}</div>
+            </div>`;
+
+            // === 2. RÉPARTITION DES FORCES (DESIGN CARTE + COULEURS DISCRÈTES) ===
             let countNatifs = 0; let countIntegrales = 0; let countChroniques = 0; 
-            let totalDist = 0; // Total calculé uniquement sur les éléments comptabilisés
+            let totalDist = 0; // Uniquement sur comptabilisés
             
             podcasts.forEach(p => {
                 if (p.episodesToday > 0 && p.comptabilise) {
@@ -779,7 +811,7 @@
                 const pctChronique = (countChroniques / totalDist) * 100;
 
                 html += `
-                <div class="distribution-container">
+                <div class="distribution-card">
                     <div class="dist-title">Répartition du jour (Comptabilisés)</div>
                     <div class="dist-bar">
                         ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"></div>` : ''}
@@ -796,7 +828,6 @@
 
             html += `<div class="section-title">Aujourd'hui</div><section class="podcast-list">`;
 
-            // Note: on utilise totalToday classique pour vérifier si on affiche la liste complète
             let totalToday = podcasts.reduce((sum, p) => sum + p.episodesToday, 0);
 
             if(podcasts.length === 0 || totalToday === 0) { 
