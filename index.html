@@ -88,7 +88,8 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* === HEADER === */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; position: relative; z-index: 150; }
+        /* Z-INDEX corrigé à 50 pour passer sous les menus modaux */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; position: relative; z-index: 50; }
         
         .header-left { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .current-filter-label { font-size: 18px; font-weight: 700; color: var(--text-main); transition: color 0.2s; }
@@ -180,12 +181,12 @@
         .progress-bar-fill { height: 100%; width: 0%; background-color: var(--text-main); border-radius: 4px; transition: width 0.1s ease-out; }
         .progress-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
 
-        .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
+        .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 2000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
         .update-badge.show { transform: translate(-50%, 0); }
         .update-badge svg { width: 16px; height: 16px; }
 
-        /* === MODALS (Base) === */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
+        /* === MODALS (Z-INDEX 1000) === */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; padding: 24px; overflow-y: auto; position: relative; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -193,7 +194,7 @@
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-        /* === LECTEUR AUDIO BÊTA (GLASSMORPHISM) === */
+        /* === LECTEUR AUDIO BÊTA (Z-INDEX 1000) === */
         .player-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(20, 20, 20, 0.85);
@@ -252,7 +253,7 @@
         .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
 
         /* CALENDRIER HISTORIQUE */
-        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; }
+        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; scroll-behavior: smooth; }
         .calendar-strip::-webkit-scrollbar { display: none; }
         .calendar-strip { -ms-overflow-style: none; scrollbar-width: none; }
         .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; padding: 12px 0; border-radius: 16px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -343,7 +344,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="setting-group">
                 <span class="setting-label">Actualisation auto (15m)</span>
                 <label class="toggle-switch">
@@ -351,7 +351,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="section-title" style="margin-left:0; margin-top:20px;">Ajouter un podcast</div>
             <div class="add-form">
                 <input type="text" id="new-podcast-url" class="form-input" placeholder="URL du flux RSS (https://...)">
@@ -365,7 +364,6 @@
                 </label>
                 <button class="form-btn" onclick="addPodcast()">Ajouter à la liste</button>
             </div>
-
             <div class="section-title" style="margin-left:0;">Gérer les flux existants</div>
             <div class="manage-list" id="manage-list-container"></div>
         </div>
@@ -564,7 +562,7 @@
         let freshHistoryData = [];
         let selectedHistoryDate = null; 
         
-        let currentFilterValue = 'all'; // NOUVEAU : gère le filtre avec le menu custom
+        let currentFilterValue = 'all';
 
         // Variables pour le Player
         let playerQueue = [];
@@ -735,7 +733,6 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // === GESTION DU MENU BURGER ===
         function toggleFilterMenu() {
             const dropdown = document.getElementById('filter-dropdown');
             if (dropdown.style.display === 'flex') {
@@ -892,9 +889,6 @@
             appDiv.innerHTML = html;
         }
 
-        // ==========================================
-        // GESTION DU PLAYER AUDIO BETA (30 DERNIERS)
-        // ==========================================
         function openPlayer() {
             playerQueue = historyData.slice(0, 30).map(ep => {
                 return {
@@ -1013,9 +1007,6 @@
             return `${min}:${sec.toString().padStart(2, '0')}`;
         }
 
-        // ==========================================
-        // PULL TO REFRESH & MODALS
-        // ==========================================
         let startY = 0; let currentY = 0; let isPulling = false;
         const ptrIndicator = document.getElementById('ptr-indicator');
 
@@ -1098,6 +1089,14 @@
                 });
             }
             container.innerHTML = html;
+
+            // NOUVEAU : Centrer le calendrier sur la date active
+            setTimeout(() => {
+                const activeDay = container.querySelector('.calendar-day.active');
+                if (activeDay) {
+                    activeDay.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 10);
         }
 
         function openSettings() { renderManageList(); document.getElementById('settings-modal').style.display = 'flex'; }
