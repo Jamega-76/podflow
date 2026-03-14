@@ -24,13 +24,11 @@
             --border-radius-lg: 24px;
             --border-radius-sm: 16px;
             
-            /* === PALETTE COULEURS DISCRÈTES (RÉPARTITION) === */
             --color-natif: #82b1ff;       
             --color-integrale: #ffcc80;   
             --color-chronique: #a5d6a7;   
         }
 
-        /* === MODE SOMBRE === */
         body.dark-mode {
             --bg-color: #000000;
             --card-bg: #1c1c1e;
@@ -40,49 +38,14 @@
             --gray-dot: #48484a;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-            overscroll-behavior-y: none;
-        }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding: 20px; transition: background-color 0.3s, color 0.3s; overscroll-behavior-y: none; }
 
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: relative;
-        }
+        .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; position: relative; }
 
         /* === PULL TO REFRESH === */
-        .ptr-indicator {
-            height: 0;
-            opacity: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 600;
-            transition: height 0.2s ease-out, opacity 0.2s ease-out;
-            margin-top: -10px;
-            margin-bottom: -10px;
-        }
+        .ptr-indicator { height: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 14px; font-weight: 600; transition: height 0.2s ease-out, opacity 0.2s ease-out; margin-top: -10px; margin-bottom: -10px; }
         .ptr-indicator.active { opacity: 1; }
         .spin-icon { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -90,12 +53,7 @@
         /* === HEADER === */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
         .filter-container { position: relative; }
-        .filter-select {
-            appearance: none; background-color: var(--card-bg); border: none;
-            padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600;
-            font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            cursor: pointer; outline: none; transition: background-color 0.3s;
-        }
+        .filter-select { appearance: none; background-color: var(--card-bg); border: none; padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600; font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; outline: none; transition: background-color 0.3s; }
         .filter-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 12px; height: 12px; }
         .header-icons { display: flex; gap: 12px; background-color: var(--card-bg); padding: 8px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .header-icons svg { width: 20px; height: 20px; color: var(--text-main); cursor: pointer; }
@@ -106,10 +64,9 @@
         .search-input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
-        /* === ZONE DYNAMIQUE PRINCIPALE === */
+        /* === ZONE DYNAMIQUE === */
         #app { display: flex; flex-direction: column; gap: 20px; }
 
-        /* === CARTE GRAPHIQUE === */
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
@@ -123,12 +80,10 @@
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === SMART INSIGHT === */
         .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
         .insight-icon-container { flex-shrink: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: #ffcc80;}
         .insight-text { color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 500; }
 
-        /* === RÉPARTITION DES FORCES === */
         .distribution-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
         .dist-bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s;}
@@ -141,13 +96,10 @@
         .bg-integrale { background-color: var(--color-integrale); }
         .bg-chronique { background-color: var(--color-chronique); }
 
-        /* === LISTE DES PODCASTS === */
         .section-title { font-size: 18px; font-weight: 600; color: var(--text-secondary); margin: 5px 0 0 5px; }
         .podcast-list { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: background-color 0.3s; }
         .podcast-item { display: flex; align-items: center; padding: 16px 12px; margin: 0 -12px; border-bottom: 1px solid var(--bg-color); cursor: pointer; transition: all 0.2s ease; border-radius: 12px; }
         .podcast-item:hover { background-color: var(--bg-color); transform: scale(0.99); }
-        .podcast-item:active { opacity: 0.6; }
-        .podcast-item:last-child { border-bottom: none; }
         .podcast-img { width: 48px; height: 48px; border-radius: 12px; background-color: var(--border-line); object-fit: cover; margin-right: 16px; }
         .podcast-info { flex: 1; overflow: hidden; }
         .podcast-name-container { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -158,7 +110,6 @@
         .podcast-episode { font-size: 13px; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .podcast-count { font-size: 17px; font-weight: 600; color: var(--text-main); margin-left: 10px; }
 
-        /* === PROGRESS BAR & BADGE UPDATE === */
         .loading-container { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 30px 24px; text-align: center; margin-top: 20px; }
         .loading-title { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 16px; }
         .progress-bar-bg { width: 100%; height: 8px; background-color: var(--border-line); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
@@ -167,17 +118,59 @@
 
         .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
         .update-badge.show { transform: translate(-50%, 0); }
-        .update-badge svg { width: 16px; height: 16px; }
 
-        /* === MODALS === */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 100; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
+        /* === MODALS (Base) === */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; padding: 24px; overflow-y: auto; position: relative; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+        /* === LECTEUR AUDIO BÊTA (GLASSMORPHISM) === */
+        .player-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(20, 20, 20, 0.85); /* Fond sombre */
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); /* Effet verre */
+            z-index: 1000; flex-direction: column; align-items: center; color: white;
+            animation: fadeIn 0.3s ease-out; overflow-y: auto;
+        }
+        .player-header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 20px; }
+        .player-header span { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; }
+        .player-close { background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         
+        .player-cover-container { width: 100%; max-width: 300px; padding: 0 20px; margin: 20px 0; }
+        .player-cover { width: 100%; aspect-ratio: 1/1; border-radius: 20px; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .player-info { width: 100%; max-width: 400px; padding: 0 30px; text-align: center; margin-bottom: 30px; }
+        .player-track-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .player-track-podcast { font-size: 16px; color: #a0a0a0; font-weight: 500; }
+        
+        .player-controls { width: 100%; max-width: 400px; padding: 0 30px; display: flex; flex-direction: column; gap: 20px; }
+        .progress-container { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #a0a0a0; }
+        .progress-bar { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); outline: none; }
+        .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: white; cursor: pointer; }
+        
+        .buttons-container { display: flex; justify-content: center; align-items: center; gap: 30px; }
+        .btn-play-pause { width: 64px; height: 64px; border-radius: 50%; background: white; color: black; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        .btn-play-pause:active { transform: scale(0.95); }
+        .btn-play-pause svg { width: 28px; height: 28px; fill: currentColor; }
+        .btn-skip { background: none; border: none; color: white; cursor: pointer; padding: 10px; }
+        .btn-skip svg { width: 28px; height: 28px; fill: currentColor; }
+        
+        .player-queue { width: 100%; max-width: 400px; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 24px 24px 0 0; flex: 1; }
+        .queue-title { font-size: 14px; font-weight: 600; color: #a0a0a0; margin-bottom: 15px; padding-left: 10px; }
+        .queue-item { display: flex; align-items: center; padding: 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; gap: 12px; }
+        .queue-item:hover, .queue-item.playing { background: rgba(255,255,255,0.1); }
+        .queue-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .queue-info { flex: 1; overflow: hidden; }
+        .queue-track { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+        .queue-pod { font-size: 12px; color: #a0a0a0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .queue-playing-icon { width: 16px; height: 16px; color: var(--green-dot); display: none; }
+        .queue-item.playing .queue-playing-icon { display: block; }
+
+        /* Autres Settings... */
         .setting-group { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
         .setting-label { font-size: 16px; font-weight: 500; color: var(--text-main); }
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -186,15 +179,11 @@
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--green-dot); }
         input:checked + .slider:before { transform: translateX(22px); }
-
         .add-form { display: flex; flex-direction: column; gap: 10px; background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
         .form-input { padding: 10px; border-radius: 8px; border: 1px solid var(--border-line); background: var(--bg-color); color: var(--text-main); }
         .form-btn { background: var(--text-main); color: var(--bg-color); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        
         .manage-list { background: var(--card-bg); border-radius: 12px; overflow: hidden; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-line); }
-        .manage-item:last-child { border-bottom: none; }
-        .manage-item-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
 
         /* CALENDRIER HISTORIQUE */
@@ -207,7 +196,7 @@
         .calendar-day-num { font-size: 22px; font-weight: 700; }
         .history-day-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
         .history-count-badge { font-weight: 500; color: var(--text-secondary); font-size: 15px; margin-left: 5px; }
-        .history-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s ease; }
+        .history-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s ease; cursor: pointer;}
         .history-item:active { transform: scale(0.98); }
         .history-time { font-size: 12px; font-weight: 600; color: var(--green-dot); margin-bottom: 6px; }
         .history-podcast { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
@@ -223,13 +212,15 @@
 
         <header class="header">
             <div class="filter-container">
-                <select id="podcast-filter" class="filter-select" onchange="updateView()">
+                <select id="podcast-filter" class="filter-select" onchange="handleFilterChange()">
                     <option value="all">Tous</option>
                     <option value="comptabilise">Comptabilisés</option>
                     <option value="non-comptabilise">Non comptabilisés</option>
                     <option value="natif">Natifs</option>
                     <option value="integrale">Intégrales (Bêta)</option>
                     <option value="chroniques">Chroniques (Bêta)</option>
+                    <option disabled>──────────</option>
+                    <option value="player">Lecteur (Bêta) 🎵</option>
                 </select>
                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -239,7 +230,7 @@
             <div class="header-icons">
                 <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </header>
 
@@ -279,7 +270,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="setting-group">
                 <span class="setting-label">Actualisation auto (15m)</span>
                 <label class="toggle-switch">
@@ -287,7 +277,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="section-title" style="margin-left:0; margin-top:20px;">Ajouter un podcast</div>
             <div class="add-form">
                 <input type="text" id="new-podcast-url" class="form-input" placeholder="URL du flux RSS (https://...)">
@@ -301,7 +290,6 @@
                 </label>
                 <button class="form-btn" onclick="addPodcast()">Ajouter à la liste</button>
             </div>
-
             <div class="section-title" style="margin-left:0;">Gérer les flux existants</div>
             <div class="manage-list" id="manage-list-container"></div>
         </div>
@@ -316,6 +304,52 @@
             <div id="history-container"></div>
         </div>
     </div>
+
+    <div id="player-modal" class="player-modal">
+        <div class="player-header">
+            <span>En lecture (Aujourd'hui)</span>
+            <button class="player-close" onclick="closePlayer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+        </div>
+        
+        <div class="player-cover-container">
+            <img id="player-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="Cover" class="player-cover">
+        </div>
+        
+        <div class="player-info">
+            <div id="player-title" class="player-track-title">Sélectionnez un épisode</div>
+            <div id="player-podcast" class="player-track-podcast">...</div>
+        </div>
+        
+        <div class="player-controls">
+            <div class="progress-container">
+                <span id="player-time-current">0:00</span>
+                <input type="range" id="player-progress" class="progress-bar" value="0" min="0" max="100">
+                <span id="player-time-total">0:00</span>
+            </div>
+            <div class="buttons-container">
+                <button class="btn-skip" onclick="playPrev()">
+                    <svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
+                </button>
+                <button class="btn-play-pause" onclick="togglePlay()">
+                    <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="btn-skip" onclick="playNext()">
+                    <svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="player-queue">
+            <div class="queue-title">À SUIVRE</div>
+            <div id="player-queue-list">
+                </div>
+        </div>
+    </div>
+
+    <audio id="main-audio"></audio>
 
     <script>
         // === LA LISTE COMPLÈTE ===
@@ -452,8 +486,13 @@
         let historyData = []; 
         let freshPodcastsData = [];
         let freshHistoryData = [];
-
         let selectedHistoryDate = null; 
+
+        // Variables pour le Player
+        let playerQueue = [];
+        let currentTrackIndex = -1;
+        const audioEl = document.getElementById('main-audio');
+        let prevFilterValue = 'all';
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -475,13 +514,9 @@
         function parseDuration(str) {
             if (!str) return 0;
             let parts = str.split(':');
-            if (parts.length === 3) {
-                return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-            } else if (parts.length === 2) {
-                return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-            } else {
-                return parseInt(str) || 0;
-            }
+            if (parts.length === 3) { return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]); } 
+            else if (parts.length === 2) { return parseInt(parts[0]) * 60 + parseInt(parts[1]); } 
+            else { return parseInt(str) || 0; }
         }
 
         function initApp() {
@@ -504,12 +539,7 @@
                     const cache = JSON.parse(cacheStr);
                     allPodcastsData = cache.podcasts.map(p => {
                         const currentConfig = podcastConfig.find(c => c.url === p.url);
-                        return { 
-                            ...p, 
-                            latestPubDate: new Date(p.latestPubDate),
-                            natif: currentConfig ? currentConfig.natif : false,
-                            hasIntegrale: p.hasIntegrale || false
-                        };
+                        return { ...p, latestPubDate: new Date(p.latestPubDate), natif: currentConfig ? currentConfig.natif : false, hasIntegrale: p.hasIntegrale || false };
                     });
                     historyData = cache.history.map(h => ({ ...h, date: new Date(h.date) }));
                     return true;
@@ -518,9 +548,7 @@
             return false;
         }
 
-        function saveToCache(podcasts, history) {
-            localStorage.setItem('podcastsDataCache', JSON.stringify({ podcasts, history }));
-        }
+        function saveToCache(podcasts, history) { localStorage.setItem('podcastsDataCache', JSON.stringify({ podcasts, history })); }
 
         async function fetchFeeds(isBackground = false, isPtr = false) {
             let loadedCount = 0;
@@ -567,9 +595,7 @@
                                 if (!isException) {
                                     const durationNode = item.getElementsByTagName('itunes:duration')[0] || item.querySelector('duration');
                                     const durationStr = durationNode ? durationNode.textContent : '';
-                                    if (parseDuration(durationStr) >= 2700) { 
-                                        podcastHasIntegrale = true;
-                                    }
+                                    if (parseDuration(durationStr) >= 2700) { podcastHasIntegrale = true; }
                                 }
 
                                 const exactDate = new Date(pubDateStr);
@@ -583,22 +609,17 @@
                                         podcast: title,
                                         title: item.querySelector("title")?.textContent || "Sans titre",
                                         date: exactDate,
-                                        url: item.querySelector("enclosure")?.getAttribute("url") || config.url
+                                        url: item.querySelector("enclosure")?.getAttribute("url") || config.url,
+                                        image: imgUrl // Nécessaire pour le player
                                     });
                                 }
                             });
 
                             tempPodcastsData.push({
-                                url: config.url,
-                                comptabilise: config.comptabilise,
-                                natif: config.natif,
-                                hasIntegrale: podcastHasIntegrale, 
-                                name: title,
-                                image: imgUrl,
-                                latestEpisodeTitle: latestTitle,
-                                latestPubDate: latestPubDate,
-                                dailyCounts: dailyCounts,
-                                episodesToday: dailyCounts[6] 
+                                url: config.url, comptabilise: config.comptabilise, natif: config.natif,
+                                hasIntegrale: podcastHasIntegrale, name: title, image: imgUrl,
+                                latestEpisodeTitle: latestTitle, latestPubDate: latestPubDate,
+                                dailyCounts: dailyCounts, episodesToday: dailyCounts[6] 
                             });
                         }
                     } catch (error) { console.error("Erreur sur " + config.url); }
@@ -620,10 +641,7 @@
                 freshPodcastsData = tempPodcastsData;
                 freshHistoryData = tempHistoryData;
                 saveToCache(tempPodcastsData, tempHistoryData); 
-
-                if (isDifferent) {
-                    document.getElementById('update-badge').classList.add('show');
-                }
+                if (isDifferent) { document.getElementById('update-badge').classList.add('show'); }
             } else {
                 allPodcastsData = tempPodcastsData;
                 historyData = tempHistoryData;
@@ -638,6 +656,17 @@
             document.getElementById('update-badge').classList.remove('show');
             updateView();
             window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function handleFilterChange() {
+            const filterValue = document.getElementById('podcast-filter').value;
+            if (filterValue === 'player') {
+                document.getElementById('podcast-filter').value = prevFilterValue; // On remet le filtre précédent
+                openPlayer();
+                return;
+            }
+            prevFilterValue = filterValue;
+            updateView();
         }
 
         function updateView() {
@@ -657,10 +686,7 @@
                 return matchSelect && matchSearch;
             });
 
-            const graphData = dates7Days.map(time => ({
-                label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }),
-                count: 0
-            }));
+            const graphData = dates7Days.map(time => ({ label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 }));
 
             let grandTotal = 0;
             filteredData.forEach(pod => {
@@ -671,10 +697,7 @@
             });
 
             renderApp(filteredData, graphData, grandTotal);
-            
-            if(document.getElementById('history-modal').style.display === 'flex') {
-                renderHistory();
-            }
+            if(document.getElementById('history-modal').style.display === 'flex') { renderHistory(); }
         }
 
         function renderApp(podcasts, graphData, total7Days) {
@@ -706,43 +729,24 @@
                         <span class="bar-label">${day.label.charAt(0).toUpperCase() + day.label.slice(1,3)}</span>
                     </div>`;
             });
-
             html += `</div></div></section>`;
 
-            // === 1. SMART INSIGHT IA ===
-            const todayCount = graphData[6].count;
-            const yestCount = graphData[5].count;
-            const dbyCount = graphData[4].count;
-            
+            // SMART INSIGHT
+            const todayCount = graphData[6].count; const yestCount = graphData[5].count; const dbyCount = graphData[4].count;
             let insightText = "";
-            if (yestCount > dbyCount) {
-                insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
-            } else if (yestCount < dbyCount) {
-                insightText += `Baisse de régime hier (${yestCount} sorties) contre ${dbyCount} avant-hier. `;
-            } else if (yestCount > 0 && yestCount === dbyCount) {
-                insightText += `Activité stable hier (${yestCount} sorties). `;
-            }
-
-            if (todayCount > yestCount && todayCount > 0) {
-                insightText += `Aujourd'hui s'annonce très fort avec déjà ${todayCount} publication(s) !`;
-            } else if (todayCount === 0) {
-                insightText += `Journée encore très calme aujourd'hui.`;
-            } else {
-                insightText += `La dynamique continue aujourd'hui avec ${todayCount} publication(s).`;
-            }
+            if (yestCount > dbyCount) insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
+            else if (yestCount < dbyCount) insightText += `Baisse de régime hier (${yestCount} sorties) contre ${dbyCount} avant-hier. `;
+            else if (yestCount > 0 && yestCount === dbyCount) insightText += `Activité stable hier (${yestCount} sorties). `;
+            
+            if (todayCount > yestCount && todayCount > 0) insightText += `Aujourd'hui s'annonce très fort avec déjà ${todayCount} publication(s) !`;
+            else if (todayCount === 0) insightText += `Journée encore très calme aujourd'hui.`;
+            else insightText += `La dynamique continue aujourd'hui avec ${todayCount} publication(s).`;
 
             const bulbIcon = `<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>`;
+            html += `<div class="smart-insight-card"><div class="insight-icon-container">${bulbIcon}</div><div class="insight-text">${insightText}</div></div>`;
 
-            html += `
-            <div class="smart-insight-card">
-                <div class="insight-icon-container">${bulbIcon}</div>
-                <div class="insight-text">${insightText}</div>
-            </div>`;
-
-            // === 2. RÉPARTITION DES FORCES ===
-            let countNatifs = 0; let countIntegrales = 0; let countChroniques = 0; 
-            let totalDist = 0; 
-            
+            // RÉPARTITION
+            let countNatifs = 0; let countIntegrales = 0; let countChroniques = 0; let totalDist = 0; 
             podcasts.forEach(p => {
                 if (p.episodesToday > 0 && p.comptabilise) {
                     if (p.natif) countNatifs += p.episodesToday;
@@ -756,7 +760,6 @@
                 const pctNatif = (countNatifs / totalDist) * 100;
                 const pctIntegrale = (countIntegrales / totalDist) * 100;
                 const pctChronique = (countChroniques / totalDist) * 100;
-
                 html += `
                 <div class="distribution-card">
                     <div class="dist-title">Répartition du jour</div>
@@ -774,13 +777,8 @@
             }
 
             html += `<div class="section-title">Aujourd'hui</div><section class="podcast-list">`;
-
             let totalToday = podcasts.reduce((sum, p) => sum + p.episodesToday, 0);
-
-            if(podcasts.length === 0 || totalToday === 0) { 
-                html += `<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Aucun épisode publié aujourd'hui pour cette sélection.</div>`; 
-            }
-
+            if(podcasts.length === 0 || totalToday === 0) { html += `<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Aucun épisode publié aujourd'hui pour cette sélection.</div>`; }
             podcasts.forEach(pod => {
                 if (pod.episodesToday > 0) {
                     const statusClass = pod.episodesToday > 0 ? "active" : "inactive";
@@ -788,25 +786,157 @@
                         <div class="podcast-item" onclick="window.open('${pod.url}', '_blank')">
                             <img src="${pod.image}" alt="${pod.name}" class="podcast-img">
                             <div class="podcast-info">
-                                <div class="podcast-name-container">
-                                    <span class="podcast-name">${pod.name}</span>
-                                    <span class="status-dot ${statusClass}"></span>
-                                </div>
+                                <div class="podcast-name-container"><span class="podcast-name">${pod.name}</span><span class="status-dot ${statusClass}"></span></div>
                                 <div class="podcast-episode">${pod.latestEpisodeTitle}</div>
                             </div>
                             <div class="podcast-count">${pod.episodesToday}</div>
                         </div>`;
                 }
             });
-
             html += `</section>`;
             appDiv.innerHTML = html;
         }
 
+        // ==========================================
+        // GESTION DU PLAYER AUDIO BETA
+        // ==========================================
+        function openPlayer() {
+            // Filtrer l'historique pour ne garder que la journée en cours
+            const todayStart = new Date(dates7Days[6]);
+            
+            playerQueue = historyData.filter(ep => {
+                const epDate = new Date(ep.date);
+                epDate.setHours(0,0,0,0);
+                // On s'assure d'avoir une image, sinon on met un placeholder
+                if(!ep.image) ep.image = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=";
+                return epDate.getTime() === todayStart.getTime();
+            });
+
+            if (playerQueue.length === 0) {
+                alert("Aucun épisode n'a été publié aujourd'hui pour le lecteur !");
+                return;
+            }
+
+            renderPlayerQueue();
+            document.getElementById('player-modal').style.display = 'flex';
+            
+            // Si on ne joue rien, on prépare le premier titre
+            if (currentTrackIndex === -1) {
+                loadTrack(0);
+            }
+        }
+
+        function closePlayer() {
+            document.getElementById('player-modal').style.display = 'none';
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = playerQueue[index];
+            
+            document.getElementById('player-title').innerText = track.title;
+            document.getElementById('player-podcast').innerText = track.podcast;
+            document.getElementById('player-cover').src = track.image;
+            
+            audioEl.src = track.url;
+            audioEl.load();
+            
+            // Mettre à jour l'UI de la file d'attente
+            renderPlayerQueue();
+        }
+
+        function togglePlay() {
+            if (playerQueue.length === 0) return;
+            if (currentTrackIndex === -1) loadTrack(0);
+            
+            if (audioEl.paused) {
+                audioEl.play();
+                document.getElementById('play-icon').style.display = 'none';
+                document.getElementById('pause-icon').style.display = 'block';
+            } else {
+                audioEl.pause();
+                document.getElementById('play-icon').style.display = 'block';
+                document.getElementById('pause-icon').style.display = 'none';
+            }
+        }
+
+        function playNext() {
+            if (playerQueue.length === 0) return;
+            let nextIndex = currentTrackIndex + 1;
+            if (nextIndex >= playerQueue.length) nextIndex = 0; // Loop back
+            loadTrack(nextIndex);
+            audioEl.play();
+            document.getElementById('play-icon').style.display = 'none';
+            document.getElementById('pause-icon').style.display = 'block';
+        }
+
+        function playPrev() {
+            if (playerQueue.length === 0) return;
+            let prevIndex = currentTrackIndex - 1;
+            if (prevIndex < 0) prevIndex = playerQueue.length - 1;
+            loadTrack(prevIndex);
+            audioEl.play();
+            document.getElementById('play-icon').style.display = 'none';
+            document.getElementById('pause-icon').style.display = 'block';
+        }
+
+        function renderPlayerQueue() {
+            const container = document.getElementById('player-queue-list');
+            let html = '';
+            playerQueue.forEach((track, index) => {
+                const isPlayingClass = (index === currentTrackIndex) ? 'playing' : '';
+                html += `
+                    <div class="queue-item ${isPlayingClass}" onclick="loadTrack(${index}); togglePlay();">
+                        <img src="${track.image}" class="queue-img">
+                        <div class="queue-info">
+                            <div class="queue-track">${track.title}</div>
+                            <div class="queue-pod">${track.podcast}</div>
+                        </div>
+                        <svg class="queue-playing-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v18M8 8v8M16 6v12"/></svg>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // MAJ de la progress bar
+        audioEl.addEventListener('timeupdate', () => {
+            const progress = document.getElementById('player-progress');
+            if (audioEl.duration) {
+                const value = (audioEl.currentTime / audioEl.duration) * 100;
+                progress.value = value;
+                document.getElementById('player-time-current').innerText = formatTime(audioEl.currentTime);
+                document.getElementById('player-time-total').innerText = formatTime(audioEl.duration);
+            }
+        });
+
+        // Seek dans l'audio
+        document.getElementById('player-progress').addEventListener('input', (e) => {
+            if (audioEl.duration) {
+                const time = (e.target.value / 100) * audioEl.duration;
+                audioEl.currentTime = time;
+            }
+        });
+
+        audioEl.addEventListener('ended', playNext);
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec.toString().padStart(2, '0')}`;
+        }
+
+
+        // ==========================================
+        // GESTION DU RESTE DU CODE (PULL, MODALS...)
+        // ==========================================
         let startY = 0; let currentY = 0; let isPulling = false;
         const ptrIndicator = document.getElementById('ptr-indicator');
 
         document.addEventListener('touchstart', e => {
+            // Ignorer le pull to refresh si on est dans le modal du lecteur pour ne pas gêner le scroll de la playlist
+            if (document.getElementById('player-modal').style.display === 'flex') return;
             if (window.scrollY === 0) { startY = e.touches[0].clientY; isPulling = true; }
         }, { passive: true });
 
@@ -851,16 +981,11 @@
             document.getElementById('history-modal').style.display = 'flex';
         }
 
-        function selectHistoryDate(time) {
-            selectedHistoryDate = time;
-            renderHistory();
-        }
+        function selectHistoryDate(time) { selectedHistoryDate = time; renderHistory(); }
 
         function renderHistory() {
             const container = document.getElementById('history-container');
-            let html = '';
-
-            html += '<div class="calendar-strip">';
+            let html = '<div class="calendar-strip">';
             dates7Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
@@ -874,8 +999,7 @@
             const dateLabel = selectedDateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             
             const episodesForDay = historyData.filter(ep => {
-                const epDate = new Date(ep.date);
-                epDate.setHours(0,0,0,0);
+                const epDate = new Date(ep.date); epDate.setHours(0,0,0,0);
                 return epDate.getTime() === selectedHistoryDate;
             });
 
@@ -892,27 +1016,18 @@
             container.innerHTML = html;
         }
 
-        function openSettings() {
-            renderManageList();
-            document.getElementById('settings-modal').style.display = 'flex';
-        }
-
+        function openSettings() { renderManageList(); document.getElementById('settings-modal').style.display = 'flex'; }
         function toggleDarkMode() {
             const isDark = document.getElementById('dark-mode-toggle').checked;
             if(isDark) { document.body.classList.add('dark-mode'); } else { document.body.classList.remove('dark-mode'); }
             localStorage.setItem('darkMode', isDark);
         }
-
         function toggleAutoRefresh() {
             const autoOn = document.getElementById('auto-refresh-toggle').checked;
             localStorage.setItem('autoRefresh', autoOn);
             if(autoOn) { startAutoRefresh(); } else { clearInterval(refreshIntervalId); }
         }
-
-        function startAutoRefresh() {
-            clearInterval(refreshIntervalId);
-            refreshIntervalId = setInterval(() => fetchFeeds(true), 900000);
-        }
+        function startAutoRefresh() { clearInterval(refreshIntervalId); refreshIntervalId = setInterval(() => fetchFeeds(true), 900000); }
 
         function renderManageList() {
             const container = document.getElementById('manage-list-container');
@@ -954,11 +1069,7 @@
             else { searchBar.style.display = 'flex'; document.getElementById('search-input').focus(); }
         }
 
-        function closeSearch() {
-            document.getElementById('search-bar').style.display = 'none';
-            document.getElementById('search-input').value = '';
-            updateView(); 
-        }
+        function closeSearch() { document.getElementById('search-bar').style.display = 'none'; document.getElementById('search-input').value = ''; updateView(); }
 
         initApp();
     </script>
