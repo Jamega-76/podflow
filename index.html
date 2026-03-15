@@ -56,7 +56,7 @@
         .filter-select { appearance: none; background-color: var(--card-bg); border: none; padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600; font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; outline: none; transition: background-color 0.3s; }
         .filter-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 12px; height: 12px; }
         .header-icons { display: flex; gap: 12px; background-color: var(--card-bg); padding: 8px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: background-color 0.3s; }
-        .header-icons svg { width: 20px; height: 20px; color: var(--text-main); cursor: pointer; flex-shrink: 0; /* Empêche les icônes de s'écraser */ }
+        .header-icons svg { width: 20px; height: 20px; color: var(--text-main); cursor: pointer; flex-shrink: 0; }
 
         /* === BARRE DE RECHERCHE === */
         .search-container { display: none; background-color: var(--card-bg); border-radius: 12px; padding: 8px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); align-items: center; gap: 10px; margin-top: -10px; animation: slideDown 0.2s ease-out; }
@@ -65,7 +65,7 @@
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
         /* === ZONE DYNAMIQUE === */
-        #app { display: flex; flex-direction: column; gap: 20px; padding-bottom: 80px; /* Évite de cacher la liste derrière le mini-player */ }
+        #app { display: flex; flex-direction: column; gap: 20px; padding-bottom: 80px; }
 
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 40px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
@@ -212,7 +212,10 @@
         .mini-controls { display: flex; align-items: center; gap: 6px; }
         .mini-btn { background: none; border: none; color: var(--text-main); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
         .mini-btn:active { opacity: 0.5; }
-        .mini-btn svg { width: 22px; height: 22px; fill: currentColor; }
+        
+        /* Correction : on ne force plus de fill global pour ne pas boucher les cercles des icônes 15s */
+        .mini-btn svg { width: 22px; height: 22px; }
+        
         .mini-btn-close { color: var(--text-secondary); margin-left: 4px; border-left: 1px solid var(--border-line); padding-left: 12px; }
         .mini-btn-close svg { width: 18px; height: 18px; }
 
@@ -280,7 +283,7 @@
 
                 <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 
-                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </header>
 
@@ -417,7 +420,7 @@
     </div>
 
     <div id="mini-player" class="mini-player" onclick="openPlayer()">
-        <img id="mini-player-cover" class="mini-cover" src="">
+        <img id="mini-player-cover" class="mini-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=">
         <div class="mini-info">
             <div id="mini-player-title" class="mini-title">Titre</div>
             <div id="mini-player-podcast" class="mini-podcast">Podcast</div>
@@ -426,17 +429,22 @@
             <button class="mini-btn" onclick="seekAudio(-15)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                    <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
                 </svg>
             </button>
+            
             <button class="mini-btn" onclick="togglePlay()">
-                <svg id="mini-play-icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="mini-pause-icon" viewBox="0 0 24 24" style="display:none; width:24px; height:24px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg id="mini-play-icon" viewBox="0 0 24 24" fill="currentColor" style="width:24px; height:24px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="mini-pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none; width:24px; height:24px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
+            
             <button class="mini-btn" onclick="seekAudio(15)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+                    <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
                 </svg>
             </button>
+            
             <button class="mini-btn mini-btn-close" onclick="closeMiniPlayer(event)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -625,7 +633,7 @@
                 fetchFeeds(false);
             }
             
-            // Syncro des icônes Play/Pause entre les deux lecteurs
+            // Syncro des icônes Play/Pause entre les deux lecteurs via les événements système !
             audioEl.addEventListener('play', () => {
                 document.getElementById('play-icon').style.display = 'none';
                 document.getElementById('pause-icon').style.display = 'block';
@@ -783,6 +791,7 @@
                 return matchSelect && matchSearch;
             });
 
+            // Initialisation avec compteurs séparés pour le tooltip
             const graphData = dates9Days.map(time => ({ 
                 label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
                 count: 0,
@@ -830,6 +839,7 @@
                 const heightPercentage = (day.count / maxEpisodes) * 100;
                 const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
                 
+                // La barre devient interactive et affiche le tooltip au clic
                 html += `
                     <div class="bar-container" onclick="this.classList.toggle('show-split')">
                         ${day.count > 0 ? `<div class="bar-value">${day.count}</div>` : ''}
@@ -844,6 +854,7 @@
             });
             html += `</div></div></section>`;
 
+            // SMART INSIGHT (Ajusté pour le tableau à 9 jours, Aujourd'hui = index 8)
             const todayCount = graphData[8].count; const yestCount = graphData[7].count; const dbyCount = graphData[6].count;
             let insightText = "";
             if (yestCount > dbyCount) insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
@@ -913,7 +924,7 @@
         // GESTION DU PLAYER AUDIO BETA
         // ==========================================
         function openPlayer() {
-            const todayStart = new Date(dates9Days[8]);
+            const todayStart = new Date(dates9Days[8]); // Aujourd'hui
             
             playerQueue = historyData.filter(ep => {
                 const epDate = new Date(ep.date);
@@ -927,7 +938,7 @@
                 return;
             }
 
-            document.getElementById('mini-player').style.display = 'none';
+            document.getElementById('mini-player').style.display = 'none'; // Masquer le mini player si ouvert
 
             renderPlayerQueue();
             document.getElementById('player-modal').style.display = 'flex';
@@ -939,13 +950,15 @@
 
         function closePlayer() { 
             document.getElementById('player-modal').style.display = 'none'; 
+            
+            // Affiche le mini player si on a une piste chargée (même en pause)
             if (currentTrackIndex !== -1) {
                 document.getElementById('mini-player').style.display = 'flex';
             }
         }
 
         function closeMiniPlayer(event) {
-            if (event) event.stopPropagation(); 
+            if (event) event.stopPropagation(); // Évite de rouvrir le grand lecteur
             audioEl.pause();
             document.getElementById('mini-player').style.display = 'none';
         }
@@ -954,10 +967,12 @@
             currentTrackIndex = index;
             const track = playerQueue[index];
             
+            // Grand lecteur
             document.getElementById('player-title').innerText = track.title;
             document.getElementById('player-podcast').innerText = track.podcast;
             document.getElementById('player-cover').src = track.image;
             
+            // Mini lecteur
             document.getElementById('mini-player-title').innerText = track.title;
             document.getElementById('mini-player-podcast').innerText = track.podcast;
             document.getElementById('mini-player-cover').src = track.image;
@@ -965,6 +980,8 @@
             audioEl.src = track.url;
             audioEl.load();
             renderPlayerQueue();
+            
+            // Scroll fluide vers le haut du modal lecteur
             document.getElementById('player-modal').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1104,6 +1121,7 @@
             const container = document.getElementById('history-container');
             let html = '<div class="calendar-strip">';
             
+            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
             dates9Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
@@ -1133,6 +1151,7 @@
             }
             container.innerHTML = html;
 
+            // Scroll fluide pour centrer la date active dans le carrousel
             setTimeout(() => {
                 const activeDay = container.querySelector('.calendar-day.active');
                 if (activeDay) {
