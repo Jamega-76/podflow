@@ -71,9 +71,10 @@
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
         
-        /* Ajustement des marges internes du graphique pour décoller les jours des bords */
-        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; }
-        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 15px; /* Décolle les barres des bords */ }
+        /* === CORRECTION ESPACEMENT GRAPHIQUE ICI === */
+        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; /* Laisse la place pour les chiffres à droite */ }
+        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 20px; /* Ajoute de l'air à gauche et à droite des colonnes ! */ }
+        
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
         .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
@@ -1001,7 +1002,7 @@
             const container = document.getElementById('history-container');
             let html = '<div class="calendar-strip">';
             
-            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
+            // Ordre chronologique, aujourd'hui à droite
             dates7Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
@@ -1031,7 +1032,7 @@
             }
             container.innerHTML = html;
 
-            // Scroll fluide pour centrer la date active dans le carrousel
+            // Centrage automatique du jour cliqué
             setTimeout(() => {
                 const activeDay = container.querySelector('.calendar-day.active');
                 if (activeDay) {
