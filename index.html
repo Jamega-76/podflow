@@ -24,13 +24,11 @@
             --border-radius-lg: 24px;
             --border-radius-sm: 16px;
             
-            /* === PALETTE COULEURS DISCRÈTES (RÉPARTITION) === */
             --color-natif: #82b1ff;       
             --color-integrale: #ffcc80;   
             --color-chronique: #a5d6a7;   
         }
 
-        /* === MODE SOMBRE === */
         body.dark-mode {
             --bg-color: #000000;
             --card-bg: #1c1c1e;
@@ -40,17 +38,9 @@
             --gray-dot: #48484a;
         }
 
-        * {
-            box-sizing: border-box; margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background-color: var(--bg-color); color: var(--text-main);
-            display: flex; justify-content: center; min-height: 100vh; padding: 20px;
-            transition: background-color 0.3s, color 0.3s; overscroll-behavior-y: none;
-        }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding: 20px; transition: background-color 0.3s, color 0.3s; overscroll-behavior-y: none; }
 
         .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; position: relative; }
 
@@ -74,12 +64,10 @@
         .search-input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
-        /* === ZONE DYNAMIQUE PRINCIPALE === */
+        /* === ZONE DYNAMIQUE === */
         #app { display: flex; flex-direction: column; gap: 20px; }
 
-        /* === CARTE GRAPHIQUE === */
-        /* CORRECTION : Remise du padding à 34px en bas pour les jours */
-        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 34px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
         .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
@@ -87,51 +75,33 @@
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
         .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
-        .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 30px; position: relative; cursor: pointer; }
-        
-        .bar-value { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); transition: transform 0.2s ease;}
-        
-        .bar-tooltip {
-            position: absolute;
-            background: var(--text-main);
-            color: var(--bg-color);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            transition: all 0.2s ease;
-            pointer-events: none;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            gap: 8px;
-            left: 50%;
-            transform: translateX(-50%) translateY(5px);
-        }
-        .bar-tooltip::after {
-            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            border-width: 5px; border-style: solid; border-color: var(--text-main) transparent transparent transparent;
-        }
-        .bar-container.active .bar-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .bar-container.active .bar-value { transform: scale(1.1); }
-
+        .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 30px; position: relative; }
+        .bar-value { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === SMART INSIGHT === */
         .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
         .insight-icon-container { flex-shrink: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: #ffcc80;}
         .insight-text { color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 500; }
 
-        /* === RÉPARTITION DES FORCES === */
         .distribution-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
-        .dist-bar { display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s; cursor: pointer; position: relative;}
-        .dist-segment { transition: width 0.4s ease; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .dist-pct { font-size: 11px; font-weight: 700; color: #ffffff; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-shadow: 0px 1px 3px rgba(0,0,0,0.3); }
-        .dist-bar.show-pct .dist-pct { opacity: 1; }
+        
+        /* === BARRE DE RÉPARTITION AVEC PCT VISIBLES PAR DÉFAUT === */
+        .dist-bar { 
+            display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; 
+            background-color: var(--bg-color); transition: background-color 0.3s; 
+            position: relative;
+        }
+        .dist-segment { 
+            transition: width 0.4s ease; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .dist-pct { 
+            font-size: 11px; font-weight: 700; color: #ffffff; white-space: nowrap;
+            opacity: 1; pointer-events: none; 
+            text-shadow: 0px 1px 3px rgba(0,0,0,0.3); 
+        }
+
         .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; color: var(--text-main); }
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
@@ -140,13 +110,10 @@
         .bg-integrale { background-color: var(--color-integrale); }
         .bg-chronique { background-color: var(--color-chronique); }
 
-        /* === LISTE DES PODCASTS === */
         .section-title { font-size: 18px; font-weight: 600; color: var(--text-secondary); margin: 5px 0 0 5px; }
         .podcast-list { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: background-color 0.3s; }
         .podcast-item { display: flex; align-items: center; padding: 16px 12px; margin: 0 -12px; border-bottom: 1px solid var(--bg-color); cursor: pointer; transition: all 0.2s ease; border-radius: 12px; }
         .podcast-item:hover { background-color: var(--bg-color); transform: scale(0.99); }
-        .podcast-item:active { opacity: 0.6; }
-        .podcast-item:last-child { border-bottom: none; }
         .podcast-img { width: 48px; height: 48px; border-radius: 12px; background-color: var(--border-line); object-fit: cover; margin-right: 16px; }
         .podcast-info { flex: 1; overflow: hidden; }
         .podcast-name-container { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -157,7 +124,6 @@
         .podcast-episode { font-size: 13px; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .podcast-count { font-size: 17px; font-weight: 600; color: var(--text-main); margin-left: 10px; }
 
-        /* === PROGRESS BAR & BADGE UPDATE === */
         .loading-container { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 30px 24px; text-align: center; margin-top: 20px; }
         .loading-title { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 16px; }
         .progress-bar-bg { width: 100%; height: 8px; background-color: var(--border-line); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
@@ -166,9 +132,8 @@
 
         .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
         .update-badge.show { transform: translate(-50%, 0); }
-        .update-badge svg { width: 16px; height: 16px; }
 
-        /* === MODALS === */
+        /* === MODALS (Base) === */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; padding: 24px; overflow-y: auto; position: relative; animation: slideUp 0.3s ease-out; }
@@ -176,43 +141,8 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        
-        .setting-group { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-label { font-size: 16px; font-weight: 500; color: var(--text-main); }
-        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--gray-dot); transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--green-dot); }
-        input:checked + .slider:before { transform: translateX(22px); }
 
-        .add-form { display: flex; flex-direction: column; gap: 10px; background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
-        .form-input { padding: 10px; border-radius: 8px; border: 1px solid var(--border-line); background: var(--bg-color); color: var(--text-main); }
-        .form-btn { background: var(--text-main); color: var(--bg-color); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        
-        .manage-list { background: var(--card-bg); border-radius: 12px; overflow: hidden; }
-        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-line); }
-        .manage-item:last-child { border-bottom: none; }
-        .manage-item-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-        .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
-
-        /* CALENDRIER HISTORIQUE */
-        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; }
-        .calendar-strip::-webkit-scrollbar { display: none; }
-        .calendar-strip { -ms-overflow-style: none; scrollbar-width: none; }
-        .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; padding: 12px 0; border-radius: 16px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .calendar-day.active { background: var(--text-main); color: var(--bg-color); transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .calendar-day-name { font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
-        .calendar-day-num { font-size: 22px; font-weight: 700; }
-        .history-day-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-        .history-count-badge { font-weight: 500; color: var(--text-secondary); font-size: 15px; margin-left: 5px; }
-        .history-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s ease; cursor: pointer;}
-        .history-item:active { transform: scale(0.98); }
-        .history-time { font-size: 12px; font-weight: 600; color: var(--green-dot); margin-bottom: 6px; }
-        .history-podcast { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
-        .history-title { font-size: 14px; font-style: italic; color: var(--text-secondary); }
-
-        /* === LECTEUR AUDIO === */
+        /* === LECTEUR AUDIO BÊTA === */
         .player-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
@@ -253,6 +183,38 @@
         .queue-playing-icon { width: 16px; height: 16px; color: var(--green-dot); display: none; }
         .queue-item.playing .queue-playing-icon { display: block; }
 
+        /* Autres Settings... */
+        .setting-group { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-label { font-size: 16px; font-weight: 500; color: var(--text-main); }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--gray-dot); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green-dot); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .add-form { display: flex; flex-direction: column; gap: 10px; background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .form-input { padding: 10px; border-radius: 8px; border: 1px solid var(--border-line); background: var(--bg-color); color: var(--text-main); }
+        .form-btn { background: var(--text-main); color: var(--bg-color); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .manage-list { background: var(--card-bg); border-radius: 12px; overflow: hidden; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-line); }
+        .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
+
+        /* CALENDRIER HISTORIQUE */
+        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; }
+        .calendar-strip::-webkit-scrollbar { display: none; }
+        .calendar-strip { -ms-overflow-style: none; scrollbar-width: none; }
+        .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; padding: 12px 0; border-radius: 16px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .calendar-day.active { background: var(--text-main); color: var(--bg-color); transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .calendar-day-name { font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .calendar-day-num { font-size: 22px; font-weight: 700; }
+        .history-day-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+        .history-count-badge { font-weight: 500; color: var(--text-secondary); font-size: 15px; margin-left: 5px; }
+        .history-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s ease; cursor: pointer;}
+        .history-item:active { transform: scale(0.98); }
+        .history-time { font-size: 12px; font-weight: 600; color: var(--green-dot); margin-bottom: 6px; }
+        .history-podcast { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .history-title { font-size: 14px; font-style: italic; color: var(--text-secondary); }
+
     </style>
 </head>
 <body id="body">
@@ -263,13 +225,15 @@
 
         <header class="header">
             <div class="filter-container">
-                <select id="podcast-filter" class="filter-select" onchange="updateView()">
+                <select id="podcast-filter" class="filter-select" onchange="handleFilterChange()">
                     <option value="all">Tous</option>
                     <option value="comptabilise">Comptabilisés</option>
                     <option value="non-comptabilise">Non comptabilisés</option>
                     <option value="natif">Natifs</option>
                     <option value="integrale">Intégrales (Bêta)</option>
                     <option value="chroniques">Chroniques (Bêta)</option>
+                    <option disabled>──────────</option>
+                    <option value="player">Lecteur (Bêta) 🎵</option>
                 </select>
                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -278,11 +242,7 @@
             
             <div class="header-icons">
                 <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                
-                <svg onclick="openPlayer()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-                
                 <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                
                 <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </header>
@@ -544,6 +504,7 @@
         let playerQueue = [];
         let currentTrackIndex = -1;
         const audioEl = document.getElementById('main-audio');
+        let prevFilterValue = 'all';
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -709,6 +670,17 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
+        function handleFilterChange() {
+            const filterValue = document.getElementById('podcast-filter').value;
+            if (filterValue === 'player') {
+                document.getElementById('podcast-filter').value = prevFilterValue;
+                openPlayer();
+                return;
+            }
+            prevFilterValue = filterValue;
+            updateView();
+        }
+
         function updateView() {
             const filterValue = document.getElementById('podcast-filter').value;
             const searchValue = document.getElementById('search-input').value.toLowerCase();
@@ -726,24 +698,13 @@
                 return matchSelect && matchSearch;
             });
 
-            const graphData = dates7Days.map(time => ({ 
-                label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
-                count: 0, counted: 0, uncounted: 0 
-            }));
+            const graphData = dates7Days.map(time => ({ label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 }));
 
             let grandTotal = 0;
             filteredData.forEach(pod => {
                 for (let i = 0; i < 7; i++) {
-                    const epCount = pod.dailyCounts[i];
-                    if (epCount > 0) {
-                        graphData[i].count += epCount;
-                        if (pod.comptabilise) {
-                            graphData[i].counted += epCount;
-                        } else {
-                            graphData[i].uncounted += epCount;
-                        }
-                        grandTotal += epCount;
-                    }
+                    graphData[i].count += pod.dailyCounts[i];
+                    grandTotal += pod.dailyCounts[i];
                 }
             });
 
@@ -774,13 +735,8 @@
                 const heightPercentage = (day.count / maxEpisodes) * 100;
                 const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
                 html += `
-                    <div class="bar-container" onclick="this.classList.toggle('active')">
-                        ${day.count > 0 ? `
-                        <div class="bar-tooltip" style="bottom: calc(${finalHeight}% + 25px);">
-                            <div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--green-dot);">●</span> ${day.counted}</div>
-                            <div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-secondary);">●</span> ${day.uncounted}</div>
-                        </div>
-                        <div class="bar-value">${day.count}</div>` : ''}
+                    <div class="bar-container">
+                        ${day.count > 0 ? `<div class="bar-value">${day.count}</div>` : ''}
                         <div class="bar" style="height: ${finalHeight}%;"></div>
                         <span class="bar-label">${day.label.charAt(0).toUpperCase() + day.label.slice(1,3)}</span>
                     </div>`;
@@ -818,7 +774,7 @@
                 html += `
                 <div class="distribution-card">
                     <div class="dist-title">Répartition du jour</div>
-                    <div class="dist-bar" onclick="this.classList.toggle('show-pct')">
+                    <div class="dist-bar">
                         ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"><span class="dist-pct">${Math.round(pctNatif)}%</span></div>` : ''}
                         ${pctIntegrale > 0 ? `<div class="dist-segment bg-integrale" style="width: ${pctIntegrale}%"><span class="dist-pct">${Math.round(pctIntegrale)}%</span></div>` : ''}
                         ${pctChronique > 0 ? `<div class="dist-segment bg-chronique" style="width: ${pctChronique}%"><span class="dist-pct">${Math.round(pctChronique)}%</span></div>` : ''}
