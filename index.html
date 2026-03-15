@@ -70,8 +70,10 @@
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
-        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
-        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; }
+        
+        /* Ajustement des marges internes du graphique pour décoller les jours des bords */
+        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; }
+        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 15px; /* Décolle les barres des bords */ }
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
         .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
@@ -86,21 +88,9 @@
 
         .distribution-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
-        
-        /* === BARRE DE RÉPARTITION AVEC PCT VISIBLES PAR DÉFAUT === */
-        .dist-bar { 
-            display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; 
-            background-color: var(--bg-color); transition: background-color 0.3s; 
-            position: relative;
-        }
-        .dist-segment { 
-            transition: width 0.4s ease; display: flex; justify-content: center; align-items: center; overflow: hidden;
-        }
-        .dist-pct { 
-            font-size: 11px; font-weight: 700; color: #ffffff; white-space: nowrap;
-            opacity: 1; pointer-events: none; 
-            text-shadow: 0px 1px 3px rgba(0,0,0,0.3); 
-        }
+        .dist-bar { display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s; position: relative; }
+        .dist-segment { transition: width 0.4s ease; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .dist-pct { font-size: 11px; font-weight: 700; color: #ffffff; white-space: nowrap; opacity: 1; pointer-events: none; text-shadow: 0px 1px 3px rgba(0,0,0,0.3); }
 
         .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; color: var(--text-main); }
         .legend-item { display: flex; align-items: center; gap: 6px; }
@@ -114,6 +104,8 @@
         .podcast-list { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: background-color 0.3s; }
         .podcast-item { display: flex; align-items: center; padding: 16px 12px; margin: 0 -12px; border-bottom: 1px solid var(--bg-color); cursor: pointer; transition: all 0.2s ease; border-radius: 12px; }
         .podcast-item:hover { background-color: var(--bg-color); transform: scale(0.99); }
+        .podcast-item:active { opacity: 0.6; }
+        .podcast-item:last-child { border-bottom: none; }
         .podcast-img { width: 48px; height: 48px; border-radius: 12px; background-color: var(--border-line); object-fit: cover; margin-right: 16px; }
         .podcast-info { flex: 1; overflow: hidden; }
         .podcast-name-container { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -142,12 +134,12 @@
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-        /* === LECTEUR AUDIO BÊTA === */
+        /* === LECTEUR AUDIO === */
         .player-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
             z-index: 1000; flex-direction: column; align-items: center; color: white;
-            animation: fadeIn 0.3s ease-out; overflow-y: auto;
+            animation: fadeIn 0.3s ease-out; overflow-y: auto; scroll-behavior: smooth;
         }
         .player-header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 20px; }
         .player-header span { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; }
@@ -165,11 +157,18 @@
         .progress-bar { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); outline: none; }
         .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: white; cursor: pointer; }
         
-        .buttons-container { display: flex; justify-content: center; align-items: center; gap: 30px; }
+        .buttons-container { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
+        
+        /* Boutons 15s */
+        .btn-skip-15 { background: none; border: none; color: white; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.2s; }
+        .btn-skip-15:active { opacity: 1; transform: scale(0.95); }
+        .btn-skip-15 svg { width: 32px; height: 32px; }
+        
         .btn-play-pause { width: 64px; height: 64px; border-radius: 50%; background: white; color: black; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.1s; }
         .btn-play-pause:active { transform: scale(0.95); }
         .btn-play-pause svg { width: 28px; height: 28px; fill: currentColor; }
-        .btn-skip { background: none; border: none; color: white; cursor: pointer; padding: 10px; }
+        .btn-skip { background: none; border: none; color: white; cursor: pointer; padding: 10px; opacity: 0.8; }
+        .btn-skip:active { opacity: 1; transform: scale(0.95); }
         .btn-skip svg { width: 28px; height: 28px; fill: currentColor; }
         
         .player-queue { width: 100%; max-width: 400px; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 24px 24px 0 0; flex: 1; }
@@ -200,7 +199,7 @@
         .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
 
         /* CALENDRIER HISTORIQUE */
-        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; }
+        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; scroll-behavior: smooth; }
         .calendar-strip::-webkit-scrollbar { display: none; }
         .calendar-strip { -ms-overflow-style: none; scrollbar-width: none; }
         .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; padding: 12px 0; border-radius: 16px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -225,15 +224,13 @@
 
         <header class="header">
             <div class="filter-container">
-                <select id="podcast-filter" class="filter-select" onchange="handleFilterChange()">
+                <select id="podcast-filter" class="filter-select" onchange="updateView()">
                     <option value="all">Tous</option>
                     <option value="comptabilise">Comptabilisés</option>
                     <option value="non-comptabilise">Non comptabilisés</option>
                     <option value="natif">Natifs</option>
                     <option value="integrale">Intégrales (Bêta)</option>
                     <option value="chroniques">Chroniques (Bêta)</option>
-                    <option disabled>──────────</option>
-                    <option value="player">Lecteur (Bêta) 🎵</option>
                 </select>
                 <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -242,6 +239,11 @@
             
             <div class="header-icons">
                 <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                
+                <svg onclick="openPlayer()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
+
                 <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
@@ -342,16 +344,34 @@
                 <span id="player-time-total">0:00</span>
             </div>
             <div class="buttons-container">
+                
+                <button class="btn-skip-15" onclick="seekAudio(-15)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                        <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
+                    </svg>
+                </button>
+                
                 <button class="btn-skip" onclick="playPrev()">
                     <svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
                 </button>
+                
                 <button class="btn-play-pause" onclick="togglePlay()">
                     <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
+                
                 <button class="btn-skip" onclick="playNext()">
                     <svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
                 </button>
+                
+                <button class="btn-skip-15" onclick="seekAudio(15)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+                        <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
+                    </svg>
+                </button>
+                
             </div>
         </div>
         
@@ -500,11 +520,9 @@
         let freshHistoryData = [];
         let selectedHistoryDate = null; 
 
-        // Variables pour le Player
         let playerQueue = [];
         let currentTrackIndex = -1;
         const audioEl = document.getElementById('main-audio');
-        let prevFilterValue = 'all';
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -668,17 +686,6 @@
             document.getElementById('update-badge').classList.remove('show');
             updateView();
             window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-
-        function handleFilterChange() {
-            const filterValue = document.getElementById('podcast-filter').value;
-            if (filterValue === 'player') {
-                document.getElementById('podcast-filter').value = prevFilterValue;
-                openPlayer();
-                return;
-            }
-            prevFilterValue = filterValue;
-            updateView();
         }
 
         function updateView() {
@@ -845,6 +852,9 @@
             audioEl.src = track.url;
             audioEl.load();
             renderPlayerQueue();
+            
+            // Scroll fluide vers le haut du modal lecteur
+            document.getElementById('player-modal').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function togglePlay() {
@@ -880,6 +890,12 @@
             audioEl.play();
             document.getElementById('play-icon').style.display = 'none';
             document.getElementById('pause-icon').style.display = 'block';
+        }
+
+        function seekAudio(seconds) {
+            if (audioEl.duration) {
+                audioEl.currentTime = Math.max(0, Math.min(audioEl.duration, audioEl.currentTime + seconds));
+            }
         }
 
         function renderPlayerQueue() {
@@ -975,8 +991,8 @@
 
         function openHistory() {
             if (!selectedHistoryDate) { selectedHistoryDate = dates7Days[6]; }
-            renderHistory();
             document.getElementById('history-modal').style.display = 'flex';
+            renderHistory();
         }
 
         function selectHistoryDate(time) { selectedHistoryDate = time; renderHistory(); }
@@ -984,6 +1000,8 @@
         function renderHistory() {
             const container = document.getElementById('history-container');
             let html = '<div class="calendar-strip">';
+            
+            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
             dates7Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
@@ -1012,6 +1030,14 @@
                 });
             }
             container.innerHTML = html;
+
+            // Scroll fluide pour centrer la date active dans le carrousel
+            setTimeout(() => {
+                const activeDay = container.querySelector('.calendar-day.active');
+                if (activeDay) {
+                    activeDay.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 50);
         }
 
         function openSettings() { renderManageList(); document.getElementById('settings-modal').style.display = 'flex'; }
