@@ -41,48 +41,21 @@
         }
 
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            box-sizing: border-box; margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-            overscroll-behavior-y: none;
+            background-color: var(--bg-color); color: var(--text-main);
+            display: flex; justify-content: center; min-height: 100vh; padding: 20px;
+            transition: background-color 0.3s, color 0.3s; overscroll-behavior-y: none;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: relative;
-        }
+        .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; position: relative; }
 
         /* === PULL TO REFRESH === */
-        .ptr-indicator {
-            height: 0;
-            opacity: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 600;
-            transition: height 0.2s ease-out, opacity 0.2s ease-out;
-            margin-top: -10px;
-            margin-bottom: -10px;
-        }
+        .ptr-indicator { height: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 14px; font-weight: 600; transition: height 0.2s ease-out, opacity 0.2s ease-out; margin-top: -10px; margin-bottom: -10px; }
         .ptr-indicator.active { opacity: 1; }
         .spin-icon { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -90,12 +63,7 @@
         /* === HEADER === */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
         .filter-container { position: relative; }
-        .filter-select {
-            appearance: none; background-color: var(--card-bg); border: none;
-            padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600;
-            font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            cursor: pointer; outline: none; transition: background-color 0.3s;
-        }
+        .filter-select { appearance: none; background-color: var(--card-bg); border: none; padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600; font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; outline: none; transition: background-color 0.3s; }
         .filter-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 12px; height: 12px; }
         .header-icons { display: flex; gap: 12px; background-color: var(--card-bg); padding: 8px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .header-icons svg { width: 20px; height: 20px; color: var(--text-main); cursor: pointer; }
@@ -109,7 +77,7 @@
         /* === ZONE DYNAMIQUE PRINCIPALE === */
         #app { display: flex; flex-direction: column; gap: 20px; }
 
-        /* === CARTE GRAPHIQUE & INFOBULLES === */
+        /* === CARTE GRAPHIQUE === */
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
@@ -118,22 +86,40 @@
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
         .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
-        
         .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 30px; position: relative; cursor: pointer; }
+        
+        /* Les valeurs de base sont réaffichées normalement */
+        .bar-value { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); transition: transform 0.2s ease;}
+        
+        /* Infobulle de répartition (comptés/non comptés) */
+        .bar-tooltip {
+            position: absolute;
+            background: var(--text-main);
+            color: var(--bg-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 8px;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+        }
+        .bar-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 5px; border-style: solid; border-color: var(--text-main) transparent transparent transparent;
+        }
+        .bar-container.active .bar-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .bar-container.active .bar-value { transform: scale(1.1); }
+
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
-        
-        /* Infobulles interactives du graphique */
-        .bar-value { 
-            font-size: 11px; font-weight: 700; margin-bottom: 6px; 
-            background-color: var(--text-main); color: var(--bg-color); 
-            padding: 4px 8px; border-radius: 6px; 
-            opacity: 0; transition: all 0.2s ease; transform: translateY(5px); 
-            pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .bar-container.active .bar-value, .bar-container:hover .bar-value { 
-            opacity: 1; transform: translateY(0); 
-        }
 
         /* === SMART INSIGHT === */
         .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
@@ -751,13 +737,25 @@
                 return matchSelect && matchSearch;
             });
 
-            const graphData = dates7Days.map(time => ({ label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), count: 0 }));
+            // On stocke désormais counted et uncounted par jour
+            const graphData = dates7Days.map(time => ({ 
+                label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
+                count: 0, counted: 0, uncounted: 0 
+            }));
 
             let grandTotal = 0;
             filteredData.forEach(pod => {
                 for (let i = 0; i < 7; i++) {
-                    graphData[i].count += pod.dailyCounts[i];
-                    grandTotal += pod.dailyCounts[i];
+                    const epCount = pod.dailyCounts[i];
+                    if (epCount > 0) {
+                        graphData[i].count += epCount;
+                        if (pod.comptabilise) {
+                            graphData[i].counted += epCount;
+                        } else {
+                            graphData[i].uncounted += epCount;
+                        }
+                        grandTotal += epCount;
+                    }
                 }
             });
 
@@ -789,7 +787,12 @@
                 const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
                 html += `
                     <div class="bar-container" onclick="this.classList.toggle('active')">
-                        <div class="bar-value">${day.count}</div>
+                        ${day.count > 0 ? `
+                        <div class="bar-tooltip" style="bottom: calc(${finalHeight}% + 25px);">
+                            <div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--green-dot);">●</span> ${day.counted}</div>
+                            <div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-secondary);">●</span> ${day.uncounted}</div>
+                        </div>
+                        <div class="bar-value">${day.count}</div>` : ''}
                         <div class="bar" style="height: ${finalHeight}%;"></div>
                         <span class="bar-label">${day.label.charAt(0).toUpperCase() + day.label.slice(1,3)}</span>
                     </div>`;
