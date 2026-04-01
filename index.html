@@ -690,26 +690,120 @@
     .mini-btn-close svg { width: 16px; height: 16px; }
 
     /* ═══════════════════════════════════════════════
-       PLAYER CARD (desktop col-left uniquement)
+       PLAYER BAR — sticky bottom (desktop)
     ═══════════════════════════════════════════════ */
     .player-card {
         display: none; /* caché sur mobile */
-        flex-direction: column;
-        background: #1e1e22;
-        border-radius: 22px 22px 0 0;
-        overflow: hidden;
-        margin-top: auto;
-        flex-shrink: 0;
-        box-shadow: 0 -4px 24px rgba(0,0,0,.12);
     }
     @media (min-width: 900px) {
-        .player-card { display: flex; }
+        .player-card {
+            display: flex; flex-direction: column;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+            background: rgba(22,22,26,.96);
+            backdrop-filter: saturate(180%) blur(24px);
+            -webkit-backdrop-filter: saturate(180%) blur(24px);
+            border-top: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 -8px 40px rgba(0,0,0,.35);
+            transition: transform .35s cubic-bezier(.4,0,.2,1);
+            transform: translateY(calc(100% - 68px)); /* mini-bar height */
+            max-height: 80vh; overflow: hidden;
+        }
+        .player-card.expanded {
+            transform: translateY(0);
+        }
+        /* Padding bas pour que la liste ne soit pas cachée par la barre */
+        .col-left, .col-right {
+            padding-bottom: 88px;
+        }
     }
-    body.dark .player-card { background: #111113; }
+    body.dark .player-card { background: rgba(12,12,14,.96); }
 
-    /* Zone player principale */
+    /* Mini-barre toujours visible (68px) */
+    .pc-minibar {
+        display: none;
+    }
+    @media (min-width: 900px) {
+        .pc-minibar {
+            display: flex; align-items: center; gap: 12px;
+            height: 68px; padding: 0 24px;
+            cursor: pointer; flex-shrink: 0;
+            user-select: none;
+        }
+    }
+    .pc-minibar-cover {
+        width: 42px; height: 42px; border-radius: 9px;
+        object-fit: cover; flex-shrink: 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,.4);
+    }
+    .pc-minibar-info { flex: 1; overflow: hidden; }
+    .pc-minibar-title {
+        font-size: 13px; font-weight: 700; color: #fff;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pc-minibar-pod {
+        font-size: 11px; color: rgba(255,255,255,.45); margin-top: 1px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pc-minibar-controls {
+        display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .pc-minibar-btn {
+        background: none; border: none; color: rgba(255,255,255,.7);
+        cursor: pointer; padding: 6px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: color .15s, background .15s;
+    }
+    .pc-minibar-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+    .pc-minibar-btn svg { width: 22px; height: 22px; }
+    .pc-minibar-play {
+        background: #fff; color: #111 !important;
+        width: 38px; height: 38px; border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0,0,0,.4);
+        transition: transform .15s !important;
+    }
+    .pc-minibar-play:hover { transform: scale(1.08) !important; background: #fff !important; }
+    .pc-minibar-progress {
+        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: rgba(255,255,255,.1); pointer-events: none;
+    }
+    .pc-minibar-progress-fill {
+        height: 100%; background: var(--green);
+        transition: width .5s linear; width: 0%;
+    }
+    .pc-minibar-chevron {
+        color: rgba(255,255,255,.3); flex-shrink: 0;
+        transition: transform .35s; width: 20px; height: 20px;
+    }
+    .player-card.expanded .pc-minibar-chevron { transform: rotate(180deg); }
+
+    /* Panneau dépliable */
+    .pc-expanded-panel {
+        display: flex; flex-direction: column;
+        border-top: 1px solid rgba(255,255,255,.07);
+        overflow: hidden;
+        max-height: calc(80vh - 68px);
+    }
+    .pc-expanded-inner {
+        display: flex; gap: 0;
+        overflow: hidden;
+        height: 100%;
+    }
+    /* Gauche : contrôles complets */
+    .pc-controls-col {
+        width: 340px; flex-shrink: 0;
+        padding: 16px 20px 20px;
+        display: flex; flex-direction: column; gap: 12px;
+        border-right: 1px solid rgba(255,255,255,.07);
+    }
+    /* Droite : playlist/queue */
+    .pc-queue-col {
+        flex: 1; overflow-y: auto; padding: 10px 16px 16px;
+    }
+    .pc-queue-col::-webkit-scrollbar { width: 3px; }
+    .pc-queue-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+    /* Zone player principale (dans le panneau dépliable) */
     .pc-player {
-        padding: 14px 16px 10px;
         display: flex; flex-direction: column; gap: 10px;
     }
 
@@ -783,7 +877,7 @@
 
     /* Mini-liste des 5 derniers */
     .pc-queue {
-        padding: 8px 12px 2px;
+        padding: 0;
     }
     .pc-queue-heading {
         font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3);
@@ -820,7 +914,7 @@
     /* Bouton "Tous les épisodes" */
     .pc-all-btn {
         display: flex; align-items: center; justify-content: center; gap: 6px;
-        margin: 6px 12px 12px;
+        margin: 6px 0 0;
         padding: 8px 0; border-radius: 10px;
         background: rgba(255,255,255,.08); border: none; color: rgba(255,255,255,.6);
         font-size: 11px; font-weight: 600; cursor: pointer;
@@ -1378,6 +1472,95 @@
         .pc-queue-remove svg { width: 12px; height: 12px; pointer-events: none; }
     }
 
+
+    /* ═══════════════════════════════════════════════
+       MONITORING — checklist + alertes + score
+    ═══════════════════════════════════════════════ */
+    .monitoring-card {
+        background: var(--card); border-radius: var(--r-lg);
+        box-shadow: 0 2px 16px rgba(0,0,0,.06);
+        transition: background .3s; overflow: hidden;
+    }
+    .monitoring-tabs {
+        display: flex; border-bottom: 1px solid var(--border);
+    }
+    .monitoring-tab {
+        flex: 1; padding: 10px 8px; font-size: 11px; font-weight: 700;
+        text-align: center; cursor: pointer; border: none; background: none;
+        color: var(--text-sec); text-transform: uppercase; letter-spacing: .4px;
+        border-bottom: 2px solid transparent; margin-bottom: -1px;
+        transition: color .15s, border-color .15s;
+    }
+    .monitoring-tab.active { color: var(--text); border-bottom-color: var(--text); }
+    .monitoring-tab-count {
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 16px; height: 16px; border-radius: 8px;
+        font-size: 9px; font-weight: 800; margin-left: 4px;
+        padding: 0 4px;
+        background: var(--bg); color: var(--text-sec);
+    }
+    .monitoring-tab-count.alert { background: rgba(255,59,48,.15); color: #ff3b30; }
+    .monitoring-tab-count.ok    { background: rgba(52,199,89,.12); color: var(--green); }
+    .monitoring-body { padding: 10px 14px 14px; }
+
+    /* Checklist */
+    .check-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 5px 4px; border-radius: 8px; cursor: pointer;
+        transition: background .15s;
+    }
+    .check-row:hover { background: var(--bg); }
+    .check-icon {
+        width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px;
+    }
+    .check-icon.ok   { background: rgba(52,199,89,.12); }
+    .check-icon.late { background: rgba(255,59,48,.1); }
+    .check-icon.wait { background: rgba(255,149,0,.1); }
+    .check-name {
+        flex: 1; font-size: 12px; font-weight: 600;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .check-time {
+        font-size: 10px; color: var(--text-sec); flex-shrink: 0;
+    }
+    .check-time.alert { color: #ff3b30; font-weight: 600; }
+    .check-time.ok    { color: var(--green); }
+
+    /* Score fiabilité dans la fiche podcast */
+    .reliability-bar-wrap {
+        display: flex; align-items: center; gap: 8px; margin-top: 6px;
+    }
+    .reliability-bar-bg {
+        flex: 1; height: 5px; background: var(--border);
+        border-radius: 3px; overflow: hidden;
+    }
+    .reliability-bar-fill {
+        height: 100%; border-radius: 3px;
+        background: var(--green); transition: width .4s;
+    }
+    .reliability-bar-fill.medium { background: #ff9500; }
+    .reliability-bar-fill.low    { background: #ff3b30; }
+    .reliability-score {
+        font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .reliability-score.high   { color: var(--green); }
+    .reliability-score.medium { color: #ff9500; }
+    .reliability-score.low    { color: #ff3b30; }
+
+    /* Badge fiabilité dans la liste */
+    .reliability-badge {
+        font-size: 10px; font-weight: 700;
+        padding: 1px 5px; border-radius: 5px; flex-shrink: 0;
+    }
+
+    /* Monitoring panel vide */
+    .monitoring-empty {
+        text-align: center; padding: 16px 0;
+        font-size: 12px; color: var(--green);
+    }
+
     </style>
 </head>
 <body>
@@ -1509,71 +1692,116 @@
     </div>
 </div>
 
-<!-- ═══ PLAYER CARD desktop (col-left) ══════════ -->
+<!-- ═══ PLAYER BAR sticky bottom (desktop) ══════ -->
 <div class="player-card" id="player-card">
-    <!-- Zone player -->
-    <div class="pc-player">
-        <!-- Cover + infos -->
-        <div class="pc-top">
-            <img id="pc-cover" class="pc-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
-            <div class="pc-info">
-                <div id="pc-title"   class="pc-title">–</div>
-                <div id="pc-podcast" class="pc-podcast">–</div>
-            </div>
+
+    <!-- ── Mini-barre toujours visible ── -->
+    <div class="pc-minibar" id="pc-minibar" onclick="togglePlayerExpand()">
+        <!-- Barre de progression fine en bas de la minibar -->
+        <div class="pc-minibar-progress" style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.1)">
+            <div class="pc-minibar-progress-fill" id="pc-minibar-fill"></div>
         </div>
-        <!-- Barre de progression -->
-        <div class="pc-progress-wrap">
-            <input id="pc-progress" type="range" class="pc-slider" value="0" min="0" max="100">
-            <div class="pc-times">
-                <span id="pc-time-cur">0:00</span>
-                <span id="pc-time-tot">0:00</span>
-            </div>
+        <img id="pc-cover" class="pc-minibar-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
+        <div class="pc-minibar-info">
+            <div id="pc-title"   class="pc-minibar-title">Aucune lecture en cours</div>
+            <div id="pc-podcast" class="pc-minibar-pod">Glisse un épisode ou clique sur un podcast</div>
         </div>
-        <!-- Boutons -->
-        <div class="pc-btns">
-            <button class="pc-btn pc-btn-skip" onclick="seekAudio(-15)" title="-15s">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-            </button>
-            <button class="pc-btn" onclick="playPrev()" title="Précédent">
+        <div class="pc-minibar-controls" onclick="event.stopPropagation()">
+            <button class="pc-minibar-btn" onclick="playPrev()" title="Précédent">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
             </button>
-            <button class="pc-btn pc-btn-play" onclick="togglePlay()" aria-label="Lecture/Pause">
+            <button class="pc-minibar-btn pc-minibar-play" onclick="togglePlay()" aria-label="Lecture/Pause">
                 <svg id="pc-icon-play"  viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="pc-icon-pause" viewBox="0 0 24 24" fill="#111" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
-            <button class="pc-btn" onclick="playNext()" title="Suivant">
+            <button class="pc-minibar-btn" onclick="playNext()" title="Suivant">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
             </button>
-            <button class="pc-btn pc-btn-skip" onclick="seekAudio(15)" title="+15s">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-            </button>
         </div>
+        <!-- Chevron expand -->
+        <svg class="pc-minibar-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
     </div>
-    <!-- Séparateur -->
-    <div class="pc-divider"></div>
-    <!-- Header playlist (visible en mode playlist) -->
-    <div class="pc-playlist-header" id="pc-playlist-header">
-        <div>
-            <span class="pc-playlist-label">Ma playlist</span>
-            <span class="pc-playlist-count" id="pc-playlist-count">0</span>
-        </div>
-        <button class="pc-playlist-clear" onclick="clearPlaylist()" title="Vider la playlist">Vider</button>
-    </div>
-    <!-- Mini-liste -->
-    <div class="pc-queue">
-        <div class="pc-queue-heading" id="pc-queue-heading">Dernières publications</div>
-        <div id="pc-queue-list">
-            <div class="pc-drop-hint" id="pc-drop-hint">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-                Glisser un épisode ici
+
+    <!-- ── Panneau dépliable ── -->
+    <div class="pc-expanded-panel">
+        <div class="pc-expanded-inner">
+
+            <!-- Gauche : contrôles complets -->
+            <div class="pc-controls-col">
+                <!-- Cover grande + infos -->
+                <div class="pc-top" style="gap:14px">
+                    <img id="pc-cover-big" class="pc-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
+                    <div class="pc-info">
+                        <div id="pc-title-big"   class="pc-title">–</div>
+                        <div id="pc-podcast-big" class="pc-podcast">–</div>
+                    </div>
+                </div>
+                <!-- Progression -->
+                <div class="pc-progress-wrap">
+                    <input id="pc-progress" type="range" class="pc-slider" value="0" min="0" max="100">
+                    <div class="pc-times">
+                        <span id="pc-time-cur">0:00</span>
+                        <span id="pc-time-tot">0:00</span>
+                    </div>
+                </div>
+                <!-- Boutons -->
+                <div class="pc-btns">
+                    <button class="pc-btn pc-btn-skip" onclick="seekAudio(-15)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+                    </button>
+                    <button class="pc-btn" onclick="playPrev()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
+                    </button>
+                    <button class="pc-btn pc-btn-play" onclick="togglePlay()">
+                        <svg id="pc-icon-play2"  viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
+                        <svg id="pc-icon-pause2" viewBox="0 0 24 24" fill="#111" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button class="pc-btn" onclick="playNext()">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
+                    </button>
+                    <button class="pc-btn pc-btn-skip" onclick="seekAudio(15)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+                    </button>
+                </div>
+                <!-- Vitesse -->
+                <div class="speed-row">
+                    <button class="speed-btn" data-speed="0.75" onclick="setSpeed(0.75)">0.75×</button>
+                    <button class="speed-btn active" data-speed="1"    onclick="setSpeed(1)">1×</button>
+                    <button class="speed-btn" data-speed="1.25" onclick="setSpeed(1.25)">1.25×</button>
+                    <button class="speed-btn" data-speed="1.5" onclick="setSpeed(1.5)">1.5×</button>
+                    <button class="speed-btn" data-speed="2"    onclick="setSpeed(2)">2×</button>
+                </div>
+                <!-- Bouton lecteur plein écran -->
+                <button class="pc-all-btn" onclick="openPlayer()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Tous les épisodes du jour
+                </button>
             </div>
+
+            <!-- Droite : playlist/queue -->
+            <div class="pc-queue-col">
+                <!-- Header playlist -->
+                <div class="pc-playlist-header" id="pc-playlist-header">
+                    <div>
+                        <span class="pc-playlist-label">Ma playlist</span>
+                        <span class="pc-playlist-count" id="pc-playlist-count">0</span>
+                    </div>
+                    <button class="pc-playlist-clear" onclick="clearPlaylist()" title="Vider">Vider</button>
+                </div>
+                <div class="pc-queue">
+                    <div class="pc-queue-heading" id="pc-queue-heading">Dernières publications</div>
+                    <div id="pc-queue-list">
+                        <div class="pc-drop-hint" id="pc-drop-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                            Glisser un épisode ici
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-    <!-- Bouton tous les épisodes -->
-    <button class="pc-all-btn" onclick="openPlayer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Tous les épisodes du jour
-    </button>
+
 </div>
 
 <!-- ═══ MODAL PARAMÈTRES ════════════════════════ -->
@@ -1893,16 +2121,22 @@ function isDesktop() { return window.innerWidth >= 900; }
 function placeMiniPlayer() {
     try {
         const mp=document.getElementById('mini-player');
-        const pc=document.getElementById('player-card');
-        const col=document.getElementById('col-left');
-        if(!mp||!pc||!col) return;
-        if(isDesktop()){
-            if(pc.parentElement!==col) col.appendChild(pc);
-            if(mp.parentElement!==document.body) document.body.appendChild(mp);
-        } else {
-            if(mp.parentElement!==document.body) document.body.appendChild(mp);
-        }
+        if(mp && mp.parentElement!==document.body) document.body.appendChild(mp);
+        // player-card est maintenant fixed — pas besoin de l'injecter dans col-left
     } catch(err) { console.error('placeMiniPlayer crash:', err); }
+}
+
+function togglePlayerExpand() {
+    const pc = document.getElementById('player-card');
+    if(pc) pc.classList.toggle('expanded');
+}
+function expandPlayerBar() {
+    const pc = document.getElementById('player-card');
+    if(pc && isDesktop()) pc.classList.add('expanded');
+}
+function collapsePlayerBar() {
+    const pc = document.getElementById('player-card');
+    if(pc) pc.classList.remove('expanded');
 }
 
 /* ═══ CACHE ═══ */
@@ -2357,6 +2591,240 @@ function buildAnalytics(pods) {
     </div>`;
 }
 
+
+/* ═══════════════════════════════════════════════
+   MONITORING — 3 fonctionnalités
+═══════════════════════════════════════════════ */
+
+/* ── Calcul heure habituelle de publication ──
+   On analyse historyData pour trouver l'heure médiane de publication
+   de chaque podcast sur les 8 derniers jours */
+function getPodcastPublishHour(podName) {
+    const hours = historyData
+        .filter(ep => ep.podcast === podName)
+        .map(ep => new Date(ep.date).getHours());
+    if(!hours.length) return null;
+    hours.sort((a,b)=>a-b);
+    return hours[Math.floor(hours.length/2)]; // heure médiane
+}
+
+/* ── Score de fiabilité sur les 30 derniers jours ──
+   = nb de jours où le podcast a publié / nb de jours attendus
+   "attendus" = jours où il publie habituellement (DOW) */
+function getReliabilityScore(p) {
+    // Rythme habituel sur les 9 jours dispo
+    const hist = [0,1,2,3,4,5,6,7];
+    const histTotal = hist.reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
+    const histAvg = histTotal / 8;
+    if(histAvg < 0.1) return null; // pas assez d'historique
+
+    // Jours attendus sur les 9 jours : les DOW où il publie habituellement
+    const publishedDows = new Set(
+        hist.filter(i=>(p.dailyCounts[i]||0)>0)
+            .map(i=>new Date(DAYS[i]).getDay())
+    );
+    // Sur les 9 jours, compter les jours attendus vs publiés
+    let expected=0, published=0;
+    for(let i=0;i<9;i++){
+        const dow = new Date(DAYS[i]).getDay();
+        if(publishedDows.has(dow)){
+            expected++;
+            if((p.dailyCounts[i]||0)>0) published++;
+        }
+    }
+    if(!expected) return null;
+    return Math.round((published/expected)*100);
+}
+
+/* ── Checklist du jour ── */
+function buildChecklist(pods) {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const todayDow = now.getDay();
+
+    // Podcasts qui devraient publier aujourd'hui
+    const expected = pods.filter(p => {
+        if(!p.comptabilise) return false;
+        const histTotal = [0,1,2,3,4,5,6,7].reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
+        if(histTotal < 1) return false; // jamais publié sur la fenêtre
+        // Ce podcast publie-t-il ce jour de semaine ?
+        const publishesThisDow = [0,1,2,3,4,5,6,7].some(i =>
+            new Date(DAYS[i]).getDay()===todayDow && (p.dailyCounts[i]||0)>0
+        );
+        return publishesThisDow;
+    });
+
+    if(!expected.length) return { html:'', okCount:0, lateCount:0 };
+
+    let okCount=0, lateCount=0, waitCount=0;
+    const rows = expected.map(p => {
+        const pubHour = getPodcastPublishHour(p.name);
+        const hasPublished = (p.dailyCounts[8]||0) > 0;
+        const isLate = !hasPublished && pubHour !== null && currentHour > pubHour + 2;
+        const isWait = !hasPublished && !isLate;
+
+        if(hasPublished) okCount++;
+        else if(isLate) lateCount++;
+        else waitCount++;
+
+        let icon, iconCls, timeCls, timeLabel;
+        if(hasPublished){
+            icon='✓'; iconCls='ok';
+            // Heure de publication réelle aujourd'hui
+            const todayEp = historyData.find(ep=>{
+                const d=new Date(ep.date); d.setHours(0,0,0,0);
+                return ep.podcast===p.name && d.getTime()===DAYS[8];
+            });
+            const pubTime = todayEp ? new Date(todayEp.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+            timeCls='ok'; timeLabel=pubTime;
+        } else if(isLate){
+            icon='✗'; iconCls='late';
+            timeCls='alert'; timeLabel=`Attendu ~${pubHour}h`;
+        } else {
+            icon='◷'; iconCls='wait';
+            timeCls=''; timeLabel=pubHour!==null?`~${pubHour}h`:'';
+        }
+
+        return `<div class="check-row" onclick="openPodPanel('${p.url}')">
+            <div class="check-icon ${iconCls}">${icon}</div>
+            <span class="check-name">${p.name}</span>
+            <span class="check-time ${timeCls}">${timeLabel}</span>
+        </div>`;
+    });
+
+    const html = rows.join('');
+    return { html, okCount, lateCount, waitCount };
+}
+
+/* ── Alertes horaires ── */
+function buildHourlyAlerts(pods) {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const todayDow = now.getDay();
+    const alerts = [];
+
+    pods.filter(p=>p.comptabilise).forEach(p => {
+        if((p.dailyCounts[8]||0) > 0) return; // déjà publié aujourd'hui
+        const publishesThisDow = [0,1,2,3,4,5,6,7].some(i =>
+            new Date(DAYS[i]).getDay()===todayDow && (p.dailyCounts[i]||0)>0
+        );
+        if(!publishesThisDow) return;
+
+        const pubHour = getPodcastPublishHour(p.name);
+        if(pubHour===null) return;
+        const delay = currentHour - pubHour;
+        if(delay < 2) return; // pas encore en retard
+
+        const delayLabel = delay < 60
+            ? `${delay}h de retard`
+            : `${delay}h de retard`;
+
+        alerts.push({
+            p,
+            pubHour,
+            delay,
+            msg: delay <= 3
+                ? `Attendu vers ${pubHour}h — pas encore sorti`
+                : `Toujours absent — prévu vers ${pubHour}h`
+        });
+    });
+
+    alerts.sort((a,b)=>b.delay-a.delay);
+
+    if(!alerts.length) return { html:'<div class="monitoring-empty">✓ Aucune alerte en ce moment</div>', count:0 };
+
+    const html = alerts.slice(0,6).map(a=>`
+        <div class="check-row" onclick="openPodPanel('${a.p.url}')">
+            <div class="check-icon late">!</div>
+            <span class="check-name">${a.p.name}</span>
+            <span class="check-time alert">${a.msg}</span>
+        </div>`).join('');
+
+    return { html, count: alerts.length };
+}
+
+/* ── Scores de fiabilité ── */
+function buildReliabilityList(pods) {
+    const scored = pods
+        .filter(p=>p.comptabilise)
+        .map(p=>({ p, score: getReliabilityScore(p) }))
+        .filter(x=>x.score!==null)
+        .sort((a,b)=>a.score-b.score); // les moins fiables en premier
+
+    if(!scored.length) return '<div class="monitoring-empty">Pas encore assez de données</div>';
+
+    // Afficher les 5 moins fiables + les 3 les plus fiables
+    const worst = scored.slice(0,5);
+    const best  = scored.slice(-3).reverse();
+    const shown = [...worst];
+    // Ajouter les meilleurs si pas déjà dans worst
+    best.forEach(b=>{ if(!shown.some(w=>w.p.url===b.p.url)) shown.push(b); });
+
+    return shown.map(({p,score})=>{
+        const cls   = score>=85?'high':score>=60?'medium':'low';
+        const fillCls = score>=85?'':'score>=60?medium:low';
+        const barCls  = score>=85?'':'score>=60?"medium":"low"';
+        return `<div class="check-row" onclick="openPodPanel('${p.url}')">
+            <span class="check-name">${p.name}</span>
+            <div class="reliability-bar-wrap" style="flex:1;max-width:100px">
+                <div class="reliability-bar-bg">
+                    <div class="reliability-bar-fill ${score<85?(score<60?'low':'medium'):''}" style="width:${score}%"></div>
+                </div>
+            </div>
+            <span class="reliability-score ${cls}" style="min-width:32px;text-align:right">${score}%</span>
+        </div>`;
+    }).join('');
+}
+
+/* ── Carte monitoring principale ── */
+let monitoringTab = 'checklist';
+function setMonitoringTab(tab){
+    monitoringTab=tab;
+    updateView();
+}
+
+function buildMonitoring(pods) {
+    if(!pods.filter(p=>p.comptabilise).length) return '';
+
+    const checklist = buildChecklist(pods);
+    const alerts    = buildHourlyAlerts(pods);
+    const relHtml   = buildReliabilityList(pods);
+
+    const t1Count = checklist.lateCount;
+    const t2Count = alerts.count;
+
+    const tabs = `<div class="monitoring-tabs">
+        <button class="monitoring-tab${monitoringTab==='checklist'?' active':''}"
+                onclick="setMonitoringTab('checklist');event.stopPropagation()">
+            Checklist
+            <span class="monitoring-tab-count${t1Count>0?' alert':checklist.okCount>0?' ok':''}">
+                ${checklist.lateCount>0?checklist.lateCount:checklist.okCount+'/'+( checklist.okCount+checklist.lateCount+checklist.waitCount)}
+            </span>
+        </button>
+        <button class="monitoring-tab${monitoringTab==='alerts'?' active':''}"
+                onclick="setMonitoringTab('alerts');event.stopPropagation()">
+            Alertes
+            <span class="monitoring-tab-count${t2Count>0?' alert':''}">
+                ${t2Count||'✓'}
+            </span>
+        </button>
+        <button class="monitoring-tab${monitoringTab==='reliability'?' active':''}"
+                onclick="setMonitoringTab('reliability');event.stopPropagation()">
+            Fiabilité
+        </button>
+    </div>`;
+
+    let body='';
+    if(monitoringTab==='checklist') body=checklist.html||'<div class="monitoring-empty">✓ Aucun podcast attendu aujourd&#39;hui</div>';
+    else if(monitoringTab==='alerts') body=alerts.html;
+    else body=relHtml;
+
+    return `<div class="monitoring-card">
+        ${tabs}
+        <div class="monitoring-body">${body}</div>
+    </div>`;
+}
+
 /* ═══ RENDER STATS ═══ */
 function renderStats(pods,graph,grand){ try {
     const toggle=`<div class="view-toggle">
@@ -2366,7 +2834,8 @@ function renderStats(pods,graph,grand){ try {
     const goal=buildGoal(pods);
     const prevGraph=buildPrevGraph(pods);
     const analytics=buildAnalytics(pods);
-    document.getElementById('stats-zone').innerHTML=toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)+analytics;
+    const monitoring=buildMonitoring(pods);
+    document.getElementById('stats-zone').innerHTML=toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)+analytics+monitoring;
     } catch(err) { console.error('renderStats crash:', err); }
 }
 
@@ -2969,15 +3438,25 @@ function closePlayer(){ document.getElementById('player-modal').classList.remove
 function closeMiniPlayer(e){ e?.stopPropagation(); audio.pause(); document.getElementById('mini-player').classList.remove('visible'); }
 function loadTrack(idx){
     trackIdx=idx; const t=queue[idx];
+    // Player modal
     document.getElementById('player-title').textContent=t.title;
     document.getElementById('player-podcast-name').textContent=t.podcast;
     document.getElementById('player-cover').src=t.image;
+    // Mini-player mobile
     document.getElementById('mini-title').textContent=t.title;
     document.getElementById('mini-podcast').textContent=t.podcast;
     document.getElementById('mini-cover').src=t.image;
+    // Player bar desktop — minibar
     document.getElementById('pc-cover').src=t.image;
     document.getElementById('pc-title').textContent=t.title;
     document.getElementById('pc-podcast').textContent=t.podcast;
+    // Player bar desktop — panneau dépliable
+    const bigCover = document.getElementById('pc-cover-big');
+    const bigTitle = document.getElementById('pc-title-big');
+    const bigPod   = document.getElementById('pc-podcast-big');
+    if(bigCover) bigCover.src=t.image;
+    if(bigTitle) bigTitle.textContent=t.title;
+    if(bigPod)   bigPod.textContent=t.podcast;
     audio.src=t.url; audio.load();
     audio.playbackRate=currentSpeed;
     // Badge position mémorisée
@@ -2987,6 +3466,8 @@ function loadTrack(idx){
         document.getElementById('resume-time').textContent=fmt(saved);
         badge.classList.add('show');
     } else { badge.classList.remove('show'); }
+    // Auto-expand le player bar
+    expandPlayerBar();
     renderQueue(); renderPcQueue();
     document.getElementById('player-modal').scrollTo({top:0,behavior:'smooth'});
 }
@@ -2996,12 +3477,15 @@ function playPrev(){ if(!queue.length) return; loadTrack((trackIdx-1+queue.lengt
 function seekAudio(s){ if(audio.duration) audio.currentTime=Math.max(0,Math.min(audio.duration,audio.currentTime+s)); }
 function syncIcons(){
     const pl=!audio.paused;
-    document.getElementById('icon-play').style.display=pl?'none':'';
-    document.getElementById('icon-pause').style.display=pl?'':'none';
-    document.getElementById('mini-icon-play').style.display=pl?'none':'';
-    document.getElementById('mini-icon-pause').style.display=pl?'':'none';
-    document.getElementById('pc-icon-play').style.display=pl?'none':'';
-    document.getElementById('pc-icon-pause').style.display=pl?'':'none';
+    const show=(id,v)=>{ const e=document.getElementById(id); if(e) e.style.display=v; };
+    show('icon-play',   pl?'none':'');
+    show('icon-pause',  pl?'':'none');
+    show('mini-icon-play',  pl?'none':'');
+    show('mini-icon-pause', pl?'':'none');
+    show('pc-icon-play',    pl?'none':'');  // minibar
+    show('pc-icon-pause',   pl?'':'none');
+    show('pc-icon-play2',   pl?'none':'');  // panneau dépliable
+    show('pc-icon-pause2',  pl?'':'none');
 }
 let _lastSave=0;
 function onTimeUpdate(){
@@ -3013,6 +3497,8 @@ function onTimeUpdate(){
     document.getElementById('pc-progress').value=pct;
     document.getElementById('pc-time-cur').textContent=fmt(audio.currentTime);
     document.getElementById('pc-time-tot').textContent=fmt(audio.duration);
+    const fill=document.getElementById('pc-minibar-fill');
+    if(fill) fill.style.width=pct+'%';
     // Sauvegarder position toutes les 5 secondes
     const now=Date.now();
     if(now-_lastSave>5000&&trackIdx>=0&&queue[trackIdx]){
