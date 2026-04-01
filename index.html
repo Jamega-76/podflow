@@ -2037,7 +2037,13 @@ function buildAnalytics(pods) {
 
     /* ── Helpers ── */
     const total9 = p => Object.values(p.dailyCounts).reduce((s,v)=>s+v,0);
-    const weekCount = p => [2,3,4,5,6,7,8].reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
+    // Semaine calendaire lundi→dimanche (cohérent avec buildGoal)
+    const monStartTs = (() => {
+        const d = new Date(); d.setHours(0,0,0,0);
+        d.setDate(d.getDate() - (new Date().getDay()+6)%7);
+        return d.getTime();
+    })();
+    const weekCount = p => DAYS.reduce((s,ts,i) => ts >= monStartTs ? s+(p.dailyCounts[i]||0) : s, 0);
 
     // Rythme journalier moyen sur les 7 derniers jours (indices 2-8, hors aujourd'hui=8)
     const avgRate = p => {
@@ -2059,19 +2065,19 @@ function buildAnalytics(pods) {
         '</div>';
     };
 
-    /* ── SECTION 1 : Top 3 actifs cette semaine ── */
-    const top3 = pods
+    /* ── SECTION 1 : Top 5 actifs cette semaine (lundi→dimanche) ── */
+    const top5 = pods
         .filter(p => weekCount(p) > 0)
         .sort((a,b) => weekCount(b) - weekCount(a))
-        .slice(0, 3);
+        .slice(0, 5);
 
-    const top3Html = top3.length ? `
+    const top3Html = top5.length ? `
         <div class="analytics-section">
             <div class="analytics-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                 Top publications cette semaine
             </div>
-            ${top3.map((p,i) => `
+            ${top5.map((p,i) => `
             <div class="analytics-row" onclick="openPodPanel('${p.url}')">
                 <img src="${p.image||BLANK}" class="analytics-row-img" alt="">
                 <div class="analytics-row-info">
@@ -2079,7 +2085,7 @@ function buildAnalytics(pods) {
                     <div class="analytics-row-sub">${weekCount(p)} épisode${weekCount(p)>1?'s':''} cette semaine</div>
                 </div>
                 ${sparkline(p)}
-                <span class="analytics-row-badge badge-neutral">${['🥇','🥈','🥉'][i]}</span>
+                <span class="analytics-row-badge badge-neutral" style="min-width:22px;text-align:center">${i+1}</span>
             </div>`).join('')}
         </div>` : '';
 
@@ -2164,13 +2170,17 @@ function buildAnalytics(pods) {
         const avg = counts.slice(0,8).reduce((s,v)=>s+v,0) / 8;
         if(avg < 0.1) return; // podcast trop peu actif pour avoir une baseline
 
-        // Doublon : >3 épisodes en un seul jour pour un podcast normalement <2/j
+        // Pic : >4 épisodes en une journée pour un podcast qui publie normalement <2/j
         if(avg < 2) {
             for(let i=0;i<9;i++){
-                if((p.dailyCounts[i]||0) > 4){
+                const c=p.dailyCounts[i]||0;
+                if(c > 4){
+                    const dayLabel=new Date(DAYS[i]).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});
+                    const mult=Math.round(c/Math.max(avg,0.1));
                     anomalies.push({
                         p, type:'spike',
-                        msg: `${p.dailyCounts[i]} épisodes le ${new Date(DAYS[i]).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}`,
+                        label: 'Pic de publication',
+                        msg: `${c} épisodes publiés ${i===8?"aujourd'hui":('le '+dayLabel)} — soit ${mult}x son rythme habituel`,
                         badge: 'badge-warn'
                     });
                     break;
@@ -2178,26 +2188,28 @@ function buildAnalytics(pods) {
             }
         }
 
-        // Chute brutale : cette semaine = 0 alors que la semaine d'avant > 3
+        // Silence soudain : rien cette semaine alors qu'actif la semaine d'avant
         const thisWeek = [2,3,4,5,6,7,8].reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
         const prevWeek = Object.values(p.prevCounts||{}).reduce((s,v)=>s+v,0);
         if(prevWeek >= 4 && thisWeek === 0){
             anomalies.push({
                 p, type:'drop',
-                msg: `Aucune publication cette semaine (${prevWeek} la sem. passée)`,
+                label: 'Silence inattendu',
+                msg: `Aucune publication depuis lundi — pourtant ${prevWeek} épisodes la semaine précédente`,
                 badge: 'badge-down'
             });
         }
 
-        // Explosion : aujourd'hui > 3× la moyenne journalière
+        // Explosion aujourd'hui : >3× la moyenne journalière
         const today = p.dailyCounts[8]||0;
         const yesterday = p.dailyCounts[7]||0;
         if(avg >= 0.5 && today > avg * 3 && today > 3){
+            const mult=Math.round(today/Math.max(avg,0.1));
             anomalies.push({
                 p, type:'burst',
-                msg: `${today} épisodes aujourd'hui (moy. ${avg.toFixed(1)}/j)`,
-                badge: 'badge-up',
-                tip: `Aujourd'hui : ${today} ep. | Hier : ${yesterday} ep. | Moy. : ${avg.toFixed(1)}/j`
+                label: 'Volume inhabituel',
+                msg: `${today} épisodes publiés aujourd'hui — ${mult}× plus que d'habitude (moy. ${avg.toFixed(1)}/j)`,
+                badge: 'badge-up'
             });
         }
     });
@@ -2209,15 +2221,13 @@ function buildAnalytics(pods) {
                 Anomalies détectées
             </div>
             ${anomalies.slice(0,4).map(a => `
-            <div class="analytics-row" onclick="openPodPanel('${a.p.url}')">
-                <img src="${a.p.image||BLANK}" class="analytics-row-img" alt="">
+            <div class="analytics-row" onclick="openPodPanel('${a.p.url}')" style="align-items:flex-start">
+                <img src="${a.p.image||BLANK}" class="analytics-row-img" alt="" style="margin-top:2px">
                 <div class="analytics-row-info">
                     <div class="analytics-row-name">${a.p.name}</div>
                     <div class="analytics-row-sub">${a.msg}</div>
                 </div>
-                <span class="analytics-row-badge ${a.badge}"${a.tip?` data-tip="${a.tip}"`:''}>${
-                    a.type==='spike'?'Pic':a.type==='drop'?'Chute':'Burst'
-                }</span>
+                <span class="analytics-row-badge ${a.badge}" style="align-self:center">${a.label}</span>
             </div>`).join('')}
         </div>` : '';
 
