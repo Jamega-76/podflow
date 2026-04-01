@@ -1294,6 +1294,90 @@
     }
     .rhythm-label { font-size: 10px; color: var(--text-sec); flex-shrink: 0; }
 
+
+    /* ═══════════════════════════════════════════════
+       DRAG & DROP PLAYLIST
+    ═══════════════════════════════════════════════ */
+
+    /* Poignée drag sur les podcast-items (desktop only) */
+    @media (min-width: 900px) {
+        .podcast-item { position: relative; }
+        .drag-handle {
+            display: flex; align-items: center; justify-content: center;
+            width: 24px; flex-shrink: 0; opacity: 0; cursor: grab;
+            color: var(--text-sec); transition: opacity .15s;
+            touch-action: none;
+        }
+        .podcast-item:hover .drag-handle { opacity: .5; }
+        .drag-handle:hover { opacity: 1 !important; }
+        .drag-handle svg { width: 14px; height: 14px; pointer-events: none; }
+
+        /* Item en cours de drag */
+        .podcast-item.dragging {
+            opacity: .4; transform: scale(.98);
+        }
+
+        /* Zone de dépôt : player-card */
+        .player-card.drop-target {
+            outline: 2px dashed var(--green);
+            outline-offset: -3px;
+            background: rgba(52,199,89,.07);
+            transition: outline .15s, background .15s;
+        }
+
+        /* Indicateur de drop dans la pc-queue */
+        .pc-drop-hint {
+            display: none; align-items: center; justify-content: center; gap: 6px;
+            padding: 10px; border-radius: 10px; margin: 4px 8px;
+            border: 1.5px dashed rgba(255,255,255,.2);
+            font-size: 11px; color: rgba(255,255,255,.4);
+            pointer-events: none;
+        }
+        .pc-drop-hint.visible { display: flex; }
+        .player-card.drop-target .pc-drop-hint { border-color: var(--green); color: var(--green); }
+
+        /* Playlist mode : header avec compteur + clear */
+        .pc-playlist-header {
+            display: none; align-items: center; justify-content: space-between;
+            padding: 6px 12px 0;
+        }
+        .pc-playlist-header.visible { display: flex; }
+        .pc-playlist-label {
+            font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3);
+            text-transform: uppercase; letter-spacing: .8px;
+        }
+        .pc-playlist-count {
+            font-size: 9px; font-weight: 700; color: var(--green);
+            background: rgba(52,199,89,.15); padding: 2px 6px; border-radius: 10px;
+        }
+        .pc-playlist-clear {
+            font-size: 10px; font-weight: 600; color: rgba(255,255,255,.3);
+            cursor: pointer; padding: 2px 6px; border-radius: 6px;
+            transition: color .15s, background .15s; border: none; background: none;
+        }
+        .pc-playlist-clear:hover { color: #ff3b30; background: rgba(255,59,48,.12); }
+
+        /* Animation entrée item dans la playlist */
+        @keyframes pop-in {
+            0%   { opacity: 0; transform: scale(.85) translateY(6px); }
+            70%  { transform: scale(1.03) translateY(-1px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .pc-queue-item.pop-in { animation: pop-in .25s ease-out forwards; }
+
+        /* Bouton supprimer item playlist */
+        .pc-queue-remove {
+            opacity: 0; width: 16px; height: 16px; flex-shrink: 0;
+            cursor: pointer; color: rgba(255,255,255,.3);
+            transition: opacity .15s, color .15s;
+            background: none; border: none; padding: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pc-queue-item:hover .pc-queue-remove { opacity: 1; }
+        .pc-queue-remove:hover { color: #ff3b30; }
+        .pc-queue-remove svg { width: 12px; height: 12px; pointer-events: none; }
+    }
+
     </style>
 </head>
 <body>
@@ -1467,10 +1551,23 @@
     </div>
     <!-- Séparateur -->
     <div class="pc-divider"></div>
+    <!-- Header playlist (visible en mode playlist) -->
+    <div class="pc-playlist-header" id="pc-playlist-header">
+        <div>
+            <span class="pc-playlist-label">Ma playlist</span>
+            <span class="pc-playlist-count" id="pc-playlist-count">0</span>
+        </div>
+        <button class="pc-playlist-clear" onclick="clearPlaylist()" title="Vider la playlist">Vider</button>
+    </div>
     <!-- Mini-liste -->
     <div class="pc-queue">
-        <div class="pc-queue-heading">Dernières publications</div>
-        <div id="pc-queue-list"></div>
+        <div class="pc-queue-heading" id="pc-queue-heading">Dernières publications</div>
+        <div id="pc-queue-list">
+            <div class="pc-drop-hint" id="pc-drop-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Glisser un épisode ici
+            </div>
+        </div>
     </div>
     <!-- Bouton tous les épisodes -->
     <button class="pc-all-btn" onclick="openPlayer()">
@@ -1698,6 +1795,8 @@ const DEFAULT_CONFIG = [
 ═══════════════════════════════════════════════ */
 const BLANK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=";
 const INT_EXCEPT = ["au coeur de l'actu","au cœur de l'actu","au coeur de l'histoire","au cœur de l'histoire","au coeur de la france","au cœur de la france","destins extraordinaires","au coeur des archives","au cœur des archives"];
+const INTEGRALE_MIN_SEC = 600; // >10 min = intégrale
+const JOURNAL_KEYWORDS = ["le journal"]; // toujours chronique quelle que soit la durée
 
 let podcastConfig = loadConfig();
 let allData=[], historyData=[];
@@ -1811,7 +1910,7 @@ function loadCache() {
     try {
         const raw=localStorage.getItem('podcastsDataCache'); if(!raw) return false;
         const c=JSON.parse(raw);
-        allData=c.podcasts.map(p=>{ const cfg=podcastConfig.find(x=>x.url===p.url); return{...p,latestPubDate:new Date(p.latestPubDate),natif:cfg?cfg.natif:false,hasIntegrale:p.hasIntegrale||false,prevCounts:p.prevCounts||{}}; });
+        allData=c.podcasts.map(p=>{ const cfg=podcastConfig.find(x=>x.url===p.url); return{...p,latestPubDate:new Date(p.latestPubDate),natif:cfg?cfg.natif:false,hasIntegrale:p.hasIntegrale||false,prevCounts:p.prevCounts||{},feedSize:p.feedSize||0}; });
         historyData=c.history.map(h=>({...h,date:new Date(h.date)}));
         return true;
     } catch(e){ return false; }
@@ -1868,7 +1967,7 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
                     }
                     if(idxP!==-1) countsPrev[idxP]++;
                 });
-                tPods.push({url:cfg.url,comptabilise:cfg.comptabilise,natif:cfg.natif,hasIntegrale,name:title,image:imgUrl,latestEpisodeTitle:latestTitle,latestPubDate,dailyCounts:counts,prevCounts:countsPrev,episodesToday:counts[8]});
+                tPods.push({url:cfg.url,comptabilise:cfg.comptabilise,natif:cfg.natif,hasIntegrale,name:title,image:imgUrl,latestEpisodeTitle:latestTitle,latestPubDate,dailyCounts:counts,prevCounts:countsPrev,episodesToday:counts[8],feedSize:items.length});
             }catch(e){}
             done++;
             if(!bg&&!isPtr&&fill&&lbl){ fill.style.width=`${(done/total)*100}%`; lbl.textContent=`${done} / ${total} terminés`; }
@@ -2171,7 +2270,9 @@ function buildAnalytics(pods) {
         if(avg < 0.1) return; // podcast trop peu actif pour avoir une baseline
 
         // Pic : >4 épisodes en une journée pour un podcast qui publie normalement <2/j
-        if(avg < 2) {
+        const feedSatForSpike = (p.feedSize||0) >= 90;
+        const activeDaysForSpike = [0,1,2,3,4,5,6,7].filter(i=>(p.dailyCounts[i]||0)>0).length;
+        if(avg < 2 && (!feedSatForSpike || activeDaysForSpike >= 4)) {
             for(let i=0;i<9;i++){
                 const c=p.dailyCounts[i]||0;
                 if(c > 4){
@@ -2203,12 +2304,27 @@ function buildAnalytics(pods) {
         // Explosion aujourd'hui : >3× la moyenne journalière
         const today = p.dailyCounts[8]||0;
         const yesterday = p.dailyCounts[7]||0;
-        if(avg >= 0.5 && today > avg * 3 && today > 3){
+        // Ignorer si le flux est saturé (≥90 items) : la baseline des jours anciens
+        // est tronquée et ne reflète pas le vrai rythme
+        const feedSaturated = (p.feedSize||0) >= 90;
+        // Nombre de jours avec au moins 1 épisode sur les 8 derniers jours
+        const activeDays = [0,1,2,3,4,5,6,7].filter(i=>(p.dailyCounts[i]||0)>0).length;
+        // Si flux saturé ET activeDays < 4 : baseline invalide, skip
+        if(!feedSaturated && avg >= 0.5 && today > avg * 3 && today > 3){
             const mult=Math.round(today/Math.max(avg,0.1));
             anomalies.push({
                 p, type:'burst',
                 label: 'Volume inhabituel',
-                msg: `${today} épisodes publiés aujourd'hui — ${mult}× plus que d'habitude (moy. ${avg.toFixed(1)}/j)`,
+                msg: `${today} épisodes publiés aujourd'hui — ${mult}x plus que d'habitude (moy. ${avg.toFixed(1)}/j)`,
+                badge: 'badge-up'
+            });
+        } else if(feedSaturated && activeDays >= 4 && avg >= 0.5 && today > avg * 3 && today > 3){
+            // Flux saturé mais on a assez de jours actifs pour une baseline fiable
+            const mult=Math.round(today/Math.max(avg,0.1));
+            anomalies.push({
+                p, type:'burst',
+                label: 'Volume inhabituel',
+                msg: `${today} épisodes publiés aujourd'hui — ${mult}x plus que d'habitude (moy. ${avg.toFixed(1)}/j)`,
                 badge: 'badge-up'
             });
         }
@@ -2377,7 +2493,27 @@ function buildInsight(graph){
 
 function buildDistribution(pods){
     let n=0,g=0,c=0,tot=0;
-    pods.forEach(p=>{ if(p.episodesToday>0&&p.comptabilise){ if(p.natif)n+=p.episodesToday; else if(p.hasIntegrale)g+=p.episodesToday; else c+=p.episodesToday; tot+=p.episodesToday; } });
+    // Récupérer les épisodes du jour depuis historyData pour avoir la durée réelle
+    const todayTs = DAYS[8];
+    const todayEps = historyData.filter(ep => {
+        const d = new Date(ep.date); d.setHours(0,0,0,0);
+        return d.getTime() === todayTs;
+    });
+    // Map podcast → comptabilisé + natif
+    const podMap = {};
+    pods.forEach(p => { podMap[p.name] = p; });
+
+    todayEps.forEach(ep => {
+        const p = podMap[ep.podcast];
+        if(!p || !p.comptabilise) return;
+        tot++;
+        if(p.natif){ n++; return; }
+        // Le Journal est toujours chronique
+        const isJournal = JOURNAL_KEYWORDS.some(k => ep.podcast.toLowerCase().includes(k));
+        if(!isJournal && ep.dur >= INTEGRALE_MIN_SEC){ g++; }
+        else { c++; }
+    });
+
     if(!tot) return '';
     const pn=(n/tot)*100, pg=(g/tot)*100, pc=(c/tot)*100;
     return `<div class="dist-card"><div class="dist-heading">Répartition du jour</div><div class="dist-bar">
@@ -2448,7 +2584,22 @@ function renderList(pods){ try {
                 const lbl=avg>=60?`${Math.floor(avg/60)}h${avg%60?String(avg%60).padStart(2,'0')+'m':''}`:`${avg}min`;
                 durBadge=`<span class="dur-badge ${cls}">${lbl}</span>`;
             }
-            h+=`<div class="podcast-item" onclick="openPodPanel('${p.url}')">
+            // Trouver le dernier épisode pour le drag
+            const lastEp = historyData.find(e=>e.podcast===p.name);
+            const epUrl = lastEp?lastEp.url:'';
+            const epTitle = lastEp?lastEp.title:p.latestEpisodeTitle;
+            const epImg = p.image||BLANK;
+            h+=`<div class="podcast-item" onclick="openPodPanel('${p.url}')"
+                draggable="true"
+                data-ep-url="${epUrl}"
+                data-ep-title="${epTitle.replace(/"/g,'&quot;')}"
+                data-ep-podcast="${p.name.replace(/"/g,'&quot;')}"
+                data-ep-img="${epImg}"
+                ondragstart="onItemDragStart(event)"
+                ondragend="onItemDragEnd(event)">
+                <div class="drag-handle" title="Glisser vers le lecteur">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="5" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/></svg>
+                </div>
                 <img src="${p.image||BLANK}" alt="${p.name}" class="podcast-img">
                 <div class="podcast-info">
                     <div class="podcast-name-row">
@@ -2633,6 +2784,163 @@ function loadFromHistory(histIdx){
     queue=src;
     loadTrack(histIdx);
     audio.play();
+}
+
+
+/* ═══════════════════════════════════════════════
+   PLAYLIST + DRAG & DROP
+═══════════════════════════════════════════════ */
+let playlist = []; // épisodes ajoutés manuellement
+let playlistMode = false; // true = on affiche la playlist dans la pc-queue
+
+/* ── Drag depuis la liste ── */
+function onItemDragStart(e) {
+    const el = e.currentTarget;
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('application/json', JSON.stringify({
+        url:     el.dataset.epUrl,
+        title:   el.dataset.epTitle,
+        podcast: el.dataset.epPodcast,
+        image:   el.dataset.epImg,
+    }));
+    el.classList.add('dragging');
+    // Activer la zone de dépôt
+    const pc = document.getElementById('player-card');
+    if(pc) {
+        pc.addEventListener('dragover',  onPlayerCardDragOver,  false);
+        pc.addEventListener('dragleave', onPlayerCardDragLeave, false);
+        pc.addEventListener('drop',      onPlayerCardDrop,      false);
+    }
+    // Montrer le hint si la playlist est vide
+    const hint = document.getElementById('pc-drop-hint');
+    if(hint) hint.classList.add('visible');
+}
+
+function onItemDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    // Retirer les listeners et l'état visuel
+    const pc = document.getElementById('player-card');
+    if(pc) {
+        pc.removeEventListener('dragover',  onPlayerCardDragOver);
+        pc.removeEventListener('dragleave', onPlayerCardDragLeave);
+        pc.removeEventListener('drop',      onPlayerCardDrop);
+        pc.classList.remove('drop-target');
+    }
+    const hint = document.getElementById('pc-drop-hint');
+    if(hint && !playlist.length) hint.classList.remove('visible');
+}
+
+/* ── Zone de dépôt : player-card ── */
+function onPlayerCardDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    this.classList.add('drop-target');
+}
+
+function onPlayerCardDragLeave(e) {
+    // Ne retirer que si on quitte vraiment la carte (pas un enfant)
+    if(!this.contains(e.relatedTarget)) this.classList.remove('drop-target');
+}
+
+function onPlayerCardDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drop-target');
+    let ep;
+    try { ep = JSON.parse(e.dataTransfer.getData('application/json')); } catch(err) { return; }
+    if(!ep || !ep.url) return;
+    addToPlaylist(ep);
+}
+
+/* ── Gestion playlist ── */
+function addToPlaylist(ep) {
+    // Éviter les doublons
+    if(playlist.some(p => p.url === ep.url)) {
+        // Flash pour signaler le doublon
+        flashPcQueue(); return;
+    }
+    playlist.push(ep);
+    // Ajouter aussi à la queue audio (en fin)
+    if(!queue.some(q => q.url === ep.url)) queue.push(ep);
+    playlistMode = true;
+    renderPlaylistQueue();
+    updatePlaylistHeader();
+}
+
+function removeFromPlaylist(idx) {
+    playlist.splice(idx, 1);
+    if(!playlist.length) {
+        playlistMode = false;
+        renderPcQueue(); // repasser en mode "Dernières publications"
+    } else {
+        renderPlaylistQueue();
+    }
+    updatePlaylistHeader();
+}
+
+function clearPlaylist() {
+    playlist = [];
+    playlistMode = false;
+    updatePlaylistHeader();
+    renderPcQueue();
+}
+
+function updatePlaylistHeader() {
+    const header  = document.getElementById('pc-playlist-header');
+    const count   = document.getElementById('pc-playlist-count');
+    const heading = document.getElementById('pc-queue-heading');
+    const hint    = document.getElementById('pc-drop-hint');
+    if(!header) return;
+    if(playlistMode && playlist.length) {
+        header.classList.add('visible');
+        if(count) count.textContent = playlist.length;
+        if(heading) heading.style.display = 'none';
+        if(hint) hint.classList.remove('visible');
+    } else {
+        header.classList.remove('visible');
+        if(heading) heading.style.display = '';
+        if(hint) hint.classList.remove('visible');
+    }
+}
+
+function renderPlaylistQueue() {
+    const list = document.getElementById('pc-queue-list');
+    if(!list) return;
+    const curUrl = trackIdx >= 0 && queue[trackIdx] ? queue[trackIdx].url : null;
+    list.innerHTML = playlist.map((ep, i) => {
+        const isPlaying = curUrl && ep.url === curUrl;
+        const qIdx = queue.findIndex(q => q.url === ep.url);
+        return `<div class="pc-queue-item pop-in${isPlaying ? ' pc-playing' : ''}"
+                     onclick="${qIdx >= 0 ? `loadTrack(${qIdx});audio.play()` : ''}">
+            <img src="${ep.image||BLANK}" class="pc-queue-img" alt="">
+            <div class="pc-queue-info">
+                <div class="pc-queue-title">${ep.title}</div>
+                <div class="pc-queue-pod">${ep.podcast}</div>
+            </div>
+            <span class="pc-playing-dot"></span>
+            <button class="pc-queue-remove" onclick="removeFromPlaylist(${i});event.stopPropagation()" title="Retirer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function flashPcQueue() {
+    const pc = document.getElementById('player-card');
+    if(!pc) return;
+    pc.style.transition = 'outline .1s';
+    pc.style.outline = '2px solid rgba(255,149,0,.6)';
+    setTimeout(() => { pc.style.outline = ''; }, 400);
+}
+
+/* Surcharger renderPcQueue pour tenir compte du mode playlist */
+const _origRenderPcQueue = renderPcQueue;
+function renderPcQueue() {
+    if(playlistMode && playlist.length) {
+        renderPlaylistQueue();
+        updatePlaylistHeader();
+    } else {
+        _origRenderPcQueue();
+    }
 }
 
 /* ═══ LECTEUR ═══ */
