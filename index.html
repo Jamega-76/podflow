@@ -690,120 +690,25 @@
     .mini-btn-close svg { width: 16px; height: 16px; }
 
     /* ═══════════════════════════════════════════════
-       PLAYER BAR — sticky bottom (desktop)
+       PLAYER CARD (col-left, sous répartition du jour)
     ═══════════════════════════════════════════════ */
     .player-card {
         display: none; /* caché sur mobile */
+        flex-direction: column;
+        background: #1e1e22;
+        border-radius: 22px;
+        overflow: hidden;
+        flex-shrink: 0;
+        box-shadow: 0 4px 24px rgba(0,0,0,.18);
     }
     @media (min-width: 900px) {
-        .player-card {
-            display: flex; flex-direction: column;
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
-            background: rgba(22,22,26,.96);
-            backdrop-filter: saturate(180%) blur(24px);
-            -webkit-backdrop-filter: saturate(180%) blur(24px);
-            border-top: 1px solid rgba(255,255,255,.08);
-            box-shadow: 0 -8px 40px rgba(0,0,0,.35);
-            transition: transform .35s cubic-bezier(.4,0,.2,1);
-            transform: translateY(calc(100% - 68px)); /* mini-bar height */
-            max-height: 80vh; overflow: hidden;
-        }
-        .player-card.expanded {
-            transform: translateY(0);
-        }
-        /* Padding bas pour que la liste ne soit pas cachée par la barre */
-        .col-left, .col-right {
-            padding-bottom: 88px;
-        }
+        .player-card { display: flex; }
     }
-    body.dark .player-card { background: rgba(12,12,14,.96); }
+    body.dark .player-card { background: #111113; }
 
-    /* Mini-barre toujours visible (68px) */
-    .pc-minibar {
-        display: none;
-    }
-    @media (min-width: 900px) {
-        .pc-minibar {
-            display: flex; align-items: center; gap: 12px;
-            height: 68px; padding: 0 24px;
-            cursor: pointer; flex-shrink: 0;
-            user-select: none;
-        }
-    }
-    .pc-minibar-cover {
-        width: 42px; height: 42px; border-radius: 9px;
-        object-fit: cover; flex-shrink: 0;
-        box-shadow: 0 3px 10px rgba(0,0,0,.4);
-    }
-    .pc-minibar-info { flex: 1; overflow: hidden; }
-    .pc-minibar-title {
-        font-size: 13px; font-weight: 700; color: #fff;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .pc-minibar-pod {
-        font-size: 11px; color: rgba(255,255,255,.45); margin-top: 1px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .pc-minibar-controls {
-        display: flex; align-items: center; gap: 6px; flex-shrink: 0;
-    }
-    .pc-minibar-btn {
-        background: none; border: none; color: rgba(255,255,255,.7);
-        cursor: pointer; padding: 6px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        transition: color .15s, background .15s;
-    }
-    .pc-minibar-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
-    .pc-minibar-btn svg { width: 22px; height: 22px; }
-    .pc-minibar-play {
-        background: #fff; color: #111 !important;
-        width: 38px; height: 38px; border-radius: 50%;
-        box-shadow: 0 2px 10px rgba(0,0,0,.4);
-        transition: transform .15s !important;
-    }
-    .pc-minibar-play:hover { transform: scale(1.08) !important; background: #fff !important; }
-    .pc-minibar-progress {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-        background: rgba(255,255,255,.1); pointer-events: none;
-    }
-    .pc-minibar-progress-fill {
-        height: 100%; background: var(--green);
-        transition: width .5s linear; width: 0%;
-    }
-    .pc-minibar-chevron {
-        color: rgba(255,255,255,.3); flex-shrink: 0;
-        transition: transform .35s; width: 20px; height: 20px;
-    }
-    .player-card.expanded .pc-minibar-chevron { transform: rotate(180deg); }
-
-    /* Panneau dépliable */
-    .pc-expanded-panel {
-        display: flex; flex-direction: column;
-        border-top: 1px solid rgba(255,255,255,.07);
-        overflow: hidden;
-        max-height: calc(80vh - 68px);
-    }
-    .pc-expanded-inner {
-        display: flex; gap: 0;
-        overflow: hidden;
-        height: 100%;
-    }
-    /* Gauche : contrôles complets */
-    .pc-controls-col {
-        width: 340px; flex-shrink: 0;
-        padding: 16px 20px 20px;
-        display: flex; flex-direction: column; gap: 12px;
-        border-right: 1px solid rgba(255,255,255,.07);
-    }
-    /* Droite : playlist/queue */
-    .pc-queue-col {
-        flex: 1; overflow-y: auto; padding: 10px 16px 16px;
-    }
-    .pc-queue-col::-webkit-scrollbar { width: 3px; }
-    .pc-queue-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
-
-    /* Zone player principale (dans le panneau dépliable) */
+    /* Zone player principale */
     .pc-player {
+        padding: 14px 16px 10px;
         display: flex; flex-direction: column; gap: 10px;
     }
 
@@ -877,7 +782,7 @@
 
     /* Mini-liste des 5 derniers */
     .pc-queue {
-        padding: 0;
+        padding: 8px 12px 2px;
     }
     .pc-queue-heading {
         font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3);
@@ -914,7 +819,7 @@
     /* Bouton "Tous les épisodes" */
     .pc-all-btn {
         display: flex; align-items: center; justify-content: center; gap: 6px;
-        margin: 6px 0 0;
+        margin: 6px 12px 12px;
         padding: 8px 0; border-radius: 10px;
         background: rgba(255,255,255,.08); border: none; color: rgba(255,255,255,.6);
         font-size: 11px; font-weight: 600; cursor: pointer;
@@ -1692,116 +1597,74 @@
     </div>
 </div>
 
-<!-- ═══ PLAYER BAR sticky bottom (desktop) ══════ -->
+<!-- ═══ PLAYER CARD (col-left) ══════════════════ -->
 <div class="player-card" id="player-card">
-
-    <!-- ── Mini-barre toujours visible ── -->
-    <div class="pc-minibar" id="pc-minibar" onclick="togglePlayerExpand()">
-        <!-- Barre de progression fine en bas de la minibar -->
-        <div class="pc-minibar-progress" style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.1)">
-            <div class="pc-minibar-progress-fill" id="pc-minibar-fill"></div>
+    <!-- Cover + infos + progression + boutons -->
+    <div class="pc-player">
+        <div class="pc-top">
+            <img id="pc-cover" class="pc-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
+            <div class="pc-info">
+                <div id="pc-title"   class="pc-title">–</div>
+                <div id="pc-podcast" class="pc-podcast">–</div>
+            </div>
         </div>
-        <img id="pc-cover" class="pc-minibar-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
-        <div class="pc-minibar-info">
-            <div id="pc-title"   class="pc-minibar-title">Aucune lecture en cours</div>
-            <div id="pc-podcast" class="pc-minibar-pod">Glisse un épisode ou clique sur un podcast</div>
+        <div class="pc-progress-wrap">
+            <input id="pc-progress" type="range" class="pc-slider" value="0" min="0" max="100">
+            <div class="pc-times">
+                <span id="pc-time-cur">0:00</span>
+                <span id="pc-time-tot">0:00</span>
+            </div>
         </div>
-        <div class="pc-minibar-controls" onclick="event.stopPropagation()">
-            <button class="pc-minibar-btn" onclick="playPrev()" title="Précédent">
+        <div class="pc-btns">
+            <button class="pc-btn pc-btn-skip" onclick="seekAudio(-15)" title="-15s">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+            </button>
+            <button class="pc-btn" onclick="playPrev()" title="Précédent">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
             </button>
-            <button class="pc-minibar-btn pc-minibar-play" onclick="togglePlay()" aria-label="Lecture/Pause">
+            <button class="pc-btn pc-btn-play" onclick="togglePlay()" aria-label="Lecture/Pause">
                 <svg id="pc-icon-play"  viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="pc-icon-pause" viewBox="0 0 24 24" fill="#111" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
-            <button class="pc-minibar-btn" onclick="playNext()" title="Suivant">
+            <button class="pc-btn" onclick="playNext()" title="Suivant">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
             </button>
+            <button class="pc-btn pc-btn-skip" onclick="seekAudio(15)" title="+15s">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+            </button>
         </div>
-        <!-- Chevron expand -->
-        <svg class="pc-minibar-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-    </div>
-
-    <!-- ── Panneau dépliable ── -->
-    <div class="pc-expanded-panel">
-        <div class="pc-expanded-inner">
-
-            <!-- Gauche : contrôles complets -->
-            <div class="pc-controls-col">
-                <!-- Cover grande + infos -->
-                <div class="pc-top" style="gap:14px">
-                    <img id="pc-cover-big" class="pc-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
-                    <div class="pc-info">
-                        <div id="pc-title-big"   class="pc-title">–</div>
-                        <div id="pc-podcast-big" class="pc-podcast">–</div>
-                    </div>
-                </div>
-                <!-- Progression -->
-                <div class="pc-progress-wrap">
-                    <input id="pc-progress" type="range" class="pc-slider" value="0" min="0" max="100">
-                    <div class="pc-times">
-                        <span id="pc-time-cur">0:00</span>
-                        <span id="pc-time-tot">0:00</span>
-                    </div>
-                </div>
-                <!-- Boutons -->
-                <div class="pc-btns">
-                    <button class="pc-btn pc-btn-skip" onclick="seekAudio(-15)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-                    </button>
-                    <button class="pc-btn" onclick="playPrev()">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
-                    </button>
-                    <button class="pc-btn pc-btn-play" onclick="togglePlay()">
-                        <svg id="pc-icon-play2"  viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
-                        <svg id="pc-icon-pause2" viewBox="0 0 24 24" fill="#111" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                    </button>
-                    <button class="pc-btn" onclick="playNext()">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
-                    </button>
-                    <button class="pc-btn pc-btn-skip" onclick="seekAudio(15)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-                    </button>
-                </div>
-                <!-- Vitesse -->
-                <div class="speed-row">
-                    <button class="speed-btn" data-speed="0.75" onclick="setSpeed(0.75)">0.75×</button>
-                    <button class="speed-btn active" data-speed="1"    onclick="setSpeed(1)">1×</button>
-                    <button class="speed-btn" data-speed="1.25" onclick="setSpeed(1.25)">1.25×</button>
-                    <button class="speed-btn" data-speed="1.5" onclick="setSpeed(1.5)">1.5×</button>
-                    <button class="speed-btn" data-speed="2"    onclick="setSpeed(2)">2×</button>
-                </div>
-                <!-- Bouton lecteur plein écran -->
-                <button class="pc-all-btn" onclick="openPlayer()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                    Tous les épisodes du jour
-                </button>
-            </div>
-
-            <!-- Droite : playlist/queue -->
-            <div class="pc-queue-col">
-                <!-- Header playlist -->
-                <div class="pc-playlist-header" id="pc-playlist-header">
-                    <div>
-                        <span class="pc-playlist-label">Ma playlist</span>
-                        <span class="pc-playlist-count" id="pc-playlist-count">0</span>
-                    </div>
-                    <button class="pc-playlist-clear" onclick="clearPlaylist()" title="Vider">Vider</button>
-                </div>
-                <div class="pc-queue">
-                    <div class="pc-queue-heading" id="pc-queue-heading">Dernières publications</div>
-                    <div id="pc-queue-list">
-                        <div class="pc-drop-hint" id="pc-drop-hint">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-                            Glisser un épisode ici
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="speed-row">
+            <button class="speed-btn" data-speed="0.75" onclick="setSpeed(0.75)">0.75×</button>
+            <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1×</button>
+            <button class="speed-btn" data-speed="1.25" onclick="setSpeed(1.25)">1.25×</button>
+            <button class="speed-btn" data-speed="1.5" onclick="setSpeed(1.5)">1.5×</button>
+            <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2×</button>
         </div>
     </div>
-
+    <!-- Séparateur -->
+    <div class="pc-divider"></div>
+    <!-- Header playlist -->
+    <div class="pc-playlist-header" id="pc-playlist-header">
+        <div>
+            <span class="pc-playlist-label">Ma playlist</span>
+            <span class="pc-playlist-count" id="pc-playlist-count">0</span>
+        </div>
+        <button class="pc-playlist-clear" onclick="clearPlaylist()" title="Vider la playlist">Vider</button>
+    </div>
+    <!-- Queue / playlist -->
+    <div class="pc-queue">
+        <div class="pc-queue-heading" id="pc-queue-heading">Dernières publications</div>
+        <div id="pc-queue-list">
+            <div class="pc-drop-hint" id="pc-drop-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Glisser un épisode ici
+            </div>
+        </div>
+    </div>
+    <button class="pc-all-btn" onclick="openPlayer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Tous les épisodes du jour
+    </button>
 </div>
 
 <!-- ═══ MODAL PARAMÈTRES ════════════════════════ -->
@@ -2121,22 +1984,16 @@ function isDesktop() { return window.innerWidth >= 900; }
 function placeMiniPlayer() {
     try {
         const mp=document.getElementById('mini-player');
-        if(mp && mp.parentElement!==document.body) document.body.appendChild(mp);
-        // player-card est maintenant fixed — pas besoin de l'injecter dans col-left
+        const pc=document.getElementById('player-card');
+        const col=document.getElementById('col-left');
+        if(!mp||!pc||!col) return;
+        if(isDesktop()){
+            if(pc.parentElement!==col) col.appendChild(pc);
+            if(mp.parentElement!==document.body) document.body.appendChild(mp);
+        } else {
+            if(mp.parentElement!==document.body) document.body.appendChild(mp);
+        }
     } catch(err) { console.error('placeMiniPlayer crash:', err); }
-}
-
-function togglePlayerExpand() {
-    const pc = document.getElementById('player-card');
-    if(pc) pc.classList.toggle('expanded');
-}
-function expandPlayerBar() {
-    const pc = document.getElementById('player-card');
-    if(pc && isDesktop()) pc.classList.add('expanded');
-}
-function collapsePlayerBar() {
-    const pc = document.getElementById('player-card');
-    if(pc) pc.classList.remove('expanded');
 }
 
 /* ═══ CACHE ═══ */
@@ -3438,36 +3295,23 @@ function closePlayer(){ document.getElementById('player-modal').classList.remove
 function closeMiniPlayer(e){ e?.stopPropagation(); audio.pause(); document.getElementById('mini-player').classList.remove('visible'); }
 function loadTrack(idx){
     trackIdx=idx; const t=queue[idx];
-    // Player modal
     document.getElementById('player-title').textContent=t.title;
     document.getElementById('player-podcast-name').textContent=t.podcast;
     document.getElementById('player-cover').src=t.image;
-    // Mini-player mobile
     document.getElementById('mini-title').textContent=t.title;
     document.getElementById('mini-podcast').textContent=t.podcast;
     document.getElementById('mini-cover').src=t.image;
-    // Player bar desktop — minibar
     document.getElementById('pc-cover').src=t.image;
     document.getElementById('pc-title').textContent=t.title;
     document.getElementById('pc-podcast').textContent=t.podcast;
-    // Player bar desktop — panneau dépliable
-    const bigCover = document.getElementById('pc-cover-big');
-    const bigTitle = document.getElementById('pc-title-big');
-    const bigPod   = document.getElementById('pc-podcast-big');
-    if(bigCover) bigCover.src=t.image;
-    if(bigTitle) bigTitle.textContent=t.title;
-    if(bigPod)   bigPod.textContent=t.podcast;
     audio.src=t.url; audio.load();
     audio.playbackRate=currentSpeed;
-    // Badge position mémorisée
     const saved=savedPositions[t.url];
     const badge=document.getElementById('resume-badge');
     if(saved&&saved>5){
         document.getElementById('resume-time').textContent=fmt(saved);
         badge.classList.add('show');
     } else { badge.classList.remove('show'); }
-    // Auto-expand le player bar
-    expandPlayerBar();
     renderQueue(); renderPcQueue();
     document.getElementById('player-modal').scrollTo({top:0,behavior:'smooth'});
 }
@@ -3477,15 +3321,12 @@ function playPrev(){ if(!queue.length) return; loadTrack((trackIdx-1+queue.lengt
 function seekAudio(s){ if(audio.duration) audio.currentTime=Math.max(0,Math.min(audio.duration,audio.currentTime+s)); }
 function syncIcons(){
     const pl=!audio.paused;
-    const show=(id,v)=>{ const e=document.getElementById(id); if(e) e.style.display=v; };
-    show('icon-play',   pl?'none':'');
-    show('icon-pause',  pl?'':'none');
-    show('mini-icon-play',  pl?'none':'');
-    show('mini-icon-pause', pl?'':'none');
-    show('pc-icon-play',    pl?'none':'');  // minibar
-    show('pc-icon-pause',   pl?'':'none');
-    show('pc-icon-play2',   pl?'none':'');  // panneau dépliable
-    show('pc-icon-pause2',  pl?'':'none');
+    document.getElementById('icon-play').style.display=pl?'none':'';
+    document.getElementById('icon-pause').style.display=pl?'':'none';
+    document.getElementById('mini-icon-play').style.display=pl?'none':'';
+    document.getElementById('mini-icon-pause').style.display=pl?'':'none';
+    document.getElementById('pc-icon-play').style.display=pl?'none':'';
+    document.getElementById('pc-icon-pause').style.display=pl?'':'none';
 }
 let _lastSave=0;
 function onTimeUpdate(){
@@ -3497,8 +3338,7 @@ function onTimeUpdate(){
     document.getElementById('pc-progress').value=pct;
     document.getElementById('pc-time-cur').textContent=fmt(audio.currentTime);
     document.getElementById('pc-time-tot').textContent=fmt(audio.duration);
-    const fill=document.getElementById('pc-minibar-fill');
-    if(fill) fill.style.width=pct+'%';
+
     // Sauvegarder position toutes les 5 secondes
     const now=Date.now();
     if(now-_lastSave>5000&&trackIdx>=0&&queue[trackIdx]){
