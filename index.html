@@ -171,15 +171,15 @@
     ═══════════════════════════════════════════════ */
     .layout {
         width: 100%; max-width: 440px; margin: 0 auto;
-        padding: 20px 20px 100px;
+        padding: 16px 16px 120px;
         display: flex; flex-direction: column; gap: 0;
     }
     /* Espacement entre chaque carte sur mobile */
     #stats-top, #stats-zone, #list-zone {
-        display: flex; flex-direction: column; gap: 20px;
+        display: flex; flex-direction: column; gap: 16px;
     }
-    #stats-top { margin-bottom: 0; }
-    #stats-zone { margin-top: 0; }
+    #stats-top { margin-bottom: 16px; }
+    #stats-zone { margin-top: 16px; }
 
     @media (min-width: 900px) {
         .layout {
@@ -251,7 +251,7 @@
     /* ═══════════════════════════════════════════════
        HEADER MOBILE
     ═══════════════════════════════════════════════ */
-    .mobile-header { justify-content: space-between; align-items: center; gap: 10px; }
+    .mobile-header { justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
 
     /* ═══════════════════════════════════════════════
        RECHERCHE MOBILE
@@ -1483,6 +1483,22 @@
     /* ═══════════════════════════════════════════════
        BRAND SWITCHER
     ═══════════════════════════════════════════════ */
+    /* Brand switcher mobile : barre pleine largeur */
+    .brand-switcher-mobile {
+        display: flex; align-items: center;
+        background: var(--card); border-radius: 14px;
+        padding: 3px; gap: 2px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        margin: 0 0 4px;
+    }
+    .brand-switcher-mobile .brand-btn {
+        flex: 1; text-align: center; padding: 7px 4px;
+        font-size: 13px;
+    }
+    @media (min-width: 900px) {
+        .brand-switcher-mobile { display: none; }
+    }
+
     .brand-switcher {
         display: none;
     }
@@ -1601,6 +1617,13 @@
             <svg onclick="openSettings()"       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/></svg>
         </div>
     </header>
+
+    <!-- BRAND SWITCHER MOBILE -->
+    <div class="brand-switcher-mobile mobile-only" id="brand-switcher-mobile">
+        <button class="brand-btn active" data-brand="europe1" onclick="setBrand('europe1')">Europe 1</button>
+        <button class="brand-btn" data-brand="europe2" onclick="setBrand('europe2')">Europe 2</button>
+        <button class="brand-btn" data-brand="rfm" onclick="setBrand('rfm')">RFM</button>
+    </div>
 
     <!-- RECHERCHE MOBILE -->
     <div class="mobile-search mobile-only" id="search-mobile-bar">
