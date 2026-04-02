@@ -871,6 +871,9 @@
     /* ═══════════════════════════════════════════════
        TRI DE LA LISTE
     ═══════════════════════════════════════════════ */
+    .list-view-toggle {
+        display: flex; gap: 2px;
+    }
     .list-header {
         display: flex; justify-content: space-between; align-items: center;
         margin-bottom: 8px;
@@ -1897,12 +1900,13 @@ let queue=[], trackIdx=-1;
 let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
 let currentSpeed = parseFloat(localStorage.getItem('playbackSpeed')||'1');
 let savedPositions = JSON.parse(localStorage.getItem('savedPositions')||'{}');
-let compareWeeks = false; // toggle comparaison semaines
+const compareWeeks = false; // S-1 désactivé
 let lastSyncTime = null;   // timestamp dernière sync réussie
 let syncLabelTimer = null; // timer pour mettre à jour "il y a X min"
 let knownUrls = new Set(); // URLs connues pour détecter les nouveaux épisodes
 let currentSort = 'recent'; // 'episodes' | 'name' | 'recent'
-let currentView = 'day';      // 'day' | 'week'
+let chartView = 'week';  // vue du graphe (col-left) : 'day' | 'week'
+let listView  = 'day';   // vue de la liste (col-right) : 'day' | 'yesterday' | 'week'
 const GOAL_WEEKLY = 500;
 const SILENCE_DAYS = 7;
 const audio = document.getElementById('audio');
@@ -2169,9 +2173,11 @@ function updateView() {
 
 /* ═══ VUE JOUR / SEMAINE ═══ */
 function setView(v){
-    currentView=v;
-    document.querySelectorAll('.view-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
-    updateView();
+    // Boutons du graphe (data-target="chart") vs liste (data-target="list")
+    chartView=v; updateView();
+}
+function setListView(v){
+    listView=v; updateView();
 }
 
 /* ═══ TRI ═══ */
@@ -2728,8 +2734,7 @@ function buildMonitoring(pods) {
 /* ═══ RENDER STATS ═══ */
 function renderStats(pods,graph,grand){ try {
     const toggle=`<div class="view-toggle">
-        <button class="view-toggle-btn${currentView==='day'?' active':''}" data-v="day" onclick="setView('day')">Aujourd'hui</button>
-        <button class="view-toggle-btn${currentView==='week'?' active':''}" data-v="week" onclick="setView('week')">Semaine</button>
+        <button class="view-toggle-btn${chartView==='week'?' active':''}" data-v="week" onclick="setView('week')">Semaine</button>
     </div>`;
     const goal=buildGoal(pods);
     const prevGraph=buildPrevGraph(pods);
@@ -2794,7 +2799,7 @@ function exportCSV(){
 }
 
 function buildChart(graph,grand,prevGraph){
-    const isWeek=currentView==='week';
+    const isWeek=chartView==='week';
     const subtitle=isWeek?'Total 7 derniers jours':'Total sur 9 jours';
     const total=isWeek?graph.slice(2).reduce((s,d)=>s+d.count,0):grand;
 
@@ -2802,15 +2807,9 @@ function buildChart(graph,grand,prevGraph){
     const max=Math.max(...graph.map(d=>d.count),maxPrev,1);
     const t1=Math.round(max/3), t2=Math.round(max*2/3);
 
-    const legendHtml=compareWeeks?`<div class="chart-legend-row">
-        <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--text)"></span>Cette semaine</div>
-        <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--text-sec);opacity:.4"></span>Semaine précédente</div>
-    </div>`:'';
+    const legendHtml='';
 
     const exportRow=`<div class="export-row">
-        <label class="compare-toggle">
-            <input type="checkbox" ${compareWeeks?'checked':''} onchange="toggleCompare()"> Comparer S-1
-        </label>
         <button class="export-btn" onclick="exportCSV()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Exporter CSV
@@ -2828,8 +2827,7 @@ function buildChart(graph,grand,prevGraph){
         const isHighlight=isWeek&&i>=2;
         const barStyle=isHighlight?'background:var(--green);opacity:.85':'';
         // Barre S-1 en superposition
-        const prevPct=compareWeeks&&prevGraph&&prevGraph[i]&&prevGraph[i].count>0?Math.max((prevGraph[i].count/max)*100,3):0;
-        const prevBar=compareWeeks&&prevPct>0?`<div class="bar-prev" style="height:${prevPct}%" title="S-1: ${prevGraph[i].count}"></div>`:'';
+        const prevBar='';
         h+=`<div class="bar-col" onclick="this.classList.toggle('show-tip')">
             ${d.count>0?`<span class="bar-val">${d.count}</span>`:''}
             <div class="bar" style="height:${pct}%;${barStyle};position:relative">
@@ -2837,7 +2835,6 @@ function buildChart(graph,grand,prevGraph){
                 <div class="bar-tooltip">
                     <div class="tip-row"><span class="tip-dot" style="background:var(--green)"></span>${d.compte} Comptés</div>
                     <div class="tip-row"><span class="tip-dot" style="background:var(--text-sec)"></span>${d.nonCompte} Hors</div>
-                    ${compareWeeks&&prevGraph&&prevGraph[i]?`<div class="tip-row"><span class="tip-dot" style="background:var(--text-sec);opacity:.4"></span>S-1: ${prevGraph[i].count}</div>`:''}
                 </div>
             </div>
             <span class="bar-day">${d.label.charAt(0).toUpperCase()+d.label.slice(1,3)}</span>
@@ -2850,62 +2847,61 @@ function buildInsight(graph){
     const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
     const dow=new Date().toLocaleDateString('fr-FR',{weekday:'long'});
 
-    // ── Ligne globale hier ──
-    let globalLine='';
-    if(yd>0&&bd>0){
+    // ── Partie 1 : bilan hier en phrase naturelle ──
+    let part1='';
+    if(yd===0){
+        part1=`Hier, <strong>aucune publication</strong> n'a été enregistrée.`;
+    } else if(yd>0&&bd>0){
         const pct=Math.round(Math.abs(yd-bd)/bd*100);
-        const arrow=yd>bd?`+${pct}%`:`-${pct}%`;
-        const trend=yd>bd?'en hausse':'en baisse';
-        globalLine=`Hier : <strong>${yd} épisodes</strong> publiés — ${trend} de ${arrow} vs avant-hier.`;
-    } else if(yd===0){
-        globalLine=`Hier : <strong>aucune publication</strong> enregistrée.`;
+        const tendance=yd>bd?`soit <strong>+${pct}%</strong> de plus`:`soit <strong>${pct}%</strong> de moins`;
+        part1=`Hier, <strong>${yd} épisodes</strong> ont été publiés — ${tendance} qu'avant-hier.`;
     } else {
-        globalLine=`Hier : <strong>${yd} épisodes</strong> publiés.`;
+        part1=`Hier, <strong>${yd} épisode${yd>1?'s':''}</strong> ont été publiés.`;
     }
 
-    // ── Top 3 podcasts hier + contribution % au volume ──
-    // Construire un classement par nb d'épisodes hier (index 7)
-    const podLines=[];
+    // ── Partie 2 : top 3 en prose, sans comparatif ──
+    let part2='';
     if(yd>0 && allData.length){
         const ranked=[...allData]
             .filter(p=>p.comptabilise&&(p.dailyCounts[7]||0)>0)
             .sort((a,b)=>(b.dailyCounts[7]||0)-(a.dailyCounts[7]||0))
             .slice(0,3);
 
-        ranked.forEach(p=>{
-            const hier=p.dailyCounts[7]||0;
-            const avantHier=p.dailyCounts[6]||0;
-            const contrib=Math.round((hier/yd)*100);
-            let variation='';
-            if(avantHier>0){
-                const vPct=Math.round(Math.abs(hier-avantHier)/avantHier*100);
-                variation=hier>avantHier?` (+${vPct}% vs av-hier)`:hier<avantHier?` (-${vPct}% vs av-hier)`:` (stable)`;
-            }
-            podLines.push(`<span style="font-weight:600">${p.name}</span> : ${hier} ép. — ${contrib}% du total${variation}`);
-        });
+        if(ranked.length){
+            // Construire la liste en prose : "A (x ép., y%), B (x ép., y%) et C (x ép., y%)"
+            const items=ranked.map(p=>{
+                const hier=p.dailyCounts[7]||0;
+                const contrib=Math.round((hier/yd)*100);
+                return `<strong>${p.name}</strong> (${hier} ép., ${contrib}%)`;
+            });
+            const listStr=items.length===1
+                ? items[0]
+                : items.slice(0,-1).join(', ')+' et '+items[items.length-1];
+            part2=`Les émissions les plus actives étaient ${listStr}.`;
+        }
     }
 
-    // ── Ligne aujourd'hui ──
-    let todayLine='';
-    if(td===0) todayLine=`Ce ${dow}, le compteur est encore à zéro.`;
-    else if(yd>0){
+    // ── Partie 3 : aujourd'hui ──
+    let part3='';
+    if(td===0){
+        part3=`Ce ${dow}, le compteur est encore à zéro.`;
+    } else if(yd>0){
         const pct=Math.round((td/yd)*100);
-        todayLine=`Ce ${dow} : déjà <strong>${td} épisode${td>1?'s':''}</strong> — soit ${pct}% du volume d'hier.`;
+        part3=`Ce ${dow} démarre avec déjà <strong>${td} épisode${td>1?'s':''}</strong>, soit ${pct}% du volume d'hier.`;
     } else {
-        todayLine=`Ce ${dow} : <strong>${td} épisode${td>1?'s':''}</strong> publié${td>1?'s':''}.`;
+        part3=`Ce ${dow}, <strong>${td} épisode${td>1?'s':''}</strong> publié${td>1?'s':''} pour l'instant.`;
     }
 
-    const podHtml=podLines.length
-        ? `<ul style="margin:6px 0 4px;padding-left:14px;display:flex;flex-direction:column;gap:3px">${podLines.map(l=>`<li style="font-size:11px;color:var(--text-sec)">${l}</li>`).join('')}</ul>`
-        : '';
+    // Chaque partie sur sa propre ligne, part2 en italique
+    const blocks=[
+        part1,
+        part2 ? `<em style="opacity:.8">${part2}</em>` : '',
+        part3
+    ].filter(Boolean).join('<br style="display:block;margin-bottom:5px">');
 
     return `<div class="insight-card">
         <div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div>
-        <div class="insight-text">
-            <div style="font-size:12px;margin-bottom:4px">${globalLine}</div>
-            ${podHtml}
-            <div style="font-size:12px;margin-top:4px;opacity:.75">${todayLine}</div>
-        </div>
+        <div class="insight-text" style="font-size:12px;line-height:1.7">${blocks}</div>
     </div>`;
 }
 
@@ -2955,11 +2951,13 @@ function renderList(pods){ try {
         durMap[ep.podcast].sum+=ep.dur; durMap[ep.podcast].n++;
     });
 
-    // Vue semaine : épisodes des 7 derniers jours (indices 2-8)
     let list;
-    if(currentView==='week'){
+    if(listView==='week'){
         list=pods.filter(p=>{ let s=0; for(let i=2;i<9;i++) s+=(p.dailyCounts[i]||0); return s>0; })
             .map(p=>({ ...p, displayCount:([2,3,4,5,6,7,8].reduce((s,i)=>s+(p.dailyCounts[i]||0),0)) }));
+    } else if(listView==='yesterday'){
+        list=pods.filter(p=>(p.dailyCounts[7]||0)>0)
+            .map(p=>({...p, displayCount:p.dailyCounts[7]||0}));
     } else {
         list=pods.filter(p=>p.episodesToday>0).map(p=>({...p,displayCount:p.episodesToday}));
     }
@@ -2970,14 +2968,25 @@ function renderList(pods){ try {
     const sortFn = currentSort==='name'
         ? (a,b)=>a.name.localeCompare(b.name,'fr')
         : currentSort==='recent'
-        ? (a,b)=>b.latestPubDate-a.latestPubDate
+        ? (listView==='yesterday'
+            // En vue Hier : trier par heure du dernier épisode de la veille
+            ? (a,b)=>{
+                const tsA=historyData.find(e=>{const d=new Date(e.date);d.setHours(0,0,0,0);return e.podcast===a.name&&d.getTime()===DAYS[7];});
+                const tsB=historyData.find(e=>{const d=new Date(e.date);d.setHours(0,0,0,0);return e.podcast===b.name&&d.getTime()===DAYS[7];});
+                return (tsB?new Date(tsB.date):0)-(tsA?new Date(tsA.date):0);
+              }
+            : (a,b)=>b.latestPubDate-a.latestPubDate)
         : (a,b)=>b.displayCount-a.displayCount;
     favs.sort(sortFn); rest.sort(sortFn);
     const sorted=[...favs,...rest];
 
-    const viewLabel=currentView==='week'?'Cette semaine':"Aujourd'hui";
+    const viewLabel=listView==='week'?'Cette semaine':listView==='yesterday'?'Hier':"Aujourd'hui";
     const sortBar=`<div class="list-header">
-        <div class="section-label">${viewLabel}</div>
+        <div class="list-view-toggle">
+            <button class="sort-btn${listView==='day'?' active':''}" onclick="setListView('day')">Aujourd'hui</button>
+            <button class="sort-btn${listView==='yesterday'?' active':''}" onclick="setListView('yesterday')">Hier</button>
+            <button class="sort-btn${listView==='week'?' active':''}" onclick="setListView('week')">Semaine</button>
+        </div>
         <div class="sort-btns">
             <button class="sort-btn${currentSort==='episodes'?' active':''}" data-s="episodes" onclick="setSort('episodes')" title="Trier par épisodes">Épisodes</button>
             <button class="sort-btn${currentSort==='name'?' active':''}" data-s="name" onclick="setSort('name')" title="Trier par nom">Nom</button>
@@ -2986,7 +2995,7 @@ function renderList(pods){ try {
     </div>`;
 
     // Alertes silence (seulement en vue "Tous")
-    const silenceHtml=buildSilenceAlerts(pods);
+    const silenceHtml=listView==='yesterday'?'':buildSilenceAlerts(pods);
 
     let h=sortBar+`<div class="podcast-list">`;
     if(!sorted.length){
@@ -3025,7 +3034,13 @@ function renderList(pods){ try {
                         ${isFav?'<span class="status-dot" style="background:#ff9500"></span>':'<span class="status-dot"></span>'}
                     </div>
                     <div class="podcast-ep" style="display:flex;align-items:center;gap:6px">
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.latestEpisodeTitle}</span>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(()=>{
+                            if(listView==='yesterday'){
+                                const yEp=historyData.find(e=>{const d=new Date(e.date);d.setHours(0,0,0,0);return e.podcast===p.name&&d.getTime()===DAYS[7];});
+                                return yEp?yEp.title:p.latestEpisodeTitle;
+                            }
+                            return p.latestEpisodeTitle;
+                        })()}</span>
                         ${durBadge}
                     </div>
                 </div>
