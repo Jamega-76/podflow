@@ -1479,6 +1479,47 @@
         font-size: 12px; color: var(--green);
     }
 
+
+    /* ═══════════════════════════════════════════════
+       BRAND SWITCHER
+    ═══════════════════════════════════════════════ */
+    .brand-switcher {
+        display: none;
+    }
+    @media (min-width: 900px) {
+        .brand-switcher {
+            display: flex; align-items: center; gap: 3px;
+            background: rgba(0,0,0,.06); border-radius: 10px; padding: 3px;
+        }
+        body.dark .brand-switcher { background: rgba(255,255,255,.08); }
+    }
+    .brand-btn {
+        padding: 4px 12px; border-radius: 7px; border: none; cursor: pointer;
+        font-size: 12px; font-weight: 700; letter-spacing: -.1px;
+        background: transparent; color: var(--text-sec);
+        transition: background .15s, color .15s;
+        white-space: nowrap;
+    }
+    .brand-btn:hover { color: var(--text); }
+    .brand-btn.active {
+        background: var(--card); color: var(--text);
+        box-shadow: 0 1px 4px rgba(0,0,0,.1);
+    }
+    /* Couleur accent par marque sur le bouton actif */
+    .brand-btn.active[data-brand="europe1"] { color: #0070C0; }
+    .brand-btn.active[data-brand="europe2"] { color: #e63329; }
+    .brand-btn.active[data-brand="rfm"]     { color: #8b2fc9; }
+
+    /* Indicateur couleur dans le live-dot selon la marque */
+    body[data-brand="europe2"] .live-dot.active { background: #e63329; }
+    body[data-brand="rfm"]     .live-dot.active { background: #8b2fc9; }
+
+    /* Barre de progression objectif colorée par marque */
+    body[data-brand="europe2"] .goal-bar-fill      { background: #e63329; }
+    body[data-brand="rfm"]     .goal-bar-fill      { background: #8b2fc9; }
+    body[data-brand="europe2"] .goal-bar-fill.done { background: var(--green); }
+    body[data-brand="rfm"]     .goal-bar-fill.done { background: var(--green); }
+
     </style>
 </head>
 <body>
@@ -1486,12 +1527,17 @@
 <!-- ═══ TOPBAR DESKTOP ══════════════════════════ -->
 <div class="topbar" id="topbar">
 
-    <!-- Gauche : logo -->
+    <!-- Gauche : logo + brand switcher -->
     <div class="topbar-left">
         <div class="topbar-logo-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
         </div>
         <span class="topbar-logo-name">Podcast<span>Tracker</span></span>
+        <div class="brand-switcher" id="brand-switcher">
+            <button class="brand-btn active" data-brand="europe1" onclick="setBrand('europe1')">Europe 1</button>
+            <button class="brand-btn" data-brand="europe2" onclick="setBrand('europe2')">Europe 2</button>
+            <button class="brand-btn" data-brand="rfm" onclick="setBrand('rfm')">RFM</button>
+        </div>
     </div>
 
     <!-- Centre : navigation texte -->
@@ -1902,6 +1948,71 @@ const INT_EXCEPT = ["au coeur de l'actu","au cœur de l'actu","au coeur de l'his
 const INTEGRALE_MIN_SEC = 600; // >10 min = intégrale
 const JOURNAL_KEYWORDS = ["le journal"]; // toujours chronique quelle que soit la durée
 
+/* ═══ CONFIGS PAR MARQUE ═══ */
+const BRAND_CONFIGS = {
+    europe1: {
+        label: 'Europe 1',
+        goal: 500,
+        config: DEFAULT_CONFIG
+    },
+    europe2: {
+        label: 'Europe 2',
+        goal: 80,
+        config: [
+            { url:"https://feeds.audiomeans.fr/feed/a04c843b-3e68-4928-80e7-27f7617db91b.xml", comptabilise:true, natif:false }, // Cauet sur Europe 2
+            { url:"https://feeds.audiomeans.fr/feed/f8c31068-17e3-446c-9950-9bd685ec2790.xml", comptabilise:true, natif:false }, // Cauet - heure par heure
+            { url:"https://feeds.audiomeans.fr/feed/27937dd7-038f-433b-ac82-316550405c8c.xml", comptabilise:true, natif:false }, // Cauet - les podcasts qui déchirent
+            { url:"https://feeds.audiomeans.fr/feed/ee20fc57-ecbc-49be-9763-7a5b2dba1e0f.xml", comptabilise:true, natif:false }, // Europe 2 jeux
+            { url:"https://feeds.audiomeans.fr/feed/f3533543-9f45-4fb6-94b6-5cb716333bfc.xml", comptabilise:true, natif:false }, // Les tubes à Coco
+            { url:"https://feeds.audiomeans.fr/feed/496ae568-a448-4397-8d8a-f899332f2a41.xml", comptabilise:true, natif:false }, // L'Original
+            { url:"https://feeds.audiomeans.fr/feed/4e301e60-4652-489e-a157-116537962b84.xml", comptabilise:true, natif:false }, // Pop Corn Europe 2
+            { url:"https://feeds.audiomeans.fr/feed/5b839c92-801e-495a-981a-735262f50f93.xml", comptabilise:true, natif:false }, // Pop Story
+        ]
+    },
+    rfm: {
+        label: 'RFM',
+        goal: 50,
+        config: [
+            { url:"https://feeds.audiomeans.fr/feed/5bc1d7c1-0099-4c2e-912f-cd8aa733bf42.xml", comptabilise:true, natif:false }, // 1 heure avec…
+            { url:"https://feeds.audiomeans.fr/feed/d8d83d7e-a804-46c4-a0a5-865e1c5c884c.xml", comptabilise:true, natif:false }, // Le MDR - intégrale
+            { url:"https://feeds.audiomeans.fr/feed/8692aaa3-0c7c-4f15-b81f-e81197f250ed.xml", comptabilise:true, natif:false }, // Le MDR - les podcasts
+            { url:"https://feeds.audiomeans.fr/feed/ffda1946-be15-40a0-8769-fe66b1cc4f16.xml", comptabilise:true, natif:false }, // Les interviews du 16/20
+            { url:"https://feeds.audiomeans.fr/feed/29962c58-7297-4363-ab3b-10b4026df1c4.xml", comptabilise:true, natif:false }, // Music Story
+            { url:"https://feeds.audiomeans.fr/feed/548eb021-da9e-4d7d-bce6-14103932ea1c.xml", comptabilise:true, natif:false }, // On Air Story
+            { url:"https://feeds.audiomeans.fr/feed/93dbf60b-055e-46ac-b7be-0483297b6446.xml", comptabilise:true, natif:false }, // RFM party 80
+            { url:"https://feeds.audiomeans.fr/feed/c64d974c-d2f9-4e3a-87a0-4180052b9b12.xml", comptabilise:true, natif:false }, // RFM Party Mix
+        ]
+    }
+};
+
+let currentBrand = localStorage.getItem('currentBrand') || 'europe1';
+
+function setBrand(brand) {
+    if(!BRAND_CONFIGS[brand]) return;
+    currentBrand = brand;
+    localStorage.setItem('currentBrand', brand);
+
+    // Mettre à jour les boutons
+    document.querySelectorAll('.brand-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.brand === brand)
+    );
+    document.body.setAttribute('data-brand', brand);
+
+    // Mettre à jour la config active + objectif
+    podcastConfig = BRAND_CONFIGS[brand].config;
+    GOAL_WEEKLY_CURRENT = BRAND_CONFIGS[brand].goal;
+
+    // Mettre à jour le titre
+    const nameEl = document.querySelector('.topbar-logo-name');
+    if(nameEl) nameEl.innerHTML = `Podcast<span>Tracker</span>`;
+
+    // Vider le cache de la marque précédente et recharger
+    allData=[]; historyData=[];
+    const lb=document.getElementById('loading-box');
+    if(lb) lb.style.display='block';
+    fetchFeeds(false);
+}
+
 let podcastConfig = loadConfig();
 let allData=[], historyData=[];
 let selectedDate=null, autoRefId=null;
@@ -1916,7 +2027,8 @@ let knownUrls = new Set(); // URLs connues pour détecter les nouveaux épisodes
 let currentSort = 'recent'; // 'episodes' | 'name' | 'recent'
 let chartView = 'week';  // vue du graphe (col-left) : 'day' | 'week'
 let listView  = 'day';   // vue de la liste (col-right) : 'day' | 'yesterday' | 'week'
-const GOAL_WEEKLY = 500;
+const GOAL_WEEKLY = 500; // Europe 1 par défaut
+let GOAL_WEEKLY_CURRENT = 500;
 const SILENCE_DAYS = 7;
 const audio = document.getElementById('audio');
 
@@ -1945,6 +2057,17 @@ function loadConfig() {
 /* ═══ INIT ═══ */
 function initApp() {
     if(localStorage.getItem('darkMode')==='true'){document.body.classList.add('dark');document.getElementById('dark-toggle').checked=true;}
+    // Restaurer la marque
+    document.body.setAttribute('data-brand', currentBrand);
+    if(currentBrand !== 'europe1'){
+        podcastConfig = BRAND_CONFIGS[currentBrand].config;
+        GOAL_WEEKLY_CURRENT = BRAND_CONFIGS[currentBrand].goal;
+        document.querySelectorAll('.brand-btn').forEach(b =>
+            b.classList.toggle('active', b.dataset.brand === currentBrand)
+        );
+    } else {
+        GOAL_WEEKLY_CURRENT = GOAL_WEEKLY;
+    }
     // Restaurer le filtre sauvegardé
     const savedFilter=localStorage.getItem('podcastFilter');
     if(savedFilter){
@@ -2019,7 +2142,7 @@ function placeMiniPlayer() {
 /* ═══ CACHE ═══ */
 function loadCache() {
     try {
-        const raw=localStorage.getItem('podcastsDataCache'); if(!raw) return false;
+        const raw=localStorage.getItem('podcastsDataCache_'+currentBrand); if(!raw) return false;
         const c=JSON.parse(raw);
         // Purger si cache > 24h ou si le jour a changé depuis la sauvegarde
         if(c.savedAt){
@@ -2036,7 +2159,7 @@ function loadCache() {
         return true;
     } catch(e){ return false; }
 }
-function saveCache(p,h){ try{localStorage.setItem('podcastsDataCache',JSON.stringify({podcasts:p,history:h,savedAt:Date.now()}));}catch(e){} }
+function saveCache(p,h){ try{localStorage.setItem('podcastsDataCache_'+currentBrand,JSON.stringify({podcasts:p,history:h,savedAt:Date.now()}));}catch(e){} }
 
 /* ═══ FETCH RSS ═══ */
 function parseDur(s){ if(!s) return 0; const p=s.split(':'); return p.length===3?+p[0]*3600+ +p[1]*60+ +p[2]:p.length===2?+p[0]*60+ +p[1]:+s||0; }
@@ -2224,7 +2347,7 @@ function buildGoal(pods){
         });
     });
 
-    const pct = Math.min(Math.round((weekTotal / GOAL_WEEKLY) * 100), 100);
+    const pct = Math.min(Math.round((weekTotal / GOAL_WEEKLY_CURRENT) * 100), 100);
     const cls = pct >= 100 ? 'done' : pct >= 70 ? '' : 'warning';
     // Libellé période
     const monLabel = monStart.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
@@ -2234,7 +2357,7 @@ function buildGoal(pods){
     return `<div class="goal-card">
         <div class="goal-header">
             <span class="goal-label">Objectif semaine <span style="font-weight:400;opacity:.6">(${monLabel} – ${sunLabel})</span></span>
-            <span class="goal-values">${weekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY} (${pct}%)</span></span>
+            <span class="goal-values">${weekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY_CURRENT} (${pct}%)</span></span>
         </div>
         <div class="goal-bar-bg"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
     </div>`;
