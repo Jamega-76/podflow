@@ -2685,16 +2685,21 @@ function renderStats(pods,graph,grand){ try {
     const prevGraph=buildPrevGraph(pods);
     const analytics=buildAnalytics(pods);
     const monitoring=buildMonitoring(pods);
-    // Ordre : toggle + graphe + objectif + insight + distribution + [player-card] + analyse + monitoring
+    // Sauvegarder la player-card avant d'écraser innerHTML
+    const pc=document.getElementById('player-card');
+    const pcParent=pc?pc.parentElement:null;
+
     document.getElementById('stats-zone').innerHTML=
         toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)
-        +'<div id="player-card-slot"></div>'
+        +'<div id="player-card-anchor"></div>'
         +analytics+monitoring;
-    // Injecter la player-card dans son slot (desktop uniquement)
-    if(isDesktop()){
-        const slot=document.getElementById('player-card-slot');
-        const pc=document.getElementById('player-card');
-        if(slot&&pc) slot.appendChild(pc);
+
+    // Remettre la player-card après son ancre (desktop uniquement)
+    if(isDesktop()&&pc){
+        const anchor=document.getElementById('player-card-anchor');
+        if(anchor&&anchor.parentElement){
+            anchor.parentElement.insertBefore(pc, anchor.nextSibling);
+        }
     }
     } catch(err) { console.error('renderStats crash:', err); }
 }
@@ -3282,15 +3287,33 @@ function openPlayer(){
         if(curUrl){ const newIdx=queue.findIndex(e=>e.url===curUrl); trackIdx=newIdx>=0?newIdx:0; }
         else { trackIdx=0; }
     } else if(!queue.length){
-        alert("Aucun épisode disponible !"); return;
+        // Ouvrir le modal même vide — afficher un message
+        document.getElementById('player-modal').classList.add('open');
+        return;
     }
-    const mp=document.getElementById('mini-player');
-    if(mp) mp.classList.remove('visible');
+    if(!isDesktop()){
+        const mp=document.getElementById('mini-player');
+        if(mp) mp.classList.remove('visible');
+    }
     loadTrack(trackIdx);
     renderQueue();
     document.getElementById('player-modal').classList.add('open');
 }
-function closePlayer(){ document.getElementById('player-modal').classList.remove('open'); if(trackIdx!==-1) document.getElementById('mini-player').classList.add('visible'); }
+function closePlayer(){
+    document.getElementById('player-modal').classList.remove('open');
+    // Remettre la player-card dans son ancre sur desktop
+    if(isDesktop()){
+        const pc=document.getElementById('player-card');
+        const anchor=document.getElementById('player-card-anchor');
+        if(pc&&anchor&&anchor.parentElement&&pc.parentElement!==anchor.parentElement){
+            anchor.parentElement.insertBefore(pc, anchor.nextSibling);
+        }
+    }
+    // Afficher le mini-player sur mobile
+    if(!isDesktop()&&trackIdx!==-1){
+        document.getElementById('mini-player').classList.add('visible');
+    }
+}
 function closeMiniPlayer(e){ e?.stopPropagation(); audio.pause(); document.getElementById('mini-player').classList.remove('visible'); }
 function loadTrack(idx){
     trackIdx=idx; const t=queue[idx];
