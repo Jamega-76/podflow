@@ -337,6 +337,16 @@
     .insight-text { font-size: 13px; line-height: 1.6; font-weight: 500; color: var(--text); padding-top: 4px; }
     .insight-text strong { font-weight: 700; }
     .insight-text br + span { display: block; margin-top: 4px; font-size: 13px; }
+    .insight-time {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .6px; color: var(--text-sec); margin-bottom: 8px;
+    }
+    .insight-bullet {
+        font-size: 12px; line-height: 1.5; padding: 3px 0;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+    }
+    .insight-bullet:last-child { border-bottom: none; }
 
     /* ═══════════════════════════════════════════════
        DISTRIBUTION
@@ -3011,102 +3021,91 @@ function buildChart(graph,grand,prevGraph){
 }
 
 function buildInsight(graph){
-    const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
+    const td=graph[8].count, yd=graph[7].count;
     const now=new Date();
     const hour=now.getHours();
+    const min=String(now.getMinutes()).padStart(2,'0');
     const dow=now.toLocaleDateString('fr-FR',{weekday:'long'});
+    const dowCap=dow.charAt(0).toUpperCase()+dow.slice(1);
 
-    // Pioche aléatoire dans un tableau de variantes
-    const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+    // ── Répartition formats du jour ──
+    const todayTs=DAYS[8];
+    let tNatif=0, tIntegrale=0, tChronique=0;
+    allData.filter(p=>p.comptabilise).forEach(p=>{
+        const c=p.dailyCounts[8]||0; if(!c) return;
+        if(p.natif){ tNatif+=c; return; }
+        const isJournal=JOURNAL_KEYWORDS.some(k=>p.name.toLowerCase().includes(k));
+        const hasLong=historyData.some(ep=>{
+            const d=new Date(ep.date); d.setHours(0,0,0,0);
+            return ep.podcast===p.name && d.getTime()===todayTs && ep.dur>=INTEGRALE_MIN_SEC && !isJournal;
+        });
+        if(hasLong) tIntegrale+=c; else tChronique+=c;
+    });
 
-    // ── Top 3 hier ──
-    let top3Html='', top3Names=[], top3Items=[];
-    if(yd>0 && allData.length){
-        const ranked=[...allData]
-            .filter(p=>p.comptabilise&&(p.dailyCounts[7]||0)>0)
-            .sort((a,b)=>(b.dailyCounts[7]||0)-(a.dailyCounts[7]||0))
-            .slice(0,3);
-        top3Items=ranked.map(p=>({
-            name:p.name,
-            count:p.dailyCounts[7]||0,
-            contrib:Math.round(((p.dailyCounts[7]||0)/yd)*100)
-        }));
-        top3Names=top3Items.map(p=>`<strong>${p.name}</strong>`);
-        if(top3Items.length){
-            const str=top3Items.map(p=>`<strong>${p.name}</strong> (${p.count} ép., ${p.contrib}%)`);
-            top3Html=str.length===1?str[0]:str.slice(0,-1).join(', ')+' et '+str[str.length-1];
-        }
-    }
+    // ── % vs hier même créneau ──
+    // Estimer le volume d'hier à cette heure via historyData
+    const hierTs=DAYS[7];
+    const cutoff=new Date(hierTs+hour*3600000+now.getMinutes()*60000);
+    const hierAtSameHour=historyData.filter(ep=>{
+        return new Date(ep.date)<=cutoff && new Date(ep.date)>=new Date(hierTs);
+    }).length;
+    const pctVsHier=hierAtSameHour>0?Math.round((td/hierAtSameHour)*100):null;
 
-    // ── Variation hier/avant-hier ──
-    const pctHier=bd>0?Math.round(Math.abs(yd-bd)/bd*100):0;
-    const tendHier=yd>bd?'hausse':'baisse';
-    const pctAuj=yd>0?Math.round((td/yd)*100):0;
+    // ── Podcast le plus actif aujourd'hui ──
+    const topToday=[...allData]
+        .filter(p=>p.comptabilise&&(p.dailyCounts[8]||0)>0)
+        .sort((a,b)=>(b.dailyCounts[8]||0)-(a.dailyCounts[8]||0))[0];
 
-    // ── Texte selon la tranche horaire ──
-    let text='';
+    // ── Podcast attendu mais pas encore publié ──
+    const todayDow=now.getDay();
+    const silentExpected=allData.filter(p=>p.comptabilise&&(p.dailyCounts[8]||0)===0)
+        .find(p=>[0,1,2,3,4,5,6,7].some(i=>
+            new Date(DAYS[i]).getDay()===todayDow&&(p.dailyCounts[i]||0)>0
+        ));
 
-    if(hour<10){
-        // Matin : focus sur le démarrage + bilan hier
-        if(td===0){
-            text=pick([
-                `Bonne journée ! La matinée commence, aucune publication pour l'instant. Hier, <strong>${yd} épisodes</strong> avaient été mis en ligne${yd>0&&bd>0?` — ${tendHier} de ${pctHier}% vs avant-hier`:''}.`,
-                `C'est parti pour ce ${dow} ! Le compteur est encore à zéro. La veille, <strong>${yd} épisodes</strong> avaient tourné${top3Html?` avec ${top3Html} en tête`:''}. À suivre.`
-            ]);
-        } else {
-            text=pick([
-                `Bonne journée ! Ce ${dow} démarre avec <strong>${td} épisode${td>1?'s':''}</strong> déjà en ligne. Hier, <strong>${yd}</strong> avaient été publiés${top3Html?` — ${top3Html} en tête`:''}.`,
-                `Le ${dow} est lancé : <strong>${td} épisode${td>1?'s':''}</strong> au compteur dès le matin. La veille, ${top3Html||`<strong>${yd} épisodes`} avaient animé la journée.`
-            ]);
-        }
-    } else if(hour<15){
-        // Milieu de journée : comparaison avec hier à même heure
-        if(td===0){
-            text=pick([
-                `À mi-journée, rien de publié pour l'instant ce ${dow}. Hier à cette heure-là, <strong>${yd} épisodes</strong> avaient déjà été mis en ligne${top3Html?` — portés par ${top3Names.slice(0,2).join(' et ')}`:''}.`,
-                `Le ${dow} est encore silencieux côté publications. Pour rappel, hier avait totalisé <strong>${yd} épisode${yd>1?'s':''}</strong>${bd>0?` (${tendHier} de ${pctHier}% vs avant-hier)`:''}. La journée n'est pas finie.`
-            ]);
-        } else {
-            text=pick([
-                `À mi-journée ce ${dow}, <strong>${td} épisode${td>1?'s':''}</strong> sont en ligne — soit ${pctAuj}% du volume d'hier. ${top3Html?`Hier, ${top3Html} avaient dominé.`:''}`,
-                `Le ${dow} avance bien : <strong>${td} épisode${td>1?'s':''}</strong> publiés jusqu'ici${yd>0?`, soit ${pctAuj}% du total d'hier (${yd})`:''}. ${yd>0&&bd>0?`La veille était en ${tendHier} de ${pctHier}% vs avant-hier.`:''}`
-            ]);
-        }
-    } else if(hour<20){
-        // Après-midi : projection sur la fin de journée
-        if(td===0){
-            text=pick([
-                `Étonnamment, aucune publication enregistrée ce ${dow} pour l'instant. Hier, <strong>${yd} épisodes</strong> avaient été mis en ligne${top3Html?`, portés notamment par ${top3Names[0]}`:''}.`,
-                `Pas encore d'épisode ce ${dow} à cette heure-ci — à surveiller. Pour mémoire, hier totalisait <strong>${yd} publication${yd>1?'s':''}</strong>.`
-            ]);
-        } else {
-            const projection=yd>0&&pctAuj>0?Math.round(td*(100/pctAuj)):null;
-            text=pick([
-                `Bel après-midi : <strong>${td} épisode${td>1?'s':''}</strong> en ligne ce ${dow}${projection&&projection>yd?` — on s'achemine vers un total supérieur à hier (${yd})`:yd>0?`, soit ${pctAuj}% du volume d'hier`:''}. ${top3Html?`<em>Hier, ${top3Html} étaient en tête.</em>`:''}`,
-                `À cette heure, ce ${dow} compte <strong>${td} épisode${td>1?'s':''}</strong>${yd>0?` pour ${pctAuj}% du volume d'hier (${yd} ép.)`:''}.${top3Html?` <em>Les plus actifs hier : ${top3Html}.</em>`:''}`
-            ]);
-        }
+    // ── Construction des bullets ──
+    const bullets=[];
+
+    // Bullet 1 : volume + % vs hier
+    if(td===0){
+        bullets.push(`📊 Aucune publication pour l'instant`);
     } else {
-        // Soir : bilan de la journée
-        if(td===0){
-            text=pick([
-                `Journée atypique ce ${dow} — aucune publication enregistrée. Hier, <strong>${yd} épisodes</strong> avaient tourné${top3Html?` avec ${top3Html} en vedette`:''}.`,
-                `Ce ${dow} se termine sans publication. La veille comptait <strong>${yd} épisode${yd>1?'s':''}</strong>${bd>0?` (${tendHier} de ${pctHier}% vs avant-hier)`:''}.`
-            ]);
-        } else {
-            text=pick([
-                `Bilan de ce ${dow} : <strong>${td} épisode${td>1?'s':''}</strong> publiés${yd>0&&pctAuj!==100?`, soit ${pctAuj>100?'+'+Math.round(pctAuj-100)+'%':'-'+Math.round(100-pctAuj)+'%'} vs hier (${yd})`:yd>0?`, dans la lignée d'hier (${yd})`:''}.${top3Html?` <em>Hier, ${top3Html} avaient mené la danse.</em>`:''}`,
-                `Ce ${dow} se clôture avec <strong>${td} épisode${td>1?'s':''}</strong>${bd>0&&yd>0?` — hier était ${tendHier} de ${pctHier}% par rapport à avant-hier`:''}.${top3Html?` Les émissions les plus actives hier : ${top3Html}.`:''}`
-            ]);
-        }
+        const pctTxt=pctVsHier!==null
+            ? ` — <strong>${pctVsHier>100?'+':''}${pctVsHier}%</strong> vs hier à ${hour}h${min}`
+            : '';
+        bullets.push(`📊 <strong>${td} épisode${td>1?'s':''}</strong> publiés${pctTxt}`);
     }
+
+    // Bullet 2 : répartition formats (seulement si données dispo)
+    if(td>0){
+        const parts=[];
+        if(tNatif>0)    parts.push(`Natifs : <strong>${tNatif}</strong>`);
+        if(tIntegrale>0) parts.push(`Intégrales : <strong>${tIntegrale}</strong>`);
+        if(tChronique>0) parts.push(`Chroniques : <strong>${tChronique}</strong>`);
+        if(parts.length) bullets.push(`🎙️ ${parts.join(' · ')}`);
+    }
+
+    // Bullet 3 : podcast en tête du jour
+    if(topToday && topToday.dailyCounts[8]>1){
+        bullets.push(`🔝 ${topToday.name} en tête (<strong>${topToday.dailyCounts[8]} ép.</strong>)`);
+    }
+
+    // Bullet 4 : podcast attendu mais absent
+    if(silentExpected){
+        bullets.push(`⏳ <em>${silentExpected.name}</em> attendu, pas encore publié`);
+    }
+
+    const timeLabel=`${dowCap} · ${hour}h${min}`;
+    const bulletsHtml=bullets.map(b=>`<div class="insight-bullet">${b}</div>`).join('');
 
     return `<div class="insight-card">
         <div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div>
-        <div class="insight-text" style="font-size:12px;line-height:1.7">${text}</div>
+        <div class="insight-text">
+            <div class="insight-time">${timeLabel}</div>
+            ${bulletsHtml}
+        </div>
     </div>`;
 }
-
 function buildDistribution(pods){
     let n=0,g=0,c=0,tot=0;
     // Récupérer les épisodes du jour depuis historyData pour avoir la durée réelle
