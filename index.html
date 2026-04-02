@@ -1909,8 +1909,13 @@ const audio = document.getElementById('audio');
 
 const today = new Date(); today.setHours(0,0,0,0);
 const DAYS = Array.from({length:9},(_,i)=>{ const d=new Date(today); d.setDate(d.getDate()-(8-i)); return d.getTime(); });
-// Semaine précédente (même 9 jours, décalés de 7)
-const DAYS_PREV = DAYS.map(t=>t - 7*24*60*60*1000);
+// Semaine précédente : même jour calendaire -7 jours (robuste au changement d'heure)
+const DAYS_PREV = DAYS.map(t=>{
+    const d=new Date(t); // t est déjà à minuit local
+    d.setDate(d.getDate()-7);
+    d.setHours(0,0,0,0); // re-normaliser à minuit local après le décalage
+    return d.getTime();
+});
 
 /* ═══ CONFIG ═══ */
 function loadConfig() {
@@ -1927,6 +1932,14 @@ function loadConfig() {
 /* ═══ INIT ═══ */
 function initApp() {
     if(localStorage.getItem('darkMode')==='true'){document.body.classList.add('dark');document.getElementById('dark-toggle').checked=true;}
+    // Restaurer le filtre sauvegardé
+    const savedFilter=localStorage.getItem('podcastFilter');
+    if(savedFilter){
+        const fd=document.getElementById('filter-desktop');
+        const fm=document.getElementById('filter-mobile');
+        if(fd) fd.value=savedFilter;
+        if(fm) fm.value=savedFilter;
+    }
     // Auto-refresh actif par défaut si jamais configuré
     const arPref = localStorage.getItem('autoRefresh');
     if(arPref === null) localStorage.setItem('autoRefresh','true');
@@ -1995,12 +2008,22 @@ function loadCache() {
     try {
         const raw=localStorage.getItem('podcastsDataCache'); if(!raw) return false;
         const c=JSON.parse(raw);
+        // Purger si cache > 24h ou si le jour a changé depuis la sauvegarde
+        if(c.savedAt){
+            const age=Date.now()-c.savedAt;
+            const savedDay=new Date(c.savedAt).toDateString();
+            const todayStr=new Date().toDateString();
+            if(age > 24*60*60*1000 || savedDay!==todayStr){
+                localStorage.removeItem('podcastsDataCache');
+                return false;
+            }
+        }
         allData=c.podcasts.map(p=>{ const cfg=podcastConfig.find(x=>x.url===p.url); return{...p,latestPubDate:new Date(p.latestPubDate),natif:cfg?cfg.natif:false,hasIntegrale:p.hasIntegrale||false,prevCounts:p.prevCounts||{},feedSize:p.feedSize||0}; });
         historyData=c.history.map(h=>({...h,date:new Date(h.date)}));
         return true;
     } catch(e){ return false; }
 }
-function saveCache(p,h){ try{localStorage.setItem('podcastsDataCache',JSON.stringify({podcasts:p,history:h}));}catch(e){} }
+function saveCache(p,h){ try{localStorage.setItem('podcastsDataCache',JSON.stringify({podcasts:p,history:h,savedAt:Date.now()}));}catch(e){} }
 
 /* ═══ FETCH RSS ═══ */
 function parseDur(s){ if(!s) return 0; const p=s.split(':'); return p.length===3?+p[0]*3600+ +p[1]*60+ +p[2]:p.length===2?+p[0]*60+ +p[1]:+s||0; }
@@ -2022,13 +2045,25 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
     if(!bg&&!isPtr&&loadBox) loadBox.style.display='block';
     if(bg) setLiveDot('syncing');
     const total=podcastConfig.length; let done=0;
-    const tPods=[], tHist=[];
+    const tPods=[], tHist=[]; let failed=0;
     for(let i=0;i<total;i+=10){
         await Promise.all(podcastConfig.slice(i,i+10).map(async cfg=>{
             try{
-                const res=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cfg.url)}`);
-                if(!res.ok) throw 0;
-                const xml=new DOMParser().parseFromString(await res.text(),'text/xml');
+                let xmlText;
+                try {
+                    const r1=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(8000)});
+                    if(!r1.ok) throw 0;
+                    xmlText=await r1.text();
+                } catch(e1){
+                    // Fallback allorigins
+                    try {
+                        const r2=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(8000)});
+                        if(!r2.ok) throw 0;
+                        const j=await r2.json();
+                        xmlText=j.contents;
+                    } catch(e2){ throw 0; }
+                }
+                const xml=new DOMParser().parseFromString(xmlText,'text/xml');
                 const title=xml.querySelector('channel > title')?.textContent||'Podcast inconnu';
                 const tLow=title.toLowerCase();
                 const imgUrl=xml.querySelector('channel > image > url')?.textContent||xml.querySelector('channel > itunes\\:image, image')?.getAttribute('href')||'';
@@ -2037,10 +2072,12 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
                 const latestPubDate=new Date(items[0].querySelector('pubDate')?.textContent);
                 const counts=Object.fromEntries(DAYS.map((_,i)=>[i,0]));
                 const countsPrev=Object.fromEntries(DAYS_PREV.map((_,i)=>[i,0]));
-                const isExc=INT_EXCEPT.some(e=>tLow.includes(e)); let hasIntegrale=false;
+                const isExc=INT_EXCEPT.some(e=>tLow.includes(e));
+                const isJournalFeed = JOURNAL_KEYWORDS.some(k=>tLow.includes(k));
+                let hasIntegrale=false;
                 items.forEach(item=>{
                     const ds=item.querySelector('pubDate')?.textContent; if(!ds) return;
-                    if(!isExc){ const dn=item.getElementsByTagName('itunes:duration')[0]||item.querySelector('duration'); if(parseDur(dn?.textContent)>=2700) hasIntegrale=true; }
+                    if(!isExc&&!isJournalFeed){ const dn=item.getElementsByTagName('itunes:duration')[0]||item.querySelector('duration'); if(parseDur(dn?.textContent)>=2700) hasIntegrale=true; }
                     const d=new Date(ds); d.setHours(0,0,0,0); const dt=d.getTime();
                     const idx=DAYS.indexOf(dt);
                     const idxP=DAYS_PREV.indexOf(dt);
@@ -2053,21 +2090,25 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
                     if(idxP!==-1) countsPrev[idxP]++;
                 });
                 tPods.push({url:cfg.url,comptabilise:cfg.comptabilise,natif:cfg.natif,hasIntegrale,name:title,image:imgUrl,latestEpisodeTitle:latestTitle,latestPubDate,dailyCounts:counts,prevCounts:countsPrev,episodesToday:counts[8],feedSize:items.length});
-            }catch(e){}
+            }catch(e){ failed++; }
             done++;
-            if(!bg&&!isPtr&&fill&&lbl){ fill.style.width=`${(done/total)*100}%`; lbl.textContent=`${done} / ${total} terminés`; }
+            if(!bg&&!isPtr&&fill&&lbl){
+                fill.style.width=`${(done/total)*100}%`;
+                lbl.textContent=failed>0?`${done}/${total} — ${failed} erreur${failed>1?'s':''}`:`${done} / ${total} terminés`;
+            }
         }));
     }
     tPods.sort((a,b)=>b.latestPubDate-a.latestPubDate);
-    tHist.sort((a,b)=>b.date-a.date);
+    // Dédupliquer historyData par URL (double fetch possible)
+    const seenUrls=new Set();
+    const tHistDedup=tHist.filter(ep=>{ if(seenUrls.has(ep.url)) return false; seenUrls.add(ep.url); return true; });
+    tHistDedup.sort((a,b)=>b.date-a.date);
     if(bg&&!isPtr){
-        saveCache(tPods,tHist);
+        saveCache(tPods,tHistDedup);
         lastSyncTime = Date.now();
-        // Détecter s'il y a de nouveaux épisodes
-        const hasNew = tHist.some(ep => !knownUrls.has(ep.url))
-            || JSON.stringify(tHist.slice(0,10)) !== JSON.stringify(historyData.slice(0,10));
-        // Appliquer directement — pas de badge, pas de clic
-        allData=tPods; historyData=tHist;
+        const hasNew = tHistDedup.some(ep => !knownUrls.has(ep.url))
+            || JSON.stringify(tHistDedup.slice(0,10)) !== JSON.stringify(historyData.slice(0,10));
+        allData=tPods; historyData=tHistDedup;
         knownUrls = new Set(tHist.map(ep => ep.url));
         updateView();
         // Animer les nouveaux items si changement détecté
@@ -2086,9 +2127,9 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
         updateSyncLabel();
     }
     else {
-        allData=tPods; historyData=tHist; saveCache(tPods,tHist);
+        allData=tPods; historyData=tHistDedup; saveCache(tPods,tHistDedup);
         lastSyncTime = Date.now();
-        knownUrls = new Set(tHist.map(ep => ep.url));
+        knownUrls = new Set(tHistDedup.map(ep => ep.url));
         const lb=document.getElementById('loading-box');
         if(lb) lb.style.display='none';
         updateView(); preloadFirstTrack();
@@ -2104,6 +2145,7 @@ function syncFilter(src) {
     const val=document.getElementById(src==='desktop'?'filter-desktop':'filter-mobile').value;
     document.getElementById('filter-desktop').value=val;
     document.getElementById('filter-mobile').value=val;
+    localStorage.setItem('podcastFilter',val);
     updateView();
 }
 function getFilter(){ return document.getElementById(isDesktop()?'filter-desktop':'filter-mobile').value; }
@@ -2450,13 +2492,20 @@ function buildAnalytics(pods) {
 /* ── Calcul heure habituelle de publication ──
    On analyse historyData pour trouver l'heure médiane de publication
    de chaque podcast sur les 8 derniers jours */
-function getPodcastPublishHour(podName) {
-    const hours = historyData
+function getPodcastPublishHour(podName, targetDow) {
+    // Filtrer uniquement les épisodes publiés le même jour de semaine que targetDow
+    // sur les 5 dernières occurrences — pour éviter les faux retards sur les hebdos
+    const eps = historyData
         .filter(ep => ep.podcast === podName)
-        .map(ep => new Date(ep.date).getHours());
-    if(!hours.length) return null;
+        .filter(ep => {
+            if(targetDow === undefined) return true;
+            return new Date(ep.date).getDay() === targetDow;
+        })
+        .slice(0, 5); // 5 dernières occurrences de ce DOW
+    if(!eps.length) return null;
+    const hours = eps.map(ep => new Date(ep.date).getHours());
     hours.sort((a,b)=>a-b);
-    return hours[Math.floor(hours.length/2)]; // heure médiane
+    return hours[Math.floor(hours.length/2)]; // heure médiane sur ce DOW
 }
 
 /* ── Score de fiabilité sur les 30 derniers jours ──
@@ -2509,7 +2558,7 @@ function buildChecklist(pods) {
 
     let okCount=0, lateCount=0, waitCount=0;
     const rows = expected.map(p => {
-        const pubHour = getPodcastPublishHour(p.name);
+        const pubHour = getPodcastPublishHour(p.name, todayDow);
         const hasPublished = (p.dailyCounts[8]||0) > 0;
         const isLate = !hasPublished && pubHour !== null && currentHour > pubHour + 2;
         const isWait = !hasPublished && !isLate;
@@ -2561,7 +2610,7 @@ function buildHourlyAlerts(pods) {
         );
         if(!publishesThisDow) return;
 
-        const pubHour = getPodcastPublishHour(p.name);
+        const pubHour = getPodcastPublishHour(p.name, todayDow);
         if(pubHour===null) return;
         const delay = currentHour - pubHour;
         if(delay < 2) return; // pas encore en retard
@@ -2799,22 +2848,65 @@ function buildChart(graph,grand,prevGraph){
 
 function buildInsight(graph){
     const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
-    const diff=yd-bd, pct=bd>0?Math.round(Math.abs(diff)/bd*100):0;
     const dow=new Date().toLocaleDateString('fr-FR',{weekday:'long'});
-    // Phrase sur hier
-    let p1='';
-    if(yd>bd && bd>0) p1=`Hier, ${yd} épisodes publiés — soit +${pct}% par rapport à avant-hier.`;
-    else if(yd<bd && bd>0) p1=`Légère accalmie hier avec ${yd} sorties (−${pct}% vs avant-hier).`;
-    else if(yd===bd && yd>0) p1=`Rythme régulier : ${yd} épisodes hier, comme avant-hier.`;
-    else if(yd===0) p1=`Silence radio hier — aucune sortie enregistrée.`;
-    else p1=`${yd} épisodes ont été publiés hier.`;
-    // Phrase sur aujourd'hui
-    let p2='';
-    if(td===0) p2=`Ce ${dow}, le compteur est encore à zéro — la journée commence.`;
-    else if(td>=yd&&yd>0) p2=`Ce ${dow} part fort : déjà ${td} publication${td>1?'s':''} au compteur !`;
-    else if(td>0&&td<yd) p2=`Ce ${dow}, ${td} publication${td>1?'s':''} pour l'instant — à suivre.`;
-    else p2=`${td} épisode${td>1?'s':''} publié${td>1?'s':''} aujourd'hui.`;
-    return `<div class="insight-card"><div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div><div class="insight-text"><strong>${p1}</strong><br><span style="opacity:.75">${p2}</span></div></div>`;
+
+    // ── Ligne globale hier ──
+    let globalLine='';
+    if(yd>0&&bd>0){
+        const pct=Math.round(Math.abs(yd-bd)/bd*100);
+        const arrow=yd>bd?`+${pct}%`:`-${pct}%`;
+        const trend=yd>bd?'en hausse':'en baisse';
+        globalLine=`Hier : <strong>${yd} épisodes</strong> publiés — ${trend} de ${arrow} vs avant-hier.`;
+    } else if(yd===0){
+        globalLine=`Hier : <strong>aucune publication</strong> enregistrée.`;
+    } else {
+        globalLine=`Hier : <strong>${yd} épisodes</strong> publiés.`;
+    }
+
+    // ── Top 3 podcasts hier + contribution % au volume ──
+    // Construire un classement par nb d'épisodes hier (index 7)
+    const podLines=[];
+    if(yd>0 && allData.length){
+        const ranked=[...allData]
+            .filter(p=>p.comptabilise&&(p.dailyCounts[7]||0)>0)
+            .sort((a,b)=>(b.dailyCounts[7]||0)-(a.dailyCounts[7]||0))
+            .slice(0,3);
+
+        ranked.forEach(p=>{
+            const hier=p.dailyCounts[7]||0;
+            const avantHier=p.dailyCounts[6]||0;
+            const contrib=Math.round((hier/yd)*100);
+            let variation='';
+            if(avantHier>0){
+                const vPct=Math.round(Math.abs(hier-avantHier)/avantHier*100);
+                variation=hier>avantHier?` (+${vPct}% vs av-hier)`:hier<avantHier?` (-${vPct}% vs av-hier)`:` (stable)`;
+            }
+            podLines.push(`<span style="font-weight:600">${p.name}</span> : ${hier} ép. — ${contrib}% du total${variation}`);
+        });
+    }
+
+    // ── Ligne aujourd'hui ──
+    let todayLine='';
+    if(td===0) todayLine=`Ce ${dow}, le compteur est encore à zéro.`;
+    else if(yd>0){
+        const pct=Math.round((td/yd)*100);
+        todayLine=`Ce ${dow} : déjà <strong>${td} épisode${td>1?'s':''}</strong> — soit ${pct}% du volume d'hier.`;
+    } else {
+        todayLine=`Ce ${dow} : <strong>${td} épisode${td>1?'s':''}</strong> publié${td>1?'s':''}.`;
+    }
+
+    const podHtml=podLines.length
+        ? `<ul style="margin:6px 0 4px;padding-left:14px;display:flex;flex-direction:column;gap:3px">${podLines.map(l=>`<li style="font-size:11px;color:var(--text-sec)">${l}</li>`).join('')}</ul>`
+        : '';
+
+    return `<div class="insight-card">
+        <div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div>
+        <div class="insight-text">
+            <div style="font-size:12px;margin-bottom:4px">${globalLine}</div>
+            ${podHtml}
+            <div style="font-size:12px;margin-top:4px;opacity:.75">${todayLine}</div>
+        </div>
+    </div>`;
 }
 
 function buildDistribution(pods){
