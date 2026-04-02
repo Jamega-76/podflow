@@ -2743,7 +2743,7 @@ function buildMonitoring(pods) {
 /* ═══ RENDER STATS ═══ */
 function renderStats(pods,graph,grand){ try {
     const toggle=`<div class="view-toggle">
-        <button class="view-toggle-btn${chartView==='week'?' active':''}" data-v="week" onclick="setView('week')">Semaine</button>
+        <button class="view-toggle-btn${chartView==='week'?' active':''}" data-v="week" onclick="setView('week')">${getWeekInfo()}</button>
     </div>`;
     const goal=buildGoal(pods);
     const prevGraph=buildPrevGraph(pods);
@@ -2807,9 +2807,21 @@ function exportCSV(){
     a.click(); URL.revokeObjectURL(url);
 }
 
+function getWeekInfo(){
+    const now = new Date();
+    const mon = new Date(now); mon.setHours(0,0,0,0);
+    mon.setDate(mon.getDate() - (mon.getDay()+6)%7);
+    const sun = new Date(mon); sun.setDate(sun.getDate()+6);
+    const tmp = new Date(mon); tmp.setDate(tmp.getDate()+3);
+    const yearStart = new Date(tmp.getFullYear(),0,1);
+    const weekNum = Math.ceil(((tmp-yearStart)/86400000+1)/7);
+    const fmt = d => d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    return `S${weekNum} · ${fmt(mon)} – ${fmt(sun)}`;
+}
+
 function buildChart(graph,grand,prevGraph){
     const isWeek=chartView==='week';
-    const subtitle=isWeek?'Total 7 derniers jours':'Total sur 9 jours';
+    const subtitle = isWeek ? getWeekInfo() : 'Total sur 9 jours';
     const total=isWeek?graph.slice(2).reduce((s,d)=>s+d.count,0):grand;
 
     const maxPrev=compareWeeks&&prevGraph?Math.max(...prevGraph.map(d=>d.count),0):0;
@@ -2825,7 +2837,7 @@ function buildChart(graph,grand,prevGraph){
         </button>
     </div>`;
 
-    let h=`<div class="chart-card">${legendHtml}<div class="chart-subtitle">${subtitle}</div><div class="chart-total">${total}</div><div class="chart-area">
+    let h=`<div class="chart-card">${legendHtml}<div class="chart-total">${total}</div><div class="chart-subtitle" style="margin-top:-14px;margin-bottom:16px">épisodes</div><div class="chart-area">
         <div class="grid-line" style="bottom:100%"><span class="grid-label">${max}</span></div>
         <div class="grid-line" style="bottom:66%"><span class="grid-label">${t2}</span></div>
         <div class="grid-line" style="bottom:33%"><span class="grid-label">${t1}</span></div>
