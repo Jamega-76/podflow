@@ -1984,15 +1984,8 @@ function isDesktop() { return window.innerWidth >= 900; }
 function placeMiniPlayer() {
     try {
         const mp=document.getElementById('mini-player');
-        const pc=document.getElementById('player-card');
-        const col=document.getElementById('col-left');
-        if(!mp||!pc||!col) return;
-        if(isDesktop()){
-            if(pc.parentElement!==col) col.appendChild(pc);
-            if(mp.parentElement!==document.body) document.body.appendChild(mp);
-        } else {
-            if(mp.parentElement!==document.body) document.body.appendChild(mp);
-        }
+        if(mp&&mp.parentElement!==document.body) document.body.appendChild(mp);
+        // player-card est injectée dans #player-card-slot via renderStats
     } catch(err) { console.error('placeMiniPlayer crash:', err); }
 }
 
@@ -2692,7 +2685,17 @@ function renderStats(pods,graph,grand){ try {
     const prevGraph=buildPrevGraph(pods);
     const analytics=buildAnalytics(pods);
     const monitoring=buildMonitoring(pods);
-    document.getElementById('stats-zone').innerHTML=toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)+analytics+monitoring;
+    // Ordre : toggle + graphe + objectif + insight + distribution + [player-card] + analyse + monitoring
+    document.getElementById('stats-zone').innerHTML=
+        toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)
+        +'<div id="player-card-slot"></div>'
+        +analytics+monitoring;
+    // Injecter la player-card dans son slot (desktop uniquement)
+    if(isDesktop()){
+        const slot=document.getElementById('player-card-slot');
+        const pc=document.getElementById('player-card');
+        if(slot&&pc) slot.appendChild(pc);
+    }
     } catch(err) { console.error('renderStats crash:', err); }
 }
 
@@ -3068,36 +3071,14 @@ function preloadFirstTrack(){ try {
     // Mini-liste dans la player-card
     renderPcQueue();
     // Afficher le mini-player (mobile)
-    document.getElementById('mini-player').classList.add('visible');
+    // Afficher le mini-player seulement sur mobile
+    if(!isDesktop()){
+        document.getElementById('mini-player').classList.add('visible');
+    }
     } catch(err) { console.error('preloadFirstTrack crash:', err); }
 }
 
-function renderPcQueue(){
-    // Affiche les 5 dernières publications du jour (depuis historyData, pas queue)
-    const list=document.getElementById('pc-queue-list');
-    if(!list) return;
-    const ts=DAYS[8];
-    let src=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); return d.getTime()===ts; });
-    if(!src.length) src=historyData; // fallback : toutes dates
-    const items=src.slice(0,5);
-    const curUrl=trackIdx>=0&&queue[trackIdx]?queue[trackIdx].url:null;
-    list.innerHTML=items.map((t,idx)=>{
-        const isPlaying=curUrl&&t.url===curUrl;
-        // Trouver l'index dans la queue globale pour loadTrack
-        const qIdx=queue.findIndex(q=>q.url===t.url);
-        const onclick=qIdx>=0
-            ? `loadTrack(${qIdx});audio.play()`
-            : `loadFromHistory(${src.indexOf(t)})`;
-        return `<div class="pc-queue-item${isPlaying?' pc-playing':''}" onclick="${onclick}">
-            <img src="${t.image||BLANK}" class="pc-queue-img" alt="">
-            <div class="pc-queue-info">
-                <div class="pc-queue-title">${t.title}</div>
-                <div class="pc-queue-pod">${t.podcast}</div>
-            </div>
-            <span class="pc-playing-dot"></span>
-        </div>`;
-    }).join('');
-}
+// renderPcQueue définie plus bas (version unifiée)
 
 function loadFromHistory(histIdx){
     // Charge un épisode depuis historyData dans la queue et démarre la lecture
@@ -3258,15 +3239,37 @@ function flashPcQueue() {
     setTimeout(() => { pc.style.outline = ''; }, 400);
 }
 
-/* Surcharger renderPcQueue pour tenir compte du mode playlist */
-const _origRenderPcQueue = renderPcQueue;
+/* renderPcQueue tient compte du mode playlist */
 function renderPcQueue() {
     if(playlistMode && playlist.length) {
         renderPlaylistQueue();
         updatePlaylistHeader();
-    } else {
-        _origRenderPcQueue();
+        return;
     }
+    // Mode normal : afficher les 5 dernières publications du jour
+    const list=document.getElementById('pc-queue-list');
+    if(!list) return;
+    const ts=DAYS[8];
+    let src=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); return d.getTime()===ts; });
+    if(!src.length) src=historyData;
+    const items=src.slice(0,5);
+    const curUrl=trackIdx>=0&&queue[trackIdx]?queue[trackIdx].url:null;
+    list.innerHTML=items.map((t,idx)=>{
+        const isPlaying=curUrl&&t.url===curUrl;
+        const qIdx=queue.findIndex(q=>q.url===t.url);
+        const onclick=qIdx>=0
+            ? `loadTrack(${qIdx});audio.play()`
+            : `loadFromHistory(${src.indexOf(t)})`;
+        return `<div class="pc-queue-item${isPlaying?' pc-playing':''}" onclick="${onclick}">
+            <img src="${t.image||BLANK}" class="pc-queue-img" alt="">
+            <div class="pc-queue-info">
+                <div class="pc-queue-title">${t.title}</div>
+                <div class="pc-queue-pod">${t.podcast}</div>
+            </div>
+            <span class="pc-playing-dot"></span>
+        </div>`;
+    }).join('');
+    updatePlaylistHeader();
 }
 
 /* ═══ LECTEUR ═══ */
@@ -3274,19 +3277,15 @@ function openPlayer(){
     const ts=DAYS[8];
     const todayEps=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); if(!ep.image) ep.image=BLANK; return d.getTime()===ts; });
     if(todayEps.length){
-        // Reconstruire la queue du jour sans perdre l'index courant
         const curUrl=trackIdx>=0&&queue[trackIdx]?queue[trackIdx].url:null;
         queue=todayEps;
-        if(curUrl){
-            const newIdx=queue.findIndex(e=>e.url===curUrl);
-            trackIdx=newIdx>=0?newIdx:0;
-        } else {
-            trackIdx=0;
-        }
+        if(curUrl){ const newIdx=queue.findIndex(e=>e.url===curUrl); trackIdx=newIdx>=0?newIdx:0; }
+        else { trackIdx=0; }
     } else if(!queue.length){
         alert("Aucun épisode disponible !"); return;
     }
-    document.getElementById('mini-player').classList.remove('visible');
+    const mp=document.getElementById('mini-player');
+    if(mp) mp.classList.remove('visible');
     loadTrack(trackIdx);
     renderQueue();
     document.getElementById('player-modal').classList.add('open');
