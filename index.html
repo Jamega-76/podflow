@@ -3012,63 +3012,98 @@ function buildChart(graph,grand,prevGraph){
 
 function buildInsight(graph){
     const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
-    const dow=new Date().toLocaleDateString('fr-FR',{weekday:'long'});
+    const now=new Date();
+    const hour=now.getHours();
+    const dow=now.toLocaleDateString('fr-FR',{weekday:'long'});
 
-    // ── Partie 1 : bilan hier en phrase naturelle ──
-    let part1='';
-    if(yd===0){
-        part1=`Hier, <strong>aucune publication</strong> n'a été enregistrée.`;
-    } else if(yd>0&&bd>0){
-        const pct=Math.round(Math.abs(yd-bd)/bd*100);
-        const tendance=yd>bd?`soit <strong>+${pct}%</strong> de plus`:`soit <strong>${pct}%</strong> de moins`;
-        part1=`Hier, <strong>${yd} épisodes</strong> ont été publiés — ${tendance} qu'avant-hier.`;
-    } else {
-        part1=`Hier, <strong>${yd} épisode${yd>1?'s':''}</strong> ont été publiés.`;
-    }
+    // Pioche aléatoire dans un tableau de variantes
+    const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
 
-    // ── Partie 2 : top 3 en prose, sans comparatif ──
-    let part2='';
+    // ── Top 3 hier ──
+    let top3Html='', top3Names=[], top3Items=[];
     if(yd>0 && allData.length){
         const ranked=[...allData]
             .filter(p=>p.comptabilise&&(p.dailyCounts[7]||0)>0)
             .sort((a,b)=>(b.dailyCounts[7]||0)-(a.dailyCounts[7]||0))
             .slice(0,3);
-
-        if(ranked.length){
-            // Construire la liste en prose : "A (x ép., y%), B (x ép., y%) et C (x ép., y%)"
-            const items=ranked.map(p=>{
-                const hier=p.dailyCounts[7]||0;
-                const contrib=Math.round((hier/yd)*100);
-                return `<strong>${p.name}</strong> (${hier} ép., ${contrib}%)`;
-            });
-            const listStr=items.length===1
-                ? items[0]
-                : items.slice(0,-1).join(', ')+' et '+items[items.length-1];
-            part2=`Les émissions les plus actives étaient ${listStr}.`;
+        top3Items=ranked.map(p=>({
+            name:p.name,
+            count:p.dailyCounts[7]||0,
+            contrib:Math.round(((p.dailyCounts[7]||0)/yd)*100)
+        }));
+        top3Names=top3Items.map(p=>`<strong>${p.name}</strong>`);
+        if(top3Items.length){
+            const str=top3Items.map(p=>`<strong>${p.name}</strong> (${p.count} ép., ${p.contrib}%)`);
+            top3Html=str.length===1?str[0]:str.slice(0,-1).join(', ')+' et '+str[str.length-1];
         }
     }
 
-    // ── Partie 3 : aujourd'hui ──
-    let part3='';
-    if(td===0){
-        part3=`Ce ${dow}, le compteur est encore à zéro.`;
-    } else if(yd>0){
-        const pct=Math.round((td/yd)*100);
-        part3=`Ce ${dow} démarre avec déjà <strong>${td} épisode${td>1?'s':''}</strong>, soit ${pct}% du volume d'hier.`;
-    } else {
-        part3=`Ce ${dow}, <strong>${td} épisode${td>1?'s':''}</strong> publié${td>1?'s':''} pour l'instant.`;
-    }
+    // ── Variation hier/avant-hier ──
+    const pctHier=bd>0?Math.round(Math.abs(yd-bd)/bd*100):0;
+    const tendHier=yd>bd?'hausse':'baisse';
+    const pctAuj=yd>0?Math.round((td/yd)*100):0;
 
-    // Chaque partie sur sa propre ligne, part2 en italique
-    const blocks=[
-        part1,
-        part2 ? `<em style="opacity:.8">${part2}</em>` : '',
-        part3
-    ].filter(Boolean).join('<br style="display:block;margin-bottom:5px">');
+    // ── Texte selon la tranche horaire ──
+    let text='';
+
+    if(hour<10){
+        // Matin : focus sur le démarrage + bilan hier
+        if(td===0){
+            text=pick([
+                `Bonne journée ! La matinée commence, aucune publication pour l'instant. Hier, <strong>${yd} épisodes</strong> avaient été mis en ligne${yd>0&&bd>0?` — ${tendHier} de ${pctHier}% vs avant-hier`:''}.`,
+                `C'est parti pour ce ${dow} ! Le compteur est encore à zéro. La veille, <strong>${yd} épisodes</strong> avaient tourné${top3Html?` avec ${top3Html} en tête`:''}. À suivre.`
+            ]);
+        } else {
+            text=pick([
+                `Bonne journée ! Ce ${dow} démarre avec <strong>${td} épisode${td>1?'s':''}</strong> déjà en ligne. Hier, <strong>${yd}</strong> avaient été publiés${top3Html?` — ${top3Html} en tête`:''}.`,
+                `Le ${dow} est lancé : <strong>${td} épisode${td>1?'s':''}</strong> au compteur dès le matin. La veille, ${top3Html||`<strong>${yd} épisodes`} avaient animé la journée.`
+            ]);
+        }
+    } else if(hour<15){
+        // Milieu de journée : comparaison avec hier à même heure
+        if(td===0){
+            text=pick([
+                `À mi-journée, rien de publié pour l'instant ce ${dow}. Hier à cette heure-là, <strong>${yd} épisodes</strong> avaient déjà été mis en ligne${top3Html?` — portés par ${top3Names.slice(0,2).join(' et ')}`:''}.`,
+                `Le ${dow} est encore silencieux côté publications. Pour rappel, hier avait totalisé <strong>${yd} épisode${yd>1?'s':''}</strong>${bd>0?` (${tendHier} de ${pctHier}% vs avant-hier)`:''}. La journée n'est pas finie.`
+            ]);
+        } else {
+            text=pick([
+                `À mi-journée ce ${dow}, <strong>${td} épisode${td>1?'s':''}</strong> sont en ligne — soit ${pctAuj}% du volume d'hier. ${top3Html?`Hier, ${top3Html} avaient dominé.`:''}`,
+                `Le ${dow} avance bien : <strong>${td} épisode${td>1?'s':''}</strong> publiés jusqu'ici${yd>0?`, soit ${pctAuj}% du total d'hier (${yd})`:''}. ${yd>0&&bd>0?`La veille était en ${tendHier} de ${pctHier}% vs avant-hier.`:''}`
+            ]);
+        }
+    } else if(hour<20){
+        // Après-midi : projection sur la fin de journée
+        if(td===0){
+            text=pick([
+                `Étonnamment, aucune publication enregistrée ce ${dow} pour l'instant. Hier, <strong>${yd} épisodes</strong> avaient été mis en ligne${top3Html?`, portés notamment par ${top3Names[0]}`:''}.`,
+                `Pas encore d'épisode ce ${dow} à cette heure-ci — à surveiller. Pour mémoire, hier totalisait <strong>${yd} publication${yd>1?'s':''}</strong>.`
+            ]);
+        } else {
+            const projection=yd>0&&pctAuj>0?Math.round(td*(100/pctAuj)):null;
+            text=pick([
+                `Bel après-midi : <strong>${td} épisode${td>1?'s':''}</strong> en ligne ce ${dow}${projection&&projection>yd?` — on s'achemine vers un total supérieur à hier (${yd})`:yd>0?`, soit ${pctAuj}% du volume d'hier`:''}. ${top3Html?`<em>Hier, ${top3Html} étaient en tête.</em>`:''}`,
+                `À cette heure, ce ${dow} compte <strong>${td} épisode${td>1?'s':''}</strong>${yd>0?` pour ${pctAuj}% du volume d'hier (${yd} ép.)`:''}.${top3Html?` <em>Les plus actifs hier : ${top3Html}.</em>`:''}`
+            ]);
+        }
+    } else {
+        // Soir : bilan de la journée
+        if(td===0){
+            text=pick([
+                `Journée atypique ce ${dow} — aucune publication enregistrée. Hier, <strong>${yd} épisodes</strong> avaient tourné${top3Html?` avec ${top3Html} en vedette`:''}.`,
+                `Ce ${dow} se termine sans publication. La veille comptait <strong>${yd} épisode${yd>1?'s':''}</strong>${bd>0?` (${tendHier} de ${pctHier}% vs avant-hier)`:''}.`
+            ]);
+        } else {
+            text=pick([
+                `Bilan de ce ${dow} : <strong>${td} épisode${td>1?'s':''}</strong> publiés${yd>0&&pctAuj!==100?`, soit ${pctAuj>100?'+'+Math.round(pctAuj-100)+'%':'-'+Math.round(100-pctAuj)+'%'} vs hier (${yd})`:yd>0?`, dans la lignée d'hier (${yd})`:''}.${top3Html?` <em>Hier, ${top3Html} avaient mené la danse.</em>`:''}`,
+                `Ce ${dow} se clôture avec <strong>${td} épisode${td>1?'s':''}</strong>${bd>0&&yd>0?` — hier était ${tendHier} de ${pctHier}% par rapport à avant-hier`:''}.${top3Html?` Les émissions les plus actives hier : ${top3Html}.`:''}`
+            ]);
+        }
+    }
 
     return `<div class="insight-card">
         <div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div>
-        <div class="insight-text" style="font-size:12px;line-height:1.7">${blocks}</div>
+        <div class="insight-text" style="font-size:12px;line-height:1.7">${text}</div>
     </div>`;
 }
 
