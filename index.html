@@ -989,8 +989,17 @@
     .pod-minigraph-bar {
         width: 100%; background: var(--text); border-radius: 3px 3px 0 0;
         opacity: .15; transition: opacity .2s;
-        min-height: 3px;
+        min-height: 3px; position: relative;
+        display: flex; align-items: center; justify-content: center;
     }
+    .pod-minigraph-count {
+        position: absolute;
+        font-size: 8px; font-weight: 700; line-height: 1;
+        color: var(--bg); opacity: 0; /* caché si barre trop petite */
+        pointer-events: none; white-space: nowrap;
+    }
+    .pod-minigraph-bar.has-ep .pod-minigraph-count,
+    .pod-minigraph-bar.today .pod-minigraph-count { opacity: 1; }
     .pod-minigraph-bar.has-ep { opacity: 1; }
     .pod-minigraph-bar.today { background: var(--green); opacity: 1; }
     .pod-minigraph-lbl {
@@ -3499,8 +3508,10 @@ function openPodPanel(url){
         const cls=isToday?'today':c>0?'has-ep':'';
         const lbl=new Date(ts).toLocaleDateString('fr-FR',{weekday:'short'}).slice(0,3);
         const lblCls=isToday?'today':'';
+        // N'afficher le chiffre que si la barre est assez haute (≥14px)
+        const countHtml = c>0 && barH>=14 ? `<span class="pod-minigraph-count">${c}</span>` : '';
         return `<div class="pod-minigraph-col" title="${c} épisode(s)">
-            <div class="pod-minigraph-bar ${cls}" style="height:${barH}px"></div>
+            <div class="pod-minigraph-bar ${cls}" style="height:${barH}px">${countHtml}</div>
             <span class="pod-minigraph-lbl ${lblCls}">${lbl}</span>
         </div>`;
     }).join('');
