@@ -175,10 +175,11 @@
         display: flex; flex-direction: column; gap: 0;
     }
     /* Espacement entre chaque carte sur mobile */
-    #stats-zone, #list-zone {
+    #stats-top, #stats-zone, #list-zone {
         display: flex; flex-direction: column; gap: 20px;
     }
-    #stats-zone { margin-bottom: 20px; }
+    #stats-top { margin-bottom: 0; }
+    #stats-zone { margin-top: 0; }
 
     @media (min-width: 900px) {
         .layout {
@@ -1552,52 +1553,8 @@
 
     <!-- COLONNE GAUCHE : stats / graphe -->
     <div class="col-left" id="col-left">
-        <div id="stats-zone"></div>
-        <!-- Mini-player injecté ici sur desktop via JS -->
-    </div>
-
-    <!-- COLONNE DROITE : liste podcasts -->
-    <div class="col-right" id="col-right">
-        <div class="loading-box" id="loading-box">
-            <div class="loading-title">Synchronisation initiale…</div>
-            <div class="progress-track">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <div class="progress-label" id="progress-text">Démarrage…</div>
-        </div>
-        <div id="list-zone"></div>
-    </div>
-
-    <!-- Badge mise à jour (désactivé — mise à jour automatique) -->
-    <div class="update-badge" id="update-badge" onclick="applyUpdate()" style="display:none"></div>
-
-</div><!-- /.layout -->
-
-<!-- ═══ MINI PLAYER mobile flottant ════════════ -->
-<div class="mini-player" id="mini-player" onclick="openPlayer()">
-    <img id="mini-cover" class="mini-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="cover">
-    <div class="mini-info">
-        <div id="mini-title"   class="mini-title">–</div>
-        <div id="mini-podcast" class="mini-podcast">–</div>
-    </div>
-    <div class="mini-controls" onclick="event.stopPropagation()">
-        <button class="mini-btn" onclick="seekAudio(-15)" title="-15s">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-        </button>
-        <button class="mini-btn mini-btn-play" onclick="togglePlay()" aria-label="Lecture / Pause">
-            <svg id="mini-icon-play"  viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            <svg id="mini-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-        </button>
-        <button class="mini-btn" onclick="seekAudio(15)" title="+15s">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
-        </button>
-        <button class="mini-btn mini-btn-close" onclick="closeMiniPlayer(event)" title="Fermer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-    </div>
-</div>
-
-<!-- ═══ PLAYER CARD (col-left) ══════════════════ -->
+        <div id="stats-top"></div>
+        <!-- ═══ PLAYER CARD (col-left) ══════════════════ -->
 <div class="player-card" id="player-card">
     <!-- Cover + infos + progression + boutons -->
     <div class="pc-player">
@@ -1666,6 +1623,50 @@
         Tous les épisodes du jour
     </button>
 </div>
+        <div id="stats-zone"></div>
+    </div>
+
+    <!-- COLONNE DROITE : liste podcasts -->
+    <div class="col-right" id="col-right">
+        <div class="loading-box" id="loading-box">
+            <div class="loading-title">Synchronisation initiale…</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-label" id="progress-text">Démarrage…</div>
+        </div>
+        <div id="list-zone"></div>
+    </div>
+
+    <!-- Badge mise à jour (désactivé — mise à jour automatique) -->
+    <div class="update-badge" id="update-badge" onclick="applyUpdate()" style="display:none"></div>
+
+</div><!-- /.layout -->
+
+<!-- ═══ MINI PLAYER mobile flottant ════════════ -->
+<div class="mini-player" id="mini-player" onclick="openPlayer()">
+    <img id="mini-cover" class="mini-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="cover">
+    <div class="mini-info">
+        <div id="mini-title"   class="mini-title">–</div>
+        <div id="mini-podcast" class="mini-podcast">–</div>
+    </div>
+    <div class="mini-controls" onclick="event.stopPropagation()">
+        <button class="mini-btn" onclick="seekAudio(-15)" title="-15s">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+        </button>
+        <button class="mini-btn mini-btn-play" onclick="togglePlay()" aria-label="Lecture / Pause">
+            <svg id="mini-icon-play"  viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="mini-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button class="mini-btn" onclick="seekAudio(15)" title="+15s">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+        </button>
+        <button class="mini-btn mini-btn-close" onclick="closeMiniPlayer(event)" title="Fermer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>
+</div>
+
 
 <!-- ═══ MODAL PARAMÈTRES ════════════════════════ -->
 <div class="modal-overlay" id="settings-modal">
@@ -2685,22 +2686,13 @@ function renderStats(pods,graph,grand){ try {
     const prevGraph=buildPrevGraph(pods);
     const analytics=buildAnalytics(pods);
     const monitoring=buildMonitoring(pods);
-    // Sauvegarder la player-card avant d'écraser innerHTML
-    const pc=document.getElementById('player-card');
-    const pcParent=pc?pc.parentElement:null;
-
+    // stats-top : toggle + graphe + objectif + insight + distribution
+    // La player-card est dans le HTML entre stats-top et stats-zone — on n'y touche jamais
+    // stats-zone : analytics + monitoring
+    document.getElementById('stats-top').innerHTML=
+        toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods);
     document.getElementById('stats-zone').innerHTML=
-        toggle+buildChart(graph,grand,prevGraph)+goal+buildInsight(graph)+buildDistribution(pods)
-        +'<div id="player-card-anchor"></div>'
-        +analytics+monitoring;
-
-    // Remettre la player-card après son ancre (desktop uniquement)
-    if(isDesktop()&&pc){
-        const anchor=document.getElementById('player-card-anchor');
-        if(anchor&&anchor.parentElement){
-            anchor.parentElement.insertBefore(pc, anchor.nextSibling);
-        }
-    }
+        analytics+monitoring;
     } catch(err) { console.error('renderStats crash:', err); }
 }
 
@@ -3301,15 +3293,6 @@ function openPlayer(){
 }
 function closePlayer(){
     document.getElementById('player-modal').classList.remove('open');
-    // Remettre la player-card dans son ancre sur desktop
-    if(isDesktop()){
-        const pc=document.getElementById('player-card');
-        const anchor=document.getElementById('player-card-anchor');
-        if(pc&&anchor&&anchor.parentElement&&pc.parentElement!==anchor.parentElement){
-            anchor.parentElement.insertBefore(pc, anchor.nextSibling);
-        }
-    }
-    // Afficher le mini-player sur mobile
     if(!isDesktop()&&trackIdx!==-1){
         document.getElementById('mini-player').classList.add('visible');
     }
