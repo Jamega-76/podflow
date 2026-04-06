@@ -2365,16 +2365,13 @@ function toggleFav(url, e){
 
 /* ═══ OBJECTIF HEBDO ═══ */
 function buildGoal(pods){
-    // Semaine calendaire : lundi → dimanche de la semaine en cours
     const now = new Date();
-    // getDay() : 0=dim, 1=lun … 6=sam → ramener à lundi=0
-    const dow = (now.getDay() + 6) % 7; // 0=lun, 1=mar … 6=dim
-    // Début de semaine = ce lundi à minuit
+    const dow = (now.getDay() + 6) % 7;
     const monStart = new Date(now);
     monStart.setHours(0,0,0,0);
     monStart.setDate(monStart.getDate() - dow);
 
-    // Quels indices de DAYS tombent dans cette semaine ?
+    // Semaine en cours
     let weekTotal = 0;
     pods.forEach(p => {
         DAYS.forEach((ts, i) => {
@@ -2382,12 +2379,26 @@ function buildGoal(pods){
         });
     });
 
+    // Semaine précédente via prevCounts (indices 0-8 = même 9 jours décalés de 7)
+    let prevWeekTotal = 0;
+    const monPrev = new Date(monStart); monPrev.setDate(monPrev.getDate() - 7);
+    pods.forEach(p => {
+        DAYS_PREV.forEach((ts, i) => {
+            if(ts >= monPrev.getTime()) prevWeekTotal += (p.prevCounts?.[i] || 0);
+        });
+    });
+
     const pct = Math.min(Math.round((weekTotal / GOAL_WEEKLY_CURRENT) * 100), 100);
     const cls = pct >= 100 ? 'done' : pct >= 70 ? '' : 'warning';
-    // Libellé période
     const monLabel = monStart.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
     const sunEnd = new Date(monStart); sunEnd.setDate(sunEnd.getDate() + 6);
     const sunLabel = sunEnd.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    // Semaine précédente : libellé
+    const monPrevLabel = monPrev.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    const sunPrev = new Date(monPrev); sunPrev.setDate(sunPrev.getDate() + 6);
+    const sunPrevLabel = sunPrev.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    const prevPct = Math.min(Math.round((prevWeekTotal / GOAL_WEEKLY_CURRENT) * 100), 100);
+    const prevCls = prevPct >= 100 ? 'done' : prevPct >= 70 ? '' : 'warning';
 
     return `<div class="goal-card">
         <div class="goal-header">
@@ -2395,6 +2406,12 @@ function buildGoal(pods){
             <span class="goal-values">${weekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY_CURRENT} (${pct}%)</span></span>
         </div>
         <div class="goal-bar-bg"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        ${prevWeekTotal > 0 ? `
+        <div class="goal-header" style="margin-top:10px;opacity:.6">
+            <span class="goal-label" style="font-size:11px">Semaine précédente <span style="font-weight:400">(${monPrevLabel} – ${sunPrevLabel})</span></span>
+            <span class="goal-values" style="font-size:12px">${prevWeekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY_CURRENT} (${prevPct}%)</span></span>
+        </div>
+        <div class="goal-bar-bg" style="height:4px;opacity:.5"><div class="goal-bar-fill ${prevCls}" style="width:${prevPct}%"></div></div>` : ''}
     </div>`;
 }
 
@@ -2488,78 +2505,8 @@ function buildAnalytics(pods) {
             </div>`).join('')}
         </div>` : '';
 
-    /* ── SECTION 2 : Rythme attendu vs réel ── */
-    // Calculer le rythme "habituel" = moyenne des 8 derniers jours (indices 0-7)
-    // Classer : quotidien (≥0.8/j), bi-hebdo (≥0.3/j), hebdo (≥0.1/j), irrégulier
-    const rhythmAnalysis = pods
-        .filter(p => total9(p) > 0)
-        .map(p => {
-            const hist = [0,1,2,3,4,5,6,7]; // 8 jours hors aujourd'hui
-            const histTotal = hist.reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
-            const histAvg = histTotal / 8;   // épisodes/jour sur l'historique
-            const todayCount = p.dailyCounts[8]||0;
-
-            // Rythme attendu pour aujourd'hui basé sur l'historique
-            const expected = histAvg;
-            let status, label;
-
-            if(histAvg === 0) return null; // pas d'historique → ignorer
-
-            if(histAvg >= 0.8) {
-                // Podcast quotidien : vérifier si ce podcast publie CE jour de semaine
-                // Regarder les 8 derniers jours et voir si ce jour (lun/mar/…) est actif
-                const todayDow = new Date().getDay(); // 0=dim … 6=sam
-                const publishedOnThisDow = [0,1,2,3,4,5,6,7].some(i => {
-                    const ts = DAYS[i];
-                    const dow = new Date(ts).getDay();
-                    return dow === todayDow && (p.dailyCounts[i]||0) > 0;
-                });
-                if(todayCount >= 1)              { status='ok';   label='Dans les temps'; }
-                else if(!publishedOnThisDow)     { status='ok';   label='Pas de publication ce jour'; }
-                else                             { status='late'; label='Retard — quotidien'; }
-            } else if(histAvg >= 0.3) {
-                // Bi-hebdo : attend ~3/semaine
-                const weekSoFar = [2,3,4,5,6,7].reduce((s,i)=>s+(p.dailyCounts[i]||0),0);
-                const dow = (new Date().getDay()+6)%7; // jours écoulés depuis lundi
-                const weekExpected = Math.round(histAvg * (dow+1));
-                if(weekSoFar >= weekExpected)  { status='ok';   label='Dans les temps'; }
-                else                           { status='late'; label='Léger retard'; }
-            } else {
-                // Hebdo ou irrégulier
-                const daysSinceLast = p.latestPubDate
-                    ? Math.floor((Date.now()-p.latestPubDate)/(1000*60*60*24))
-                    : 99;
-                const expectedInterval = Math.round(1/histAvg); // jours entre épisodes
-                if(daysSinceLast > expectedInterval * 1.5) { status='dead'; label=`Retard (>${expectedInterval}j)`; }
-                else                                        { status='ok';   label='Dans les temps'; }
-            }
-            return { ...p, status, label, histAvg, todayCount };
-        })
-        .filter(Boolean);
-
-    const lates = rhythmAnalysis.filter(p => p.status !== 'ok').slice(0,4);
-    const rhythmHtml = lates.length ? `
-        <div class="analytics-section">
-            <div class="analytics-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Rythme — en retard
-            </div>
-            ${lates.map(p => `
-            <div class="rhythm-row" onclick="openPodPanel('${p.url}')">
-                <span class="rhythm-dot ${p.status}"></span>
-                <span class="rhythm-name">${p.name}</span>
-                <span class="rhythm-label">${p.label}</span>
-            </div>`).join('')}
-        </div>` : `
-        <div class="analytics-section">
-            <div class="analytics-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Rythme
-            </div>
-            <div style="font-size:12px;color:var(--green);padding:2px 6px">
-                ✓ Tous les podcasts actifs sont dans les temps
-            </div>
-        </div>`;
+    // Section rythme supprimée
+    const rhythmHtml = '';
 
     /* ── SECTION 3 : Anomalies ── */
     const anomalies = [];
@@ -2648,7 +2595,7 @@ function buildAnalytics(pods) {
         </div>` : '';
 
     /* ── Assemblage ── */
-    const sections = [top3Html, rhythmHtml, anomHtml].filter(Boolean);
+    const sections = [top3Html, anomHtml].filter(Boolean);
     if(!sections.length) return '';
 
     return `<div class="analytics-card">
