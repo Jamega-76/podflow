@@ -2407,11 +2407,14 @@ function buildGoal(pods){
         </div>
         <div class="goal-bar-bg"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
         ${prevWeekTotal > 0 ? `
-        <div class="goal-header" style="margin-top:10px;opacity:.6">
-            <span class="goal-label" style="font-size:11px">Semaine précédente <span style="font-weight:400">(${monPrevLabel} – ${sunPrevLabel})</span></span>
-            <span class="goal-values" style="font-size:12px">${prevWeekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY_CURRENT} (${prevPct}%)</span></span>
-        </div>
-        <div class="goal-bar-bg" style="height:4px;opacity:.5"><div class="goal-bar-fill ${prevCls}" style="width:${prevPct}%"></div></div>` : ''}
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);opacity:.6">
+            <div class="goal-header">
+                <span class="goal-label" style="font-size:11px;white-space:nowrap">Sem. préc. <span style="font-weight:400;white-space:nowrap">(${monPrevLabel} – ${sunPrevLabel})</span></span>
+                <span class="goal-values" style="font-size:12px;white-space:nowrap">${prevWeekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY_CURRENT} (${prevPct}%)</span></span>
+            </div>
+            <div class="goal-bar-bg" style="height:4px;margin-top:6px"><div class="goal-bar-fill ${prevCls}" style="width:${prevPct}%"></div></div>
+            <div style="font-size:10px;color:var(--text-sec);margin-top:5px">${prevPct >= 100 ? '✓ Objectif atteint la semaine dernière' : prevPct >= 70 ? `Objectif atteint à ${prevPct}% la semaine dernière` : `Semaine en deçà de l'objectif — ${prevPct}% réalisé`}</div>
+        </div>` : ''}
     </div>`;
 }
 
