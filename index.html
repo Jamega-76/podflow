@@ -2223,19 +2223,44 @@ async function _fetchFeedsInner(bg=false, isPtr=false) {
         await Promise.all(podcastConfig.slice(i,i+10).map(async cfg=>{
             try{
                 let xmlText;
-                try {
-                    const r1=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(8000)});
-                    if(!r1.ok) throw 0;
-                    xmlText=await r1.text();
-                } catch(e1){
-                    // Fallback allorigins
+                const proxies = [
+                    // Proxy 1 : codetabs
+                    async () => {
+                        const r=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(7000)});
+                        if(!r.ok) throw 0;
+                        return await r.text();
+                    },
+                    // Proxy 2 : allorigins (retourne JSON {contents})
+                    async () => {
+                        const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(7000)});
+                        if(!r.ok) throw 0;
+                        const j=await r.json();
+                        if(!j.contents) throw 0;
+                        return j.contents;
+                    },
+                    // Proxy 3 : corsproxy.io
+                    async () => {
+                        const r=await fetch(`https://corsproxy.io/?url=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(7000)});
+                        if(!r.ok) throw 0;
+                        return await r.text();
+                    },
+                    // Proxy 4 : thingproxy
+                    async () => {
+                        const r=await fetch(`https://thingproxy.freeboard.io/fetch/${cfg.url}`,{signal:AbortSignal.timeout(7000)});
+                        if(!r.ok) throw 0;
+                        return await r.text();
+                    },
+                ];
+                let fetched=false;
+                for(const proxy of proxies){
                     try {
-                        const r2=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(cfg.url)}`,{signal:AbortSignal.timeout(8000)});
-                        if(!r2.ok) throw 0;
-                        const j=await r2.json();
-                        xmlText=j.contents;
-                    } catch(e2){ throw 0; }
+                        xmlText=await proxy();
+                        if(xmlText && xmlText.includes('<rss') || xmlText.includes('<feed')){
+                            fetched=true; break;
+                        }
+                    } catch(e){}
                 }
+                if(!fetched) throw 0;
                 const xml=new DOMParser().parseFromString(xmlText,'text/xml');
                 const title=xml.querySelector('channel > title')?.textContent||'Podcast inconnu';
                 const tLow=title.toLowerCase();
