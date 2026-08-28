@@ -28,10 +28,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 body.dark .topbar{background:rgba(28,28,30,.85);}
 .topbar-logo{font-size:15px;font-weight:800;letter-spacing:-.3px;}
 .topbar-logo span{color:var(--accent);}
-.brand-switcher{display:flex;gap:2px;background:rgba(0,0,0,.06);border-radius:10px;padding:3px;margin-left:8px;}
-body.dark .brand-switcher{background:rgba(255,255,255,.08);}
-.brand-btn{padding:3px 10px;border-radius:7px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-sec);transition:all .15s;}
-.brand-btn.active{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .dark-btn{background:none;border:none;cursor:pointer;color:var(--text-sec);font-size:18px;padding:4px;}
 .links{display:flex;gap:8px;}
@@ -105,11 +102,7 @@ body.dark .brand-switcher{background:rgba(255,255,255,.08);}
 
 <div class="topbar">
     <div class="topbar-logo">Podcast<span>Tracker</span></div>
-    <div class="brand-switcher">
-        <button class="brand-btn active" data-brand="europe1" onclick="setBrand('europe1')">Europe 1</button>
-        <button class="brand-btn" data-brand="europe2" onclick="setBrand('europe2')">Europe 2</button>
-        <button class="brand-btn" data-brand="rfm" onclick="setBrand('rfm')">RFM</button>
-    </div>
+
     <div class="topbar-right">
         <div class="links">
             <a href="https://jamega-76.github.io/podfight/" target="_blank">Podfighter 2 turbo ⚡</a>
@@ -280,30 +273,8 @@ const EUROPE1 = [
     {url:"https://feeds.audiomeans.fr/feed/93dbf60b-055e-46ac-b7be-0483297b6446.xml",comptabilise:true,natif:false},
     {url:"https://feeds.audiomeans.fr/feed/c64d974c-d2f9-4e3a-87a0-4180052b9b12.xml",comptabilise:true,natif:false}
 ];
-const EUROPE2 = [
-    {url:"https://feeds.audiomeans.fr/feed/a04c843b-3e68-4928-80e7-27f7617db91b.xml",name:"Cauet sur Europe 2",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/f8c31068-17e3-446c-9950-9bd685ec2790.xml",name:"Cauet - heure par heure",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/27937dd7-038f-433b-ac82-316550405c8c.xml",name:"Cauet - les podcasts qui déchirent",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/ee20fc57-ecbc-49be-9763-7a5b2dba1e0f.xml",name:"Europe 2 jeux",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/f3533543-9f45-4fb6-94b6-5cb716333bfc.xml",name:"Les tubes à Coco",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/496ae568-a448-4397-8d8a-f899332f2a41.xml",name:"L'Original",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/4e301e60-4652-489e-a157-116537962b84.xml",name:"Pop Corn Europe 2",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/5b839c92-801e-495a-981a-735262f50f93.xml",name:"Pop Story",comptabilise:true,natif:false}
-];
-const RFM = [
-    {url:"https://feeds.audiomeans.fr/feed/5bc1d7c1-0099-4c2e-912f-cd8aa733bf42.xml",name:"1 heure avec…",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/d8d83d7e-a804-46c4-a0a5-865e1c5c884c.xml",name:"Le MDR - intégrale",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/8692aaa3-0c7c-4f15-b81f-e81197f250ed.xml",name:"Le MDR - les podcasts",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/ffda1946-be15-40a0-8769-fe66b1cc4f16.xml",name:"Les interviews du 16/20",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/29962c58-7297-4363-ab3b-10b4026df1c4.xml",name:"Music Story",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/548eb021-da9e-4d7d-bce6-14103932ea1c.xml",name:"On Air Story",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/93dbf60b-055e-46ac-b7be-0483297b6446.xml",name:"RFM party 80",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/c64d974c-d2f9-4e3a-87a0-4180052b9b12.xml",name:"RFM Party Mix avec Yann Muller",comptabilise:true,natif:false}
-];
 const BRANDS = {
     europe1:{label:'Europe 1',accent:'#0070C0',config:EUROPE1},
-    europe2:{label:'Europe 2',accent:'#e63329',config:EUROPE2},
-    rfm:    {label:'RFM',    accent:'#8b2fc9',config:RFM},
 };
 
 /* ═══ ÉTAT ═══ */
@@ -315,7 +286,6 @@ let failed       = 0;
 
 /* ═══ INIT ═══ */
 if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
-document.querySelectorAll('.brand-btn').forEach(b=>b.classList.toggle('active',b.dataset.brand===currentBrand));
 applyAccent();
 buildDays();
 fetchAll();
@@ -333,8 +303,8 @@ async function fetchFeed(url){
     // Un seul proxy à la fois, en cascade, avec timeout court
     const proxies=[
         ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(6000)}),
-        ()=>fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(6000)}),
         ()=>fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(6000)}),
+        ()=>fetch(`https://thingproxy.freeboard.io/fetch/${url}`,{signal:AbortSignal.timeout(6000)}),
     ];
     for(const p of proxies){
         try{
@@ -501,14 +471,7 @@ function setView(v){
     renderList();
 }
 
-function setBrand(brand){
-    currentBrand=brand;
-    localStorage.setItem('brand',brand);
-    document.querySelectorAll('.brand-btn').forEach(b=>b.classList.toggle('active',b.dataset.brand===brand));
-    applyAccent();
-    allPods=[];
-    fetchAll();
-}
+
 
 function applyAccent(){
     document.documentElement.style.setProperty('--accent',BRANDS[currentBrand].accent);
