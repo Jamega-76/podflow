@@ -1,400 +1,474 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PodFlow — Podcast Tracker</title>
-<meta name="theme-color" content="#0070C0">
-<style>
-:root {
-    --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --text-sec:#6e6e73;
-    --border:#e5e5ea; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
-    --r:16px; --topbar:52px;
-    --accent:#0070C0;
-}
-body.dark {
-    --bg:#1c1c1e; --card:#2c2c2e; --text:#f5f5f7; --text-sec:#aeaeb2; --border:#3a3a3c;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodcastTracker</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --blue-accent: #0070f3;
+            --border-color: #e5e7eb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: white;
+            padding: 16px 32px;
+            font-weight: 800;
+            font-size: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+        header span { color: var(--blue-accent); }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-box {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        
+        .stat-sublabel {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
-/* ── Topbar ── */
-.topbar{
-    position:sticky;top:0;z-index:100;height:var(--topbar);
-    background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-    border-bottom:1px solid var(--border);display:flex;align-items:center;
-    padding:0 20px;gap:12px;transition:background .3s;
-}
-body.dark .topbar{background:rgba(28,28,30,.85);}
-.topbar-logo{font-size:15px;font-weight:800;letter-spacing:-.3px;}
-.topbar-logo span{color:var(--accent);}
+        .list-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
 
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
-.dark-btn{background:none;border:none;cursor:pointer;color:var(--text-sec);font-size:18px;padding:4px;}
-.links{display:flex;gap:8px;}
-.links a{font-size:12px;font-weight:600;color:var(--text-sec);text-decoration:none;padding:4px 8px;border-radius:8px;transition:background .15s;}
-.links a:hover{background:var(--border);}
+        .list-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
 
-/* ── Layout ── */
-.main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:16px;}
+        .tabs {
+            display: flex;
+            background: var(--bg-color);
+            border-radius: 20px;
+            padding: 4px;
+        }
 
-/* ── Cartes ── */
-.card{background:var(--card);border-radius:var(--r);padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:background .3s;}
+        .tab {
+            padding: 6px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 16px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
 
-/* ── Barre de chargement ── */
-.loading-card{text-align:center;padding:32px 20px;}
-.loading-title{font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text-sec);}
-.progress-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:0 auto 8px;max-width:300px;}
-.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s;width:0%;}
-.progress-label{font-size:12px;color:var(--text-sec);}
+        .tab.active {
+            background: white;
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
 
-/* ── Résumé ── */
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
-.summary-cell{background:var(--bg);border-radius:12px;padding:14px 16px;text-align:center;}
-.summary-val{font-size:32px;font-weight:800;letter-spacing:-1.5px;line-height:1;}
-.summary-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-sec);margin-top:4px;}
-.summary-sub{font-size:11px;color:var(--text-sec);margin-top:2px;}
+        .empty-state {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
 
-/* ── Graphe 8 jours ── */
-.chart-wrap{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:12px;}
-.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.chart-bar{width:100%;border-radius:4px 4px 0 0;background:var(--text);opacity:.15;min-height:3px;position:relative;display:flex;align-items:center;justify-content:center;transition:opacity .2s;}
-.chart-bar.has{opacity:1;}
-.chart-bar.today{background:var(--accent);opacity:1;}
-.chart-bar.yesterday{background:var(--accent);opacity:.6;}
-.chart-count{font-size:8px;font-weight:700;color:#fff;position:absolute;}
-.chart-lbl{font-size:9px;color:var(--text-sec);font-weight:500;}
-.chart-lbl.today{color:var(--accent);font-weight:700;}
-.chart-lbl.yesterday{color:var(--accent);opacity:.7;font-weight:600;}
+        .episode-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-/* ── Liste podcasts ── */
-.list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-.list-title{font-size:14px;font-weight:700;}
-.view-tabs{display:flex;gap:2px;background:var(--bg);border-radius:10px;padding:2px;}
-.view-tab{padding:4px 12px;border:none;background:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-sec);transition:all .15s;}
-.view-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);}
-.pod-list{display:flex;flex-direction:column;gap:2px;}
-.pod-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s;}
-.pod-row:hover{background:var(--bg);}
-.pod-cover{width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--border);}
-.pod-info{flex:1;overflow:hidden;}
-.pod-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pod-ep{font-size:11px;color:var(--text-sec);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
-.pod-count{flex-shrink:0;font-size:13px;font-weight:700;color:var(--accent);min-width:24px;text-align:right;}
-.pod-badge{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;}
-.pod-badge.missing{background:rgba(255,59,48,.1);color:var(--red);}
-.pod-badge.ok{background:rgba(52,199,89,.1);color:var(--green);}
-.empty{text-align:center;padding:24px;font-size:13px;color:var(--text-sec);}
+        .episode-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .episode-item:last-child { border-bottom: none; }
+        
+        .episode-thumbnail {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            object-fit: cover;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
 
-/* ── Section titre ── */
-.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-sec);margin-bottom:10px;}
+        .episode-details {
+            flex: 1;
+            min-width: 0;
+        }
 
-/* ── Mobile ── */
-@media(max-width:600px){
-    .topbar{padding:0 14px;gap:8px;}
-    .links{display:none;}
-    .main{padding:14px 12px 80px;}
-    .summary-val{font-size:26px;}
-}
-</style>
+        .episode-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        
+        .episode-podcast { 
+            font-size: 12px; 
+            color: var(--text-muted); 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            margin-right: 6px;
+        }
+        
+        .episode-time {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .episode-title { font-size: 16px; font-weight: 600; margin: 0 0 8px 0; }
+        .episode-link { color: var(--blue-accent); text-decoration: none; font-size: 14px; font-weight: 500;}
+        .episode-link:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
 
-<div class="topbar">
-    <div class="topbar-logo">Podcast<span>Tracker</span></div>
+    <header>Podcast<span>Tracker</span></header>
 
-    <div class="topbar-right">
-        <div class="links">
-            <a href="https://jamega-76.github.io/podfight/" target="_blank">Podfighter 2 turbo ⚡</a>
-            <a href="https://jamega-76.github.io/streamlife/" target="_blank">📻 StreamLife</a>
-        </div>
-        <button class="dark-btn" onclick="toggleDark()" title="Mode sombre">🌙</button>
-    </div>
-</div>
-
-<div class="main">
-    <!-- Chargement -->
-    <div class="card loading-card" id="loading-card">
-        <div class="loading-title" id="loading-title">Chargement…</div>
-        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-        <div class="progress-label" id="progress-label">Démarrage…</div>
-    </div>
-
-    <!-- Résumé -->
-    <div class="card" id="summary-card" style="display:none">
-        <div class="section-title" id="summary-week-label">Semaine en cours</div>
-        <div class="summary-grid">
-            <div class="summary-cell">
-                <div class="summary-val" id="stat-today">–</div>
-                <div class="summary-lbl">Aujourd'hui</div>
-            </div>
-            <div class="summary-cell">
-                <div class="summary-val" id="stat-yesterday">–</div>
-                <div class="summary-lbl">Hier</div>
-            </div>
-            <div class="summary-cell">
-                <div class="summary-val" id="stat-8j">–</div>
-                <div class="summary-lbl">8 jours</div>
-                <div class="summary-sub" id="stat-8j-dates"></div>
-            </div>
-        </div>
-        <!-- Graphe 8 jours -->
-        <div class="chart-wrap" id="chart-wrap"></div>
-    </div>
-
-    <!-- Liste -->
-    <div class="card" id="list-card" style="display:none">
-        <div class="list-header">
-            <div class="list-title" id="list-title">Publications</div>
-            <div class="view-tabs">
-                <button class="view-tab active" onclick="setView('today')">Aujourd'hui</button>
-                <button class="view-tab" onclick="setView('yesterday')">Hier</button>
-                <button class="view-tab" onclick="setView('missing')">Non publiés</button>
-            </div>
-        </div>
-        <div class="pod-list" id="pod-list"></div>
-    </div>
-</div>
-
-<script>
-/* ═══ CONFIG ═══ */
-const EUROPE1 = [
-{url:"https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/abd60e2a-fac4-413f-bf0a-463aa19796dc.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/7b065cde-def6-4740-b96f-571366b7e54c.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/7b5cfe03-5ba9-4428-a41a-cf5c90d4ef49.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/c0afb1da-71a8-4a43-8b2f-9decd86c3198.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/a8aae616-7e41-429f-a0f5-5b8d1c322fc7.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/ea13af31-37bf-4ed1-a0fb-87498c26d64b.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/9562ff43-55ee-44af-95e0-db69d162ebae.xml",comptabilise:true,natif:false},
-    {url:"https://feeds.audiomeans.fr/feed/4be07d58-3177-4e44-8c9a-9ab1eedd2c34.xml",comptabilise:true,natif:false}
-];
-const BRANDS = {
-    europe1:{label:'Europe 1',accent:'#0070C0',config:EUROPE1},
-};
-
-/* ═══ ÉTAT ═══ */
-let currentBrand = localStorage.getItem('brand')||'europe1';
-let currentView  = 'today';
-let allPods      = [];
-let DAYS         = []; // 8 timestamps minuit (index 0=J-7 … 7=aujourd'hui)
-let failed       = 0;
-
-/* ═══ INIT ═══ */
-if(localStorage.getItem('dark')==='1') document.body.classList.add('dark');
-applyAccent();
-buildDays();
-fetchAll();
-
-/* ═══ JOURS ═══ */
-function buildDays(){
-    const today=new Date(); today.setHours(0,0,0,0);
-    DAYS=Array.from({length:8},(_,i)=>{
-        const d=new Date(today); d.setDate(d.getDate()-(7-i)); return d.getTime();
-    });
-}
-
-/* ═══ PROXY FETCH ═══ */
-async function fetchFeed(url){
-    // Un seul proxy à la fois, en cascade, avec timeout court
-    // Proxy 1 : allorigins /get → retourne {contents, status}
-    try{
-        const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});
-        if(r.ok){
-            const j=await r.json();
-            if(j.contents&&(j.contents.includes('<rss')||j.contents.includes('<feed'))) return j.contents;
-        }
-    }catch(e){}
-    // Proxy 2 : corsfix.com (gratuit, open source friendly)
-    try{
-        const r=await fetch(`https://proxy.corsfix.com/?${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});
-        if(r.ok){
-            const txt=await r.text();
-            if(txt.includes('<rss')||txt.includes('<feed')) return txt;
-        }
-    }catch(e){}
-    return null;
-}
-
-/* ═══ FETCH TOUS LES FLUX ═══ */
-async function fetchAll(){
-    failed=0;
-    const config=BRANDS[currentBrand].config;
-    const total=config.length;
-    let done=0;
-    allPods=[];
-    setLoading(true,'Synchronisation…','0 / '+total);
-
-    // Groupes de 8 en parallèle
-    for(let i=0;i<total;i+=5){
-        await Promise.all(config.slice(i,i+5).map(async cfg=>{
-            try{
-                const xml=await fetchFeed(cfg.url);
-                if(!xml) throw 0;
-                const doc=new DOMParser().parseFromString(xml,'text/xml');
-                const ch=doc.querySelector('channel');
-                const name=ch?.querySelector('title')?.textContent||cfg.name||'Podcast';
-                const img=ch?.querySelector('image > url')?.textContent
-                        ||ch?.querySelector('itunes\\:image')?.getAttribute('href')||'';
-                const items=[...doc.querySelectorAll('item')];
-                // Compter par jour
-                const counts=Array(8).fill(0);
-                const latestByDay=[]; // dernier épisode par jour
-                items.forEach(item=>{
-                    const pub=new Date(item.querySelector('pubDate')?.textContent);
-                    if(isNaN(pub)) return;
-                    const ts=new Date(pub); ts.setHours(0,0,0,0);
-                    const idx=DAYS.indexOf(ts.getTime());
-                    if(idx>=0){
-                        counts[idx]++;
-                        if(!latestByDay[idx]||pub>latestByDay[idx].date)
-                            latestByDay[idx]={date:pub,title:item.querySelector('title')?.textContent||''};
-                    }
-                });
-                allPods.push({
-                    url:cfg.url, name, img, comptabilise:cfg.comptabilise,
-                    counts, latestByDay,
-                    latestDate:items.length?new Date(items[0].querySelector('pubDate')?.textContent):null,
-                    latestTitle:items[0]?.querySelector('title')?.textContent||'',
-                });
-            }catch(e){ failed++; }
-            done++;
-            const pct=Math.round(done/total*100);
-            setProgress(pct, done+' / '+total+(failed>0?' — '+failed+' erreur'+(failed>1?'s':''):''));
-        }));
-    }
-
-    setLoading(false);
-    render();
-}
-
-/* ═══ RENDU ═══ */
-function render(){
-    // Stats
-    const comp=allPods.filter(p=>p.comptabilise);
-    const today=comp.reduce((s,p)=>s+(p.counts[7]||0),0);
-    const yesterday=comp.reduce((s,p)=>s+(p.counts[6]||0),0);
-    const total8=comp.reduce((s,p)=>p.counts.reduce((a,b)=>a+b,s),0);
-    document.getElementById('stat-today').textContent=today;
-    document.getElementById('stat-yesterday').textContent=yesterday;
-    document.getElementById('stat-8j').textContent=total8;
-
-    // Dates 8 jours
-    const fmt=t=>new Date(t).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
-    document.getElementById('stat-8j-dates').textContent=fmt(DAYS[0])+' – '+fmt(DAYS[7]);
-
-    // Semaine courante
-    const now=new Date();
-    const mon=new Date(now); mon.setHours(0,0,0,0); mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
-    const sun=new Date(mon); sun.setDate(sun.getDate()+6);
-    const tmp=new Date(mon); tmp.setDate(tmp.getDate()+3);
-    const wn=Math.ceil(((tmp-new Date(tmp.getFullYear(),0,1))/86400000+1)/7);
-    document.getElementById('summary-week-label').textContent=`S${wn} · ${fmt(mon.getTime())} – ${fmt(sun.getTime())}`;
-
-    // Graphe
-    const max=Math.max(1,...DAYS.map((_,i)=>comp.reduce((s,p)=>s+(p.counts[i]||0),0)));
-    const chartWrap=document.getElementById('chart-wrap');
-    chartWrap.innerHTML=DAYS.map((ts,i)=>{
-        const c=comp.reduce((s,p)=>s+(p.counts[i]||0),0);
-        const h=Math.max(c>0?Math.round((c/max)*72):3,3);
-        const isToday=i===7,isYest=i===6;
-        const cls=c>0?(isToday?'today':isYest?'yesterday':'has'):'';
-        const lbl=new Date(ts).toLocaleDateString('fr-FR',{weekday:'short'});
-        const lblCls=isToday?'today':isYest?'yesterday':'';
-        const countHtml=c>0&&h>=14?`<span class="chart-count">${c}</span>`:'';
-        return `<div class="chart-col">
-            <div class="chart-bar ${cls}" style="height:${h}px">${countHtml}</div>
-            <span class="chart-lbl ${lblCls}">${lbl}</span>
-        </div>`;
-    }).join('');
-
-    document.getElementById('summary-card').style.display='';
-    document.getElementById('list-card').style.display='';
-    renderList();
-}
-
-function renderList(){
-    const idx=currentView==='today'?7:6;
-    const list=document.getElementById('pod-list');
-    const title=document.getElementById('list-title');
-
-    if(currentView==='missing'){
-        // Non publiés aujourd'hui parmi ceux qui publient habituellement ce jour
-        const todayDow=new Date().getDay();
-        const missing=allPods.filter(p=>p.comptabilise&&p.counts[7]===0)
-            .filter(p=>p.counts.slice(0,7).some((_,i)=>{
-                const dow=new Date(DAYS[i]).getDay();
-                return dow===todayDow&&p.counts[i]>0;
-            }));
-        title.textContent=`Non publiés aujourd'hui (${missing.length})`;
-        if(!missing.length){
-            list.innerHTML='<div class="empty">✓ Tous les podcasts attendus ont publié</div>'; return;
-        }
-        list.innerHTML=missing.map(p=>`
-            <div class="pod-row">
-                <img class="pod-cover" src="${p.img}" onerror="this.style.display='none'">
-                <div class="pod-info">
-                    <div class="pod-name">${p.name}</div>
-                    <div class="pod-ep">Dernier : ${p.latestTitle||'–'}</div>
+    <div class="container">
+        <div class="card">
+            <div class="card-header" id="week-header">S35 · 24 AOÛT – 30 AOÛT</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <p class="stat-number" id="count-today">0</p>
+                    <p class="stat-label">Aujourd'hui</p>
                 </div>
-                <span class="pod-badge missing">Absent</span>
-            </div>`).join('');
-        return;
-    }
-
-    const pods=allPods.filter(p=>p.comptabilise&&(p.counts[idx]||0)>0)
-        .sort((a,b)=>(b.counts[idx]||0)-(a.counts[idx]||0));
-    title.textContent=currentView==='today'?`Aujourd'hui (${pods.length} podcasts)`:
-        `Hier (${pods.length} podcasts)`;
-    if(!pods.length){
-        list.innerHTML='<div class="empty">Aucune publication ce jour</div>'; return;
-    }
-    list.innerHTML=pods.map(p=>{
-        const ep=p.latestByDay[idx];
-        return `<div class="pod-row">
-            <img class="pod-cover" src="${p.img}" onerror="this.style.display='none'">
-            <div class="pod-info">
-                <div class="pod-name">${p.name}</div>
-                <div class="pod-ep">${ep?ep.title:'–'}</div>
+                <div class="stat-box">
+                    <p class="stat-number" id="count-yesterday">0</p>
+                    <p class="stat-label">Hier</p>
+                </div>
+                <div class="stat-box">
+                    <p class="stat-number" id="count-week">0</p>
+                    <p class="stat-label">8 Jours</p>
+                    <p class="stat-sublabel">Derniers 8 jours</p>
+                </div>
             </div>
-            <div class="pod-count">${p.counts[idx]}</div>
-        </div>`;
-    }).join('');
-}
+        </div>
 
-/* ═══ CONTRÔLES ═══ */
-function setView(v){
-    currentView=v;
-    document.querySelectorAll('.view-tab').forEach((b,i)=>
-        b.classList.toggle('active',['today','yesterday','missing'][i]===v));
-    renderList();
-}
+        <div class="card">
+            <div class="list-header-row">
+                <div class="list-title" id="list-title-text">Aujourd'hui (0 podcasts)</div>
+                <div class="tabs">
+                    <button class="tab active" onclick="setFilter('today')">Aujourd'hui</button>
+                    <button class="tab" onclick="setFilter('yesterday')">Hier</button>
+                    <button class="tab" onclick="setFilter('all')">Tous (8j)</button>
+                </div>
+            </div>
+            
+            <div id="content-area">
+                <div class="empty-state">Chargement des 97 flux RSS (cela peut prendre quelques secondes)...</div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        const feeds = [
+            "https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml",
+            "https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml",
+            "https://feeds.audiomeans.fr/feed/abd60e2a-fac4-413f-bf0a-463aa19796dc.xml",
+            "https://feeds.audiomeans.fr/feed/7b065cde-def6-4740-b96f-571366b7e54c.xml",
+            "https://feeds.audiomeans.fr/feed/7b5cfe03-5ba9-4428-a41a-cf5c90d4ef49.xml",
+            "https://feeds.audiomeans.fr/feed/c0afb1da-71a8-4a43-8b2f-9decd86c3198.xml",
+            "https://feeds.audiomeans.fr/feed/a8aae616-7e41-429f-a0f5-5b8d1c322fc7.xml",
+            "https://feeds.audiomeans.fr/feed/ea13af31-37bf-4ed1-a0fb-87498c26d64b.xml",
+            "https://feeds.audiomeans.fr/feed/9562ff43-55ee-44af-95e0-db69d162ebae.xml",
+            "https://feeds.audiomeans.fr/feed/4be07d58-3177-4e44-8c9a-9ab1eedd2c34.xml",
+            "https://feeds.audiomeans.fr/feed/aae35f24-4d4f-4976-bae5-0f629c3d08f5.xml",
+            "https://feeds.audiomeans.fr/feed/b3d92b2e-f448-42fd-91ff-13e605c39ccd.xml",
+            "https://feeds.audiomeans.fr/feed/23446ca3-fe7a-4be3-8dca-6f8a64a06806.xml",
+            "https://feeds.audiomeans.fr/feed/0f9366c9-ea8d-43d8-a7a0-135ca0c05a1d.xml",
+            "https://feeds.audiomeans.fr/feed/d46afe4c-2f13-4f73-9a6e-b36b2e37dcbf.xml",
+            "https://feeds.audiomeans.fr/feed/4a8dccbe-3444-4c27-8f42-c26d21406bc1.xml",
+            "https://feeds.audiomeans.fr/feed/0f56e4cd-d44d-4968-ac12-9d1159a54d4c.xml",
+            "https://feeds.audiomeans.fr/feed/78a1e8b4-d078-44de-b74b-78f38a8923ae.xml",
+            "https://feeds.audiomeans.fr/feed/6b9f30c8-cdf9-4ede-aada-aec380317df1.xml",
+            "https://feeds.audiomeans.fr/feed/49687653-10e2-4068-b513-a29218042228.xml",
+            "https://feeds.audiomeans.fr/feed/4483fcfa-6adc-47bc-97b8-c4c78ea4951e.xml",
+            "https://feeds.audiomeans.fr/feed/456411ca-cea1-4a88-a9d5-98b990722ed6.xml",
+            "https://feeds.audiomeans.fr/feed/9a5e8977-e246-4457-b438-51a1f498d911.xml",
+            "https://feeds.audiomeans.fr/feed/55f098ba-f624-42b7-b29b-e61099ce2b79.xml",
+            "https://feeds.audiomeans.fr/feed/c50fd628-34ad-4eca-9def-546cb7c2ae31.xml",
+            "https://feeds.audiomeans.fr/feed/e7d6f6f9-6084-49e6-80ee-82e921b40d5d.xml",
+            "https://feeds.audiomeans.fr/feed/0ee58dde-db1f-4508-95c4-8e23bcc1ec9b.xml",
+            "https://feeds.audiomeans.fr/feed/84b3b99d-eb46-413b-9d96-595af98a3f79.xml",
+            "https://feeds.audiomeans.fr/feed/134be58f-3f43-447f-baf9-3acc9262dcfd.xml",
+            "https://feeds.audiomeans.fr/feed/3f623a0b-f338-4e18-ba74-c194e0e6e8bf.xml",
+            "https://feeds.audiomeans.fr/feed/33dfee79-12e7-41c6-9023-7ac20bf91db1.xml",
+            "https://feeds.audiomeans.fr/feed/5799f0c0-d531-402b-8c09-14671fcccfb7.xml",
+            "https://feeds.audiomeans.fr/feed/5d025ae3-c104-4b3c-b20d-0c5bdb4df97d.xml",
+            "https://feeds.audiomeans.fr/feed/1ef17db5-ad83-4c9f-84b7-449df8b38b32.xml",
+            "https://feeds.audiomeans.fr/feed/fc535eee-8df2-4f13-9d12-0d4c8c0d1154.xml",
+            "https://feeds.audiomeans.fr/feed/1019002c-dd56-48c1-808d-f1d0f5ec1113.xml",
+            "https://feeds.audiomeans.fr/feed/22ed053d-cd0c-4598-babe-8da182bfd557.xml",
+            "https://feeds.audiomeans.fr/feed/44b11857-392e-491a-ab69-69bd3543ec63.xml",
+            "https://feeds.audiomeans.fr/feed/078c3a40-6a61-47ab-bf75-5653f3a1463f.xml",
+            "https://feeds.audiomeans.fr/feed/ac193b03-3b95-435b-8c37-a01d5eda5d1d.xml",
+            "https://feeds.audiomeans.fr/feed/dbada355-20e2-42ad-8901-6945bd8d4800.xml",
+            "https://feeds.audiomeans.fr/feed/2223a715-ca4a-4360-abe2-dc5a906c7fbb.xml",
+            "https://feeds.audiomeans.fr/feed/a1cd7837-0832-4070-8e43-14d5beac123a.xml",
+            "https://feeds.audiomeans.fr/feed/8f8a3fe9-5298-409e-b938-b1f990c2c8ad.xml",
+            "https://feeds.audiomeans.fr/feed/1c147c6c-b4f0-46ae-a101-d0436ffa3d0e.xml",
+            "https://feeds.audiomeans.fr/feed/80a39a48-f044-436e-ad5b-63d3154efa91.xml",
+            "https://feeds.audiomeans.fr/feed/13c59b4e-7b42-49a8-849f-d4eb25baeb19.xml",
+            "https://feeds.audiomeans.fr/feed/5a3426bf-0329-4df2-a63e-87169b371be7.xml",
+            "https://feeds.audiomeans.fr/feed/0b81db9c-9ba5-4faa-921c-3ae8ab7d15e2.xml",
+            "https://feeds.audiomeans.fr/feed/13847b2e-82d3-11ee-af22-df4d4a91bfdc.xml",
+            "https://feeds.audiomeans.fr/feed/a9132511-29db-4d76-bbf5-ad6e53a6375d.xml",
+            "https://feeds.audiomeans.fr/feed/19e73a34-5dd4-4680-913f-a34294ccd927.xml",
+            "https://feeds.audiomeans.fr/feed/5ced65f3-0264-4fac-8785-d12d13b5c2f1.xml",
+            "https://feeds.audiomeans.fr/feed/1075b04c-0b6b-4ba0-b129-e83c241aa304.xml",
+            "https://feeds.audiomeans.fr/feed/ee883851-2ab1-4296-b3f2-6f70f3a8f0e8.xml",
+            "https://feeds.audiomeans.fr/feed/6f8c5a53-9a85-4f33-80ea-699424d45309.xml",
+            "https://feeds.audiomeans.fr/feed/f649a24a-afec-4c3b-b01d-985223ff1e74.xml",
+            "https://feeds.audiomeans.fr/feed/5938c170-dc0b-41a5-a59d-019a05f687c2.xml",
+            "https://feeds.audiomeans.fr/feed/1aceff0b-992d-4337-9f75-3dff622fd8af.xml",
+            "https://feeds.audiomeans.fr/feed/76c7cbeb-73a8-41c6-9700-01818b258f27.xml",
+            "https://feeds.audiomeans.fr/feed/278cab38-f438-459f-bae1-8cb4f6dc5436.xml",
+            "https://feeds.audiomeans.fr/feed/1f679704-d4ce-4a80-aadb-380f7ed08072.xml",
+            "https://feeds.audiomeans.fr/feed/a58f57cc-71b0-4e5b-a349-4a8ba3479f80.xml",
+            "https://feeds.audiomeans.fr/feed/f2265776-504d-4ff6-89b0-784deacfcb38.xml",
+            "https://feeds.audiomeans.fr/feed/0bfadaff-71b8-43ce-b964-4199e425207e.xml",
+            "https://feeds.audiomeans.fr/feed/8f59879f-806a-46dd-aa79-9160e503b679.xml",
+            "https://feeds.audiomeans.fr/feed/82443457-3b11-434e-99cc-9de8338c8a57.xml",
+            "https://feeds.audiomeans.fr/feed/283ea31f-bb34-407e-bff1-4d2245824ffe.xml",
+            "https://feeds.audiomeans.fr/feed/474e4787-d49f-4473-ab2d-9aebcf510cfa.xml",
+            "https://feeds.audiomeans.fr/feed/502ede2c-7341-4477-a374-e27a0c64d738.xml",
+            "https://feeds.audiomeans.fr/feed/db384986-c141-4f27-b4f4-652bc6064c31.xml",
+            "https://feeds.audiomeans.fr/feed/361d9d7c-191f-419f-833e-83f498149fed.xml",
+            "https://feeds.audiomeans.fr/feed/03f60f8c-8247-4c78-99dc-faa175730ec3.xml",
+            "https://feeds.audiomeans.fr/feed/82faf41f-e3ee-4e5f-80f5-42f177d513e2.xml",
+            "https://feeds.audiomeans.fr/feed/24076e71-d1f1-4e8f-8c86-3840ee6562ad.xml",
+            "https://feeds.audiomeans.fr/feed/a99c7a56-9ff6-4320-b559-d066c0977f22.xml",
+            "https://feeds.audiomeans.fr/feed/0edf40bd-9b3c-4428-9bfb-230f4bf98895.xml",
+            "https://feeds.audiomeans.fr/feed/397935a1-ddef-48a3-9659-caaef04c70a3.xml",
+            "https://feeds.audiomeans.fr/feed/5f798351-a176-416c-abda-8a12d48774fe.xml",
+            "https://feeds.audiomeans.fr/feed/2b1e500d-8b2f-47e1-8f17-cae751c4b281.xml",
+            "https://feeds.audiomeans.fr/feed/d083eb0b-49b3-479b-b02a-6895f18a7fab.xml",
+            "https://feeds.audiomeans.fr/feed/f2303b00-a943-4ab0-8702-aa97447e6112.xml",
+            "https://feeds.audiomeans.fr/feed/301b48c3-3751-46d1-b740-9508bac8be91.xml",
+            "https://feeds.audiomeans.fr/feed/c9c019ab-6ec7-49de-a7c2-e6c50ddf2e37.xml",
+            "https://feeds.audiomeans.fr/feed/77dd9729-e2b2-462a-90fa-d6b45464ed8e.xml",
+            "https://feeds.audiomeans.fr/feed/d8da0358-f829-400a-a9bd-836a08c5cfcb.xml",
+            "https://feeds.audiomeans.fr/feed/506f075f-8a18-42bf-b589-a60d7d65fef0.xml",
+            "https://feeds.audiomeans.fr/feed/5b279160-ca91-477b-99b1-4276074257ac.xml",
+            "https://feeds.audiomeans.fr/feed/aefbab20-4311-449c-8d7e-12b6d1f4b5b4.xml",
+            "https://feeds.audiomeans.fr/feed/9d4e94a2-0ac1-47bc-b677-3143eb989333.xml",
+            "https://feeds.audiomeans.fr/feed/c6e434d6-801e-4849-b56e-747d6d5a51ea.xml",
+            "https://feeds.audiomeans.fr/feed/39d1fc14-8d85-4bba-afe0-2cf9e3b4053f.xml",
+            "https://feeds.audiomeans.fr/feed/8670e1d5-b8d8-486b-9ea4-e8d5c09966f5.xml",
+            "https://feeds.audiomeans.fr/feed/34e71064-2a44-4541-bec3-4c21ddf69bfe.xml",
+            "https://feeds.audiomeans.fr/feed/0ba247d7-b0e0-4c22-87f5-7c84cfdea897.xml",
+            "https://feeds.audiomeans.fr/feed/a32f5059-de31-4db9-8ae9-8ded1af35316.xml",
+            "https://feeds.audiomeans.fr/feed/c35816b2-174c-4f9e-9889-6fb86fdd8fe5.xml"
+        ];
 
+        let allEpisodes = [];
+        let currentFilter = 'today';
 
-function applyAccent(){
-    document.documentElement.style.setProperty('--accent',BRANDS[currentBrand].accent);
-}
+        async function fetchFeeds() {
+            allEpisodes = [];
+            const fetchPromises = feeds.map(async (url) => {
+                try {
+                    const response = await fetch(url);
+                    const text = await response.text();
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(text, "text/xml");
+                    
+                    const podcastTitle = xml.querySelector("channel > title")?.textContent || "Podcast Inconnu";
+                    
+                    let channelImage = xml.querySelector("channel > image > url")?.textContent;
+                    if (!channelImage) {
+                        const itunesChannelImage = xml.querySelector("channel > *[nodeName='itunes:image'], channel > itunes\\:image");
+                        if (itunesChannelImage) channelImage = itunesChannelImage.getAttribute("href");
+                    }
 
-function toggleDark(){
-    document.body.classList.toggle('dark');
-    localStorage.setItem('dark',document.body.classList.contains('dark')?'1':'0');
-}
+                    const items = xml.querySelectorAll("item");
+                    
+                    items.forEach(item => {
+                        const pubDateStr = item.querySelector("pubDate")?.textContent;
+                        const pubDate = new Date(pubDateStr);
+                        
+                        // Formatage de l'heure en format français (ex: 08:30)
+                        const timeStr = pubDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                        
+                        let episodeImage = null;
+                        const itunesItemImage = item.querySelector("*[nodeName='itunes:image'], itunes\\:image");
+                        if (itunesItemImage) episodeImage = itunesItemImage.getAttribute("href");
+                        
+                        if (!episodeImage) episodeImage = channelImage;
+                        
+                        allEpisodes.push({
+                            podcast: podcastTitle,
+                            title: item.querySelector("title")?.textContent,
+                            link: item.querySelector("link")?.textContent || item.querySelector("enclosure")?.getAttribute("url"),
+                            date: pubDate,
+                            time: timeStr,
+                            image: episodeImage
+                        });
+                    });
+                } catch (error) {
+                    console.error("Erreur flux :", url);
+                }
+            });
 
-/* ═══ UI LOADING ═══ */
-function setLoading(on,title='',label=''){
-    document.getElementById('loading-card').style.display=on?'':'none';
-    if(on){
-        document.getElementById('loading-title').textContent=title;
-        document.getElementById('progress-label').textContent=label;
-        document.getElementById('progress-fill').style.width='0%';
-    }
-}
-function setProgress(pct,label){
-    document.getElementById('progress-fill').style.width=pct+'%';
-    document.getElementById('progress-label').textContent=label;
-}
-</script>
+            await Promise.all(fetchPromises);
+            
+            // Trier par date décroissante
+            allEpisodes.sort((a, b) => b.date - a.date);
+            updateDashboard();
+        }
+
+        function isSameDay(d1, d2) {
+            return d1.getDate() === d2.getDate() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getFullYear() === d2.getFullYear();
+        }
+
+        function updateDashboard() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const eightDaysAgo = new Date(today);
+            eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+
+            const episodesToday = allEpisodes.filter(e => isSameDay(e.date, today));
+            const episodesYesterday = allEpisodes.filter(e => isSameDay(e.date, yesterday));
+            const episodesWeek = allEpisodes.filter(e => e.date >= eightDaysAgo);
+
+            document.getElementById('count-today').textContent = episodesToday.length;
+            document.getElementById('count-yesterday').textContent = episodesYesterday.length;
+            document.getElementById('count-week').textContent = episodesWeek.length;
+
+            renderList();
+        }
+
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderList();
+        }
+
+        function renderList() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const eightDaysAgo = new Date(today);
+            eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+
+            let filteredEpisodes = [];
+            let listTitle = "";
+
+            if (currentFilter === 'today') {
+                filteredEpisodes = allEpisodes.filter(e => isSameDay(e.date, today));
+                listTitle = `Aujourd'hui (${filteredEpisodes.length} podcasts)`;
+            } else if (currentFilter === 'yesterday') {
+                filteredEpisodes = allEpisodes.filter(e => isSameDay(e.date, yesterday));
+                listTitle = `Hier (${filteredEpisodes.length} podcasts)`;
+            } else {
+                filteredEpisodes = allEpisodes.filter(e => e.date >= eightDaysAgo);
+                listTitle = `Derniers 8 jours (${filteredEpisodes.length} podcasts)`;
+            }
+
+            document.getElementById('list-title-text').textContent = listTitle;
+            const contentArea = document.getElementById('content-area');
+
+            if (filteredEpisodes.length === 0) {
+                contentArea.innerHTML = '<div class="empty-state">Aucune publication sur cette période</div>';
+                return;
+            }
+
+            let html = '<ul class="episode-list">';
+            filteredEpisodes.forEach(ep => {
+                const imageTag = ep.image ? `<img src="${ep.image}" class="episode-thumbnail" alt="Vignette">` : `<div class="episode-thumbnail"></div>`;
+                
+                html += `
+                    <li class="episode-item">
+                        ${imageTag}
+                        <div class="episode-details">
+                            <div class="episode-meta">
+                                <span class="episode-podcast">${ep.podcast}</span>
+                                <span class="episode-time">• ${ep.time}</span>
+                            </div>
+                            <h3 class="episode-title">${ep.title}</h3>
+                            <a href="${ep.link}" target="_blank" class="episode-link">Écouter l'épisode →</a>
+                        </div>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            contentArea.innerHTML = html;
+        }
+
+        fetchFeeds();
+    </script>
 </body>
 </html>
