@@ -42,21 +42,12 @@
   }
   .logo span{color:var(--accent);}
 
-  .add-btn{
+  .last-update{
     font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    background:none;
-    border:1px solid var(--ink);
-    color:var(--ink);
-    padding:8px 14px;
-    border-radius:3px;
-    cursor:pointer;
-    transition:background .12s, color .12s;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:0.02em;
   }
-  .add-btn:hover{background:var(--ink); color:var(--surface);}
 
   .progress-line{
     height:2px;
@@ -171,77 +162,13 @@
     font-size:13.5px;
   }
 
-  /* panel */
-  .overlay{
-    display:none;
-    position:fixed; inset:0;
-    background:rgba(17,17,17,0.35);
-    z-index:10;
-  }
-  .overlay.open{display:block;}
-  .panel{
-    position:fixed;
-    top:0; right:0;
-    width:340px; max-width:88vw; height:100%;
-    background:var(--surface);
-    border-left:1px solid var(--line);
-    z-index:11;
-    transform:translateX(100%);
-    transition:transform .18s ease;
-    display:flex; flex-direction:column;
-  }
-  .panel.open{transform:translateX(0);}
-  .panel-head{
-    padding:20px 22px;
-    border-bottom:1px solid var(--line);
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .panel-head h2{font-size:14px; margin:0; font-weight:700;}
-  .panel-close{background:none; border:none; cursor:pointer; font-size:18px; color:var(--muted); line-height:1;}
-  .panel-body{padding:20px 22px; overflow-y:auto; flex:1;}
-  .field-label{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; display:block;}
-  .field-input{
-    width:100%;
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:9px 10px;
-    font-size:13px;
-    font-family:'JetBrains Mono',monospace;
-    margin-bottom:10px;
-  }
-  .field-input:focus{outline:none; border-color:var(--accent);}
-  .panel-add{
-    width:100%;
-    background:var(--ink);
-    color:var(--surface);
-    border:none;
-    border-radius:3px;
-    padding:10px;
-    font-size:12px;
-    font-weight:600;
-    text-transform:uppercase;
-    letter-spacing:0.03em;
-    cursor:pointer;
-    margin-bottom:22px;
-  }
-  .panel-add:hover{opacity:0.85;}
-  .feed-count{font-size:11px; color:var(--muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em; font-weight:600;}
-  .feed-item{
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
-    padding:9px 0;
-    border-bottom:1px solid var(--line);
-    font-size:12.5px;
-  }
-  .feed-item span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .feed-remove{background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; flex-shrink:0;}
-  .feed-remove:hover{color:#c0392b;}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">PODFLOW<span>·2</span></div>
-  <button class="add-btn" onclick="openPanel()">+ Ajouter un flux</button>
+  <div class="last-update mono" id="last-update"></div>
 </header>
 <div class="progress-line"><div class="progress-fill" id="progress"></div></div>
 
@@ -269,21 +196,6 @@
 
   <div class="list" id="content-area">
     <div class="empty">Chargement des flux…</div>
-  </div>
-</div>
-
-<div class="overlay" id="overlay" onclick="closePanel()"></div>
-<div class="panel" id="panel">
-  <div class="panel-head">
-    <h2>Gérer les flux</h2>
-    <button class="panel-close" onclick="closePanel()">✕</button>
-  </div>
-  <div class="panel-body">
-    <span class="field-label">URL du flux RSS</span>
-    <input class="field-input" id="new-feed-url" placeholder="https://feeds.audiomeans.fr/feed/...">
-    <button class="panel-add" onclick="addFeed()">Ajouter le flux</button>
-    <div class="feed-count" id="feed-count">0 flux suivis</div>
-    <div id="feed-list"></div>
   </div>
 </div>
 
@@ -398,24 +310,10 @@
     "https://feeds.audiomeans.fr/feed/76c7cbeb-73a8-41c6-9700-01818b258f27.xml"
   ];
 
-  const STORAGE_KEY = 'podflow2-feeds';
-  let feeds = [];
+  const feeds = DEFAULT_FEEDS;
   let allEpisodes = [];
   let currentFilter = 'today';
-
-  async function loadFeedList() {
-    try {
-      const res = await window.storage.get(STORAGE_KEY, false);
-      feeds = JSON.parse(res.value);
-    } catch (e) {
-      feeds = DEFAULT_FEEDS.slice();
-      try { await window.storage.set(STORAGE_KEY, JSON.stringify(feeds), false); } catch (e2) {}
-    }
-  }
-
-  async function saveFeedList() {
-    try { await window.storage.set(STORAGE_KEY, JSON.stringify(feeds), false); } catch (e) {}
-  }
+  const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
   function isSameDay(d1, d2) {
     return d1.getDate() === d2.getDate() &&
@@ -467,6 +365,7 @@
     results.forEach(eps => allEpisodes.push(...eps));
     allEpisodes.sort((a, b) => b.date - a.date);
     setTimeout(() => { document.getElementById('progress').style.width = '0%'; }, 400);
+    document.getElementById('last-update').textContent = 'Actualisé à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     updateDashboard();
   }
 
@@ -523,58 +422,9 @@
     return d.innerHTML;
   }
 
-  // panel
-  function openPanel() {
-    document.getElementById('panel').classList.add('open');
-    document.getElementById('overlay').classList.add('open');
-    renderFeedList();
-  }
-  function closePanel() {
-    document.getElementById('panel').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
-  }
-
-  function renderFeedList() {
-    document.getElementById('feed-count').textContent = feeds.length + ' flux suivis';
-    document.getElementById('feed-list').innerHTML = feeds.map((url, i) => `
-      <div class="feed-item">
-        <span title="${url}">${url.replace('https://feeds.audiomeans.fr/feed/', '').replace('.xml', '')}</span>
-        <button class="feed-remove" onclick="removeFeed(${i})">✕</button>
-      </div>
-    `).join('');
-  }
-
-  async function addFeed() {
-    const input = document.getElementById('new-feed-url');
-    const url = input.value.trim();
-    if (!url) return;
-    if (feeds.includes(url)) { input.value = ''; return; }
-    feeds.push(url);
-    await saveFeedList();
-    input.value = '';
-    renderFeedList();
-    const eps = await fetchOneFeed(url);
-    allEpisodes.push(...eps);
-    allEpisodes.sort((a, b) => b.date - a.date);
-    updateDashboard();
-  }
-
-  async function removeFeed(index) {
-    const url = feeds[index];
-    feeds.splice(index, 1);
-    await saveFeedList();
-    allEpisodes = allEpisodes.filter(e => e.sourceUrl !== url);
-    renderFeedList();
-    fetchAllFeeds();
-  }
-
-  document.getElementById('new-feed-url').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') addFeed();
-  });
-
   (async () => {
-    await loadFeedList();
     await fetchAllFeeds();
+    setInterval(fetchAllFeeds, REFRESH_INTERVAL_MS);
   })();
 </script>
 </body>
