@@ -49,6 +49,76 @@
     letter-spacing:0.02em;
   }
 
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .alert-btn{
+    display:none;
+    align-items:center;
+    gap:6px;
+    background:#fdeceb;
+    border:1px solid #f3b4ae;
+    color:#c0392b;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    padding:6px 10px;
+    border-radius:14px;
+    cursor:pointer;
+    position:relative;
+  }
+  .alert-btn.show{display:inline-flex;}
+  .alert-dot{
+    width:6px; height:6px;
+    border-radius:50%;
+    background:#c0392b;
+  }
+
+  .alert-panel{
+    display:none;
+    position:absolute;
+    top:60px;
+    right:28px;
+    width:300px;
+    max-width:88vw;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    box-shadow:0 8px 24px rgba(17,17,17,0.1);
+    z-index:20;
+    overflow:hidden;
+  }
+  .alert-panel.open{display:block;}
+  .alert-panel-head{
+    padding:12px 14px;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:#c0392b;
+    border-bottom:1px solid var(--line);
+    background:#fdeceb;
+  }
+  .alert-item{
+    padding:11px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .alert-item:last-child{border-bottom:none;}
+  .alert-item-name{
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .alert-item-detail{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+  }
+
   .progress-line{
     height:2px;
     background:var(--line);
@@ -168,8 +238,18 @@
 
 <header>
   <div class="logo">PODFLOW<span>·2</span></div>
-  <div class="last-update mono" id="last-update"></div>
+  <div class="header-right">
+    <button class="alert-btn" id="alert-btn" onclick="toggleAlertPanel()">
+      <span class="alert-dot"></span>
+      <span id="alert-count">0</span> en retard
+    </button>
+    <div class="last-update mono" id="last-update"></div>
+  </div>
 </header>
+<div class="alert-panel" id="alert-panel">
+  <div class="alert-panel-head">Publications en retard aujourd'hui</div>
+  <div id="alert-list"></div>
+</div>
 <div class="progress-line"><div class="progress-fill" id="progress"></div></div>
 
 <div class="container">
@@ -371,8 +451,103 @@
     allEpisodes.sort((a, b) => b.date - a.date);
     setTimeout(() => { document.getElementById('progress').style.width = '0%'; }, 400);
     document.getElementById('last-update').textContent = 'Actualisé à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    schedules = buildSchedules(allEpisodes);
     updateDashboard();
+    checkLateEpisodes();
   }
+
+  // --- Détection du rythme de publication et alertes de retard ---
+
+  const LATE_THRESHOLD_MIN = 15;
+  let schedules = {};
+
+  function buildSchedules(episodes) {
+    const byFeed = {};
+    episodes.forEach(ep => {
+      if (!byFeed[ep.sourceUrl]) byFeed[ep.sourceUrl] = { podcast: ep.podcast, dates: [] };
+      byFeed[ep.sourceUrl].dates.push(ep.date);
+    });
+
+    const result = {};
+    Object.entries(byFeed).forEach(([url, data]) => {
+      const dates = data.dates;
+      const byWeekday = {};
+      dates.forEach(d => {
+        const wd = d.getDay();
+        const minutes = d.getHours() * 60 + d.getMinutes();
+        (byWeekday[wd] = byWeekday[wd] || []).push(minutes);
+      });
+
+      const minOccurrences = dates.length <= 5 ? 2 : 3;
+      const activeWeekdays = {};
+      Object.entries(byWeekday).forEach(([wd, minsArr]) => {
+        if (minsArr.length >= minOccurrences) {
+          minsArr.sort((a, b) => a - b);
+          activeWeekdays[wd] = minsArr[Math.floor(minsArr.length / 2)]; // médiane
+        }
+      });
+
+      if (Object.keys(activeWeekdays).length > 0) {
+        result[url] = { podcast: data.podcast, activeWeekdays };
+      }
+    });
+    return result;
+  }
+
+  function checkLateEpisodes() {
+    const now = new Date();
+    const todayWd = now.getDay();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const late = [];
+
+    Object.entries(schedules).forEach(([url, s]) => {
+      const expected = s.activeWeekdays[todayWd];
+      if (expected === undefined) return;
+      if (nowMinutes < expected + LATE_THRESHOLD_MIN) return;
+      const publishedToday = allEpisodes.some(e => e.sourceUrl === url && isSameDay(e.date, now));
+      if (!publishedToday) {
+        const h = String(Math.floor(expected / 60)).padStart(2, '0');
+        const m = String(expected % 60).padStart(2, '0');
+        late.push({ podcast: s.podcast, expectedTime: `${h}:${m}`, lateMinutes: nowMinutes - expected });
+      }
+    });
+
+    late.sort((a, b) => b.lateMinutes - a.lateMinutes);
+    renderAlerts(late);
+  }
+
+  function renderAlerts(late) {
+    const btn = document.getElementById('alert-btn');
+    const count = document.getElementById('alert-count');
+    const list = document.getElementById('alert-list');
+
+    if (late.length === 0) {
+      btn.classList.remove('show');
+      document.getElementById('alert-panel').classList.remove('open');
+      return;
+    }
+
+    btn.classList.add('show');
+    count.textContent = late.length;
+    list.innerHTML = late.map(l => `
+      <div class="alert-item">
+        <div class="alert-item-name">${l.podcast.replace(/</g,'&lt;')}</div>
+        <div class="alert-item-detail">Attendu à ${l.expectedTime} · ${l.lateMinutes} min de retard</div>
+      </div>
+    `).join('');
+  }
+
+  function toggleAlertPanel() {
+    document.getElementById('alert-panel').classList.toggle('open');
+  }
+
+  document.addEventListener('click', (e) => {
+    const panel = document.getElementById('alert-panel');
+    const btn = document.getElementById('alert-btn');
+    if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.classList.remove('open');
+    }
+  });
 
   function updateDashboard() {
     const today = new Date();
@@ -430,6 +605,7 @@
   (async () => {
     await fetchAllFeeds();
     setInterval(fetchAllFeeds, REFRESH_INTERVAL_MS);
+    setInterval(checkLateEpisodes, 60 * 1000);
   })();
 </script>
 </body>
