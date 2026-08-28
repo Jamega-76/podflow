@@ -176,22 +176,22 @@
   <div class="stats">
     <div class="stat">
       <div class="stat-num mono" id="count-today">–</div>
-      <div class="stat-label">Aujourd'hui</div>
+      <div class="stat-label">Épisodes aujourd'hui</div>
     </div>
     <div class="stat">
       <div class="stat-num mono" id="count-yesterday">–</div>
-      <div class="stat-label">Hier</div>
+      <div class="stat-label">Épisodes hier</div>
     </div>
     <div class="stat">
-      <div class="stat-num mono" id="count-week">–</div>
-      <div class="stat-label">8 jours</div>
+      <div class="stat-num mono" id="count-before-yesterday">–</div>
+      <div class="stat-label">Épisodes avant-hier</div>
     </div>
   </div>
 
   <div class="tabs">
     <button class="tab active" data-filter="today" onclick="setFilter('today', this)">Aujourd'hui</button>
     <button class="tab" data-filter="yesterday" onclick="setFilter('yesterday', this)">Hier</button>
-    <button class="tab" data-filter="all" onclick="setFilter('all', this)">8 jours</button>
+    <button class="tab" data-filter="beforeYesterday" onclick="setFilter('beforeYesterday', this)">Avant-hier</button>
   </div>
 
   <div class="list" id="content-area">
@@ -377,11 +377,11 @@
   function updateDashboard() {
     const today = new Date();
     const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-    const eightDaysAgo = new Date(today); eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+    const beforeYesterday = new Date(today); beforeYesterday.setDate(beforeYesterday.getDate() - 2);
 
     document.getElementById('count-today').textContent = allEpisodes.filter(e => isSameDay(e.date, today)).length;
     document.getElementById('count-yesterday').textContent = allEpisodes.filter(e => isSameDay(e.date, yesterday)).length;
-    document.getElementById('count-week').textContent = allEpisodes.filter(e => e.date >= eightDaysAgo).length;
+    document.getElementById('count-before-yesterday').textContent = allEpisodes.filter(e => isSameDay(e.date, beforeYesterday)).length;
 
     renderList();
   }
@@ -396,12 +396,12 @@
   function renderList() {
     const today = new Date();
     const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-    const eightDaysAgo = new Date(today); eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+    const beforeYesterday = new Date(today); beforeYesterday.setDate(beforeYesterday.getDate() - 2);
 
     let filtered = [];
     if (currentFilter === 'today') filtered = allEpisodes.filter(e => isSameDay(e.date, today));
     else if (currentFilter === 'yesterday') filtered = allEpisodes.filter(e => isSameDay(e.date, yesterday));
-    else filtered = allEpisodes.filter(e => e.date >= eightDaysAgo);
+    else filtered = allEpisodes.filter(e => isSameDay(e.date, beforeYesterday));
 
     const area = document.getElementById('content-area');
     if (filtered.length === 0) {
