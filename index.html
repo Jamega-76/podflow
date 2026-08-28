@@ -198,18 +198,22 @@ function buildDays(){
 /* ═══ PROXY FETCH ═══ */
 async function fetchFeed(url){
     // Un seul proxy à la fois, en cascade, avec timeout court
-    const proxies=[
-        ()=>fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(8000)}),
-        ()=>fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(8000)}),
-    ];
-    for(const p of proxies){
-        try{
-            const r=await p();
-            if(!r.ok) continue;
+    // Proxy 1 : allorigins /get → retourne {contents, status}
+    try{
+        const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});
+        if(r.ok){
+            const j=await r.json();
+            if(j.contents&&(j.contents.includes('<rss')||j.contents.includes('<feed'))) return j.contents;
+        }
+    }catch(e){}
+    // Proxy 2 : corsfix.com (gratuit, open source friendly)
+    try{
+        const r=await fetch(`https://proxy.corsfix.com/?${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});
+        if(r.ok){
             const txt=await r.text();
             if(txt.includes('<rss')||txt.includes('<feed')) return txt;
-        }catch(e){}
-    }
+        }
+    }catch(e){}
     return null;
 }
 
