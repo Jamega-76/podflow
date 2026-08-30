@@ -165,6 +165,20 @@
     color:var(--muted);
   }
 
+  .week-stats{
+    grid-template-columns:repeat(7,1fr);
+  }
+  .week-stats .stat{
+    padding:22px 2px 18px;
+  }
+  .week-stats .stat-num{
+    font-size:26px;
+  }
+  .week-stats .stat.today .stat-num,
+  .week-stats .stat.today .stat-label{
+    color:var(--accent);
+  }
+
   .tabs{
     display:flex;
     gap:24px;
@@ -253,20 +267,7 @@
 <div class="progress-line"><div class="progress-fill" id="progress"></div></div>
 
 <div class="container">
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-num mono" id="count-today">–</div>
-      <div class="stat-label">Épisodes aujourd'hui</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num mono" id="count-yesterday">–</div>
-      <div class="stat-label">Épisodes hier</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num mono" id="count-before-yesterday">–</div>
-      <div class="stat-label">Épisodes avant-hier</div>
-    </div>
-  </div>
+  <div class="stats week-stats" id="week-stats"></div>
 
   <div class="tabs">
     <button class="tab active" data-filter="today" onclick="setFilter('today', this)">Aujourd'hui</button>
@@ -548,15 +549,25 @@
   });
 
   function updateDashboard() {
-    const today = new Date();
-    const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-    const beforeYesterday = new Date(today); beforeYesterday.setDate(beforeYesterday.getDate() - 2);
-
-    document.getElementById('count-today').textContent = allEpisodes.filter(e => isSameDay(e.date, today)).length;
-    document.getElementById('count-yesterday').textContent = allEpisodes.filter(e => isSameDay(e.date, yesterday)).length;
-    document.getElementById('count-before-yesterday').textContent = allEpisodes.filter(e => isSameDay(e.date, beforeYesterday)).length;
-
+    renderWeekStats();
     renderList();
+  }
+
+  function renderWeekStats() {
+    const today = new Date();
+    let html = '';
+    for (let offset = 0; offset <= 6; offset++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - offset);
+      const count = allEpisodes.filter(e => isSameDay(e.date, d)).length;
+      const label = offset === 0 ? "Aujourd'hui" : d.toLocaleDateString('fr-FR', { weekday: 'long' });
+      html += `
+        <div class="stat${offset === 0 ? ' today' : ''}">
+          <div class="stat-num mono">${count}</div>
+          <div class="stat-label">${label}</div>
+        </div>`;
+    }
+    document.getElementById('week-stats').innerHTML = html;
   }
 
   function setFilter(filterType, btn) {
