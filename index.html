@@ -459,48 +459,22 @@
     allEpisodes.sort((a, b) => b.date - a.date);
     setTimeout(() => { document.getElementById('progress').style.width = '0%'; }, 400);
     document.getElementById('last-update').textContent = 'Actualisé à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    schedules = buildSchedules(allEpisodes);
     updateDashboard();
     checkLateEpisodes();
   }
 
-  // --- Détection du rythme de publication et alertes de retard ---
-
-  const LATE_THRESHOLD_MIN = 15;
-  let schedules = {};
-
-  function buildSchedules(episodes) {
-    const byFeed = {};
-    episodes.forEach(ep => {
-      if (!byFeed[ep.sourceUrl]) byFeed[ep.sourceUrl] = { podcast: ep.podcast, dates: [] };
-      byFeed[ep.sourceUrl].dates.push(ep.date);
-    });
-
-    const result = {};
-    Object.entries(byFeed).forEach(([url, data]) => {
-      const dates = data.dates;
-      const byWeekday = {};
-      dates.forEach(d => {
-        const wd = d.getDay();
-        const minutes = d.getHours() * 60 + d.getMinutes();
-        (byWeekday[wd] = byWeekday[wd] || []).push(minutes);
-      });
-
-      const minOccurrences = dates.length <= 5 ? 2 : 3;
-      const activeWeekdays = {};
-      Object.entries(byWeekday).forEach(([wd, minsArr]) => {
-        if (minsArr.length >= minOccurrences) {
-          minsArr.sort((a, b) => a - b);
-          activeWeekdays[wd] = minsArr[Math.floor(minsArr.length / 2)]; // médiane
-        }
-      });
-
-      if (Object.keys(activeWeekdays).length > 0) {
-        result[url] = { podcast: data.podcast, activeWeekdays };
-      }
-    });
-    return result;
-  }
+  // --- Alertes de retard basées sur des règles fixes (définies manuellement, pas de détection automatique) ---
+  // jours : 1=lundi, 2=mardi, 3=mercredi, 4=jeudi, 5=vendredi, 6=samedi, 0=dimanche
+  // "endHour/endMinute" = fin de la plage de diffusion habituelle. L'alerte se déclenche
+  // "toleranceMin" minutes après cette heure si aucun épisode n'est encore sorti aujourd'hui.
+  const SCHEDULE_RULES = [
+    { url: "https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml", name: "Europe 1 Bonjour", endHour: 7, endMinute: 0, toleranceMin: 30, days: [1,2,3,4,5] },
+    { url: "https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml", name: "Europe 1 Matin", endHour: 9, endMinute: 0, toleranceMin: 30, days: [1,2,3,4,5] },
+    { url: "https://feeds.audiomeans.fr/feed/abd60e2a-fac4-413f-bf0a-463aa19796dc.xml", name: "L'Heure des Pros", endHour: 11, endMinute: 0, toleranceMin: 30, days: [1,2,3,4,5] },
+    { url: "https://feeds.audiomeans.fr/feed/7b5cfe03-5ba9-4428-a41a-cf5c90d4ef49.xml", name: "Christine Kelly est vous", endHour: 13, endMinute: 0, toleranceMin: 30, days: [1,2,3,4,5] },
+    { url: "https://feeds.audiomeans.fr/feed/c0afb1da-71a8-4a43-8b2f-9decd86c3198.xml", name: "Europe 1 Info", endHour: 14, endMinute: 0, toleranceMin: 15, days: [1,2,3,4,5] },
+    { url: "https://feeds.audiomeans.fr/feed/ea13af31-37bf-4ed1-a0fb-87498c26d64b.xml", name: "Et si on en parlait", endHour: 15, endMinute: 0, toleranceMin: 15, days: [1,2,3,4,5] },
+  ];
 
   function checkLateEpisodes() {
     const now = new Date();
@@ -508,15 +482,16 @@
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     const late = [];
 
-    Object.entries(schedules).forEach(([url, s]) => {
-      const expected = s.activeWeekdays[todayWd];
-      if (expected === undefined) return;
-      if (nowMinutes < expected + LATE_THRESHOLD_MIN) return;
-      const publishedToday = allEpisodes.some(e => e.sourceUrl === url && isSameDay(e.date, now));
+    SCHEDULE_RULES.forEach(rule => {
+      if (!rule.days.includes(todayWd)) return;
+      const endMinutes = rule.endHour * 60 + rule.endMinute;
+      const alertAt = endMinutes + rule.toleranceMin;
+      if (nowMinutes < alertAt) return;
+      const publishedToday = allEpisodes.some(e => e.sourceUrl === rule.url && isSameDay(e.date, now));
       if (!publishedToday) {
-        const h = String(Math.floor(expected / 60)).padStart(2, '0');
-        const m = String(expected % 60).padStart(2, '0');
-        late.push({ podcast: s.podcast, expectedTime: `${h}:${m}`, lateMinutes: nowMinutes - expected });
+        const h = String(rule.endHour).padStart(2, '0');
+        const m = String(rule.endMinute).padStart(2, '0');
+        late.push({ podcast: rule.name, expectedTime: `${h}:${m}`, lateMinutes: nowMinutes - endMinutes });
       }
     });
 
@@ -540,7 +515,7 @@
     list.innerHTML = late.map(l => `
       <div class="alert-item">
         <div class="alert-item-name">${l.podcast.replace(/</g,'&lt;')}</div>
-        <div class="alert-item-detail">Attendu à ${l.expectedTime} · ${l.lateMinutes} min de retard</div>
+        <div class="alert-item-detail">Fin prévue ${l.expectedTime} · ${l.lateMinutes} min de retard</div>
       </div>
     `).join('');
   }
